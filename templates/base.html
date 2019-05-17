@@ -1,0 +1,69 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}Dons Trust Membership Admin{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{{ url_for('index') }}">DT admin</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Members<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('members') }}">List Members</a></li>
+                    <li><a href="{{ url_for('edit_member', member_id=0) }}">Add New Member</a></li>
+                    <li><a href="{{ url_for('edit_member', member_id=0) }}">Edit Member Details</a></li>
+                </ul>
+            <li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Reports<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('reports_certs') }}">Certificates</a></li>
+                    <li><a href="{{ url_for('reports_cards') }}">Cards</a></li>
+                    <li><a href="{{ url_for('reports_labels') }}">Labels</a></li>
+                </ul>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('show_help', subject='members') }}">Members</a></li>
+                    <li><a href="{{ url_for('show_help', subject='reports') }}">Reports</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Test<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('test_email') }}">Email</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% macro render_field(field) %}
+    {{ field(**kwargs)|safe }}
+    {% if field.errors %}
+        {% for error in field.errors %}
+          <span style="color: red;">{{ error }}</span>
+        {% endfor %}
+  {% endif %}
+{% endmacro %}

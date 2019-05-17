@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<div class="page-header">
+    <h1>DT admin help</h1>
+</div>
+<form method="POST">
+    {{ form.csrf_token }}
+    <div>
+    {%set template = 'help/' + topic + '.html' %}
+    {% include template %}
+    </div>
+</form>
+{% endblock %}

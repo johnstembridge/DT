@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<form method="POST">
+    {{ form.csrf_token }}
+    <table width="100%" class="table">
+        <thead>
+        <tr>
+            <th align="center">
+                <input type="image" src="static/images/search.png" title="Search for members" alt="Search for members" align="middle">
+            </th>
+            <th>{{ form.sel_number(size=6, title='Select by DT number. Just enter the number e.g. 4502') }}</th>
+            <th>{{ form.sel_first_name(size=8, title='Select by first name. Enter any partial match') }}</th>
+            <th>{{ form.sel_last_name(size=12, title='Select by last name. Enter any partial match') }}</th>
+            <th>{{ form.sel_status(title='Select by membership status') }}</th>
+            <th>{{ form.sel_member_type(title='Select by membership type') }}</th>
+            <th>{{ form.sel_email(size=15, title='Select by email address. Enter any partial match') }}</th>
+            <th>{{ form.sel_post_code(size=6, title='Select by post code. Enter any partial match') }}</th>
+            <th>{{ form.sel_country(size=6, title='Select by country. Enter any partial match') }}</th>
+            <th>{{ form.sel_start_date(size=6) }}</th>
+            <th>{{ form.sel_end_date(size=6) }}</th>
+        </tr>
+        <tr>
+            <th class="text-center">edit</th>
+            <th>number</th>
+            <th>first</th>
+            <th>last</th>
+            <th>status</th>
+            <th>type</th>
+            <th>email</th>
+            <th>zip</th>
+            <th>country</th>
+            <th>start</th>
+            <th>end</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in form.member_list %}
+        <tr>
+            <td align="center">
+                {{ render_link(
+                    url=url_for('edit_member', member_id=item.member_id.data),
+                    image=url_for('static', filename='images/right-arrow.png'),
+                    text='View/Edit member details'
+                )|safe }}
+            </td>
+            <td>{{ item.number.data }}</td>
+            <td>{{ item.first_name.data }}</td>
+            <td>{{ item.last_name.data }}</td>
+            <td>{{ item.status.data }}</td>
+            <td>{{ item.member_type.data }}</td>
+            <td>{{ item.email.data }}</td>
+            <td>{{ item.post_code.data }}</td>
+            <td>{{ item.country.data }}</td>
+            <td>{{ item.start_date.data }}</td>
+            <td>{{ item.end_date.data }}</td>
+
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <hr/>
+</form>
+{% endblock %}
