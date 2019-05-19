@@ -22,13 +22,13 @@ def flash_errors(form):
             ), 'danger')
 
 
-def set_select_field(field, choices, item_name=None, default_selection=None):
+def set_select_field(field, choices, extra_items=None, default_selection=None):
     if len(choices) > 0 and isinstance(choices[0], tuple):
             items = choices
     else:
         items = [(c, c) for c in choices]
-    if item_name:
-        field.choices = [(0, '')] + items
+    if extra_items:
+        field.choices = extra_items + items
     else:
         field.choices = items
     if default_selection:
@@ -38,18 +38,17 @@ def set_select_field(field, choices, item_name=None, default_selection=None):
 
 def select_fields_to_query(select_fields, default_table):
     query_clauses = []
-    c = ['ne', 'eq', 'gt', 'ge', 'lt', 'le', 'in']
-    e = ['!=', '=', '>', '>=', '<', '<=', 'in']
     for field in select_fields:
-        condition = '='
         if field.data:
             if field.type == 'MySelectField':
-                value = field.data.value
+                if field.data in [m[0].value for m in field.choices if not isinstance(m[0], int)]:
+                    condition, value = '=', field.data
+                else:
+                    v = [c[1] for c in field.choices if c[0] == field.data][0]
+                    condition, value = split_condition_and_value(v)
+                    value = [c[0].value for c in field.choices if c[1] == value][0]
             else:
-                value = field.data
-                if value[:2] in c:
-                    condition = e[lookup(c, value[:2])]
-                    value = value[2:]
+                condition, value = split_condition_and_value(field.data)
             if isinstance(value, (int, float)) or len(value) > 0:
                 field_name = field.label.text
                 if '.' in field_name:
@@ -58,6 +57,18 @@ def select_fields_to_query(select_fields, default_table):
                     table, column = default_table, field_name
                 query_clauses.append((table, column, value, condition))
     return query_clauses
+
+
+def split_condition_and_value(value):
+    if value[0] in [c[0] for c in ['!=', '=', '>', '>=', '<', '<=', '?']]:
+        c = 1
+        if value[1] == '=':
+            c = 2
+        condition = value[:c]
+        value = value[c:]
+    else:
+        condition = '='
+    return condition, value
 
 
 def render_link(url, text="", image=None, icon=None, target=None):

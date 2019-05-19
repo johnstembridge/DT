@@ -10,7 +10,11 @@ class FormEnum(Enum):
     def coerce(cls, item):
         if not item:
             return None
-        return cls(int(item)) if not isinstance(item, cls) else item
+        #return cls(int(item)) if not isinstance(item, cls) else item
+        if isinstance(item, cls):
+            return item.value
+        else:
+            return int(item)
 
     def __str__(self):
         return str(self.value)

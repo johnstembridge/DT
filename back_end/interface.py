@@ -53,7 +53,7 @@ def get_members_by_status(status):
     return members
 
 
-def get_all_members(select_fields):
+def get_members_by_select(select_fields):
     tables = list(set([globals()[t[0]] for t in [['Member']] + select_fields]))
     select = []
     for field in select_fields:
@@ -66,43 +66,11 @@ def get_all_members(select_fields):
                 s = '{} {} "{}"'.format(column, condition, value)
         elif type == 'enum':
             s = '{} {} {}'.format(column, condition, value)
+        elif type == 'date':
+            date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
+            s = '{} {} "{}"'.format(column, condition, date)
         else:
             s = '{} {} {}'.format(column, condition, value)
-        select.append(s)
-    q = db_session.query(tables[0])
-    for table in tables[1:]:
-        q = q.join(table)
-    if len(select) > 0:
-        statement = ' and '.join(select)
-        return q.filter(text(statement))
-    else:
-        return q
-
-
-def get_all_members_old(select_fields):
-    # if current:
-    #     return db_session.query(Member) \
-    #         .filter(Member.status.in_([MemberStatus.current, MemberStatus.founder, MemberStatus.life]))
-    # else:
-    #     return db_session.query(Member)
-    tables = [Member]
-    select = []
-    for field in select_fields:
-        field_name = field.label.text
-        if '.' in field_name:
-            table, field_name = field_name.split('.')
-            table = globals()[table]
-            if table not in tables:
-                tables.append(table)
-        else:
-            table = tables[0]
-        type, values = field_type(table, field_name)
-        if type == 'string':
-            s = 'lower({}) like lower("%{}%")'.format(field_name, field.data)
-        elif type == 'enum':
-            s = '{} = {}'.format(field_name, field.data.value)
-        else:
-            s = '{} = {}'.format(field_name, field.data)
         select.append(s)
     q = db_session.query(tables[0])
     for table in tables[1:]:

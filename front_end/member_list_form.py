@@ -5,7 +5,7 @@ from wtforms.fields.html5 import DateField
 from wtforms.validators import InputRequired, Optional
 
 from back_end.data_utilities import fmt_date
-from back_end.interface import get_all_members
+from back_end.interface import get_members_by_select
 from front_end.form_helpers import set_select_field, MySelectField, select_fields_to_query
 from globals.enumerations import MemberStatus, MembershipType
 
@@ -42,17 +42,9 @@ class MemberListForm(FlaskForm):
         select = []
         all_sels = [self.sel_number, self.sel_status, self.sel_member_type, self.sel_first_name, self.sel_last_name,
                     self.sel_email, self.sel_post_code, self.sel_country, self.sel_start_date, self.sel_end_date]
-        #select = select_fields_to_query(all_sels, 'Member')
-        # for field in all_sels:
-        #     if field.type == 'MySelectField':
-        #         if field.data and field.data.value > 0:
-        #             select.append(field)
-        #     else:
-        #         if field.data and len(field.data) > 0:
-        #            select.append(field)
-        set_select_field(self.sel_status, MemberStatus.choices(), 'dummy')
-        set_select_field(self.sel_member_type, MembershipType.choices(), item_name='dummy')
-        q = get_all_members(select_fields_to_query(all_sels, 'Member'))
+        set_select_field(self.sel_status, MemberStatus.choices(), extra_items=[(0, ''), (99, '<lapsed')])
+        set_select_field(self.sel_member_type, MembershipType.choices(), extra_items=[(0, '')])
+        q = get_members_by_select(select_fields_to_query(all_sels, 'Member'))
         for member in q:  # get_all_members(select) :
             item_form = MemberItemForm()
             item_form.member_id = member.id
