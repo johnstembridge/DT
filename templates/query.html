@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<div class="page-header">
+    <h2>Select data to extract</h2>
+</div>
+
+<form method="POST">
+    {{ form.csrf_token }}
+    <table width="60%" class="table">
+        <tr>
+            <td>{{ form.number.label }}</td>
+            <td>{{ form.number(size=6, title='Select by DT number. Just enter the number e.g. 4502') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.status.label }}</td>
+            <td>{{ form.status(title='Select by membership status') }}</td>
+
+            <td>{{ form.member_type.label }}</td>
+            <td>{{ form.member_type(title='Select by membership type') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.start_date.label }}</td>
+            <td>{{ form.start_date }}</td>
+
+            <td>{{ form.end_date.label }}</td>
+            <td>{{ form.end_date }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.birth_month.label }}</td>
+            <td>{{ form.birth_month }} </td>
+            <td>{{ form.age.label }}</td>
+            <td>{{ form.age }} </td>
+        </tr>
+        <tr>
+            <td>{{ form.payment_method.label }}</td>
+            <td>{{ form.payment_method(title='Select by payment method') }}</td>
+
+            <td>{{ form.comms.label }}</td>
+            <td>{{ form.comms(title='Select by comms preference') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.current_action.label }}</td>
+            <td>{{ form.current_action(title='Select by action') }}</td>
+
+            <td>{{ form.action_status.label }}</td>
+            <td>{{ form.action_status(title='Select by action status') }}</td>
+        </tr>
+    </table>
+
+    <p><br>{{ form.submit(class='btn btn-primary') }}</p>
+</form>
+{% endblock %}

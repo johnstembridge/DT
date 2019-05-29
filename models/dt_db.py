@@ -1,30 +1,20 @@
 from flask_login import UserMixin
-from main import db
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, backref
+from sqlalchemy import Column, Integer, String, SmallInteger, Date, Time, Numeric, ForeignKey, Boolean, TypeDecorator
 
-from back_end.data_utilities import fmt_date, in_date_range
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
     CommsType, Dues, ExternalAccess, MemberAction, ActionStatus
 
 import datetime
 from time import time, localtime, strftime
 
-Base = db.Model
-Column = db.Column
-Integer = db.Integer
-SmallInteger = db.SmallInteger
-Date = db.Date
-Time = db.Time
-Numeric = db.Numeric
-String = db.String
-ForeignKey = db.ForeignKey
-Boolean = db.Boolean
-relationship = db.relationship
-backref = db.backref
+Base = declarative_base()
 
 
-class EnumType(db.TypeDecorator):
+class EnumType(TypeDecorator):
     impl = SmallInteger
 
     def __init__(self, data, **kw):
@@ -42,7 +32,7 @@ class EnumType(db.TypeDecorator):
         return self.data(value)
 
 
-class IntArray(db.TypeDecorator):
+class IntArray(TypeDecorator):
     impl = String
 
     def process_bind_param(self, value, dialect):
@@ -69,16 +59,21 @@ class Address(Base):
     country = Column(String(25))
     members = relationship('Member', back_populates='address')
 
+    def country_for_mail(self):
+        return self.country if self.country != 'United Kingdom' else ''
+
     def full(self):
-        return [item for item in
-                [self.line_1,
-                 self.line_2,
-                 self.line_3,
-                 self.county,
-                 self.state,
-                 self.post_code,
-                 self.country]
-                if len(item) > 0]
+        return ', '.join(
+            [item for item in
+             [self.line_1,
+              self.line_2,
+              self.line_3,
+              self.county,
+              self.state,
+              self.post_code,
+              self.country_for_mail()
+              ]
+             if len(item) > 0])
 
     def __repr__(self):
         return '<Address: {}>'.format(', '.join(self.full()))
@@ -129,7 +124,7 @@ class Member(Base):
     __tablename__ = 'members'
     id = Column(Integer, primary_key=True)
     number = Column(Integer)
-    sex = Column(EnumType(Sex), nullable=True)
+    sex = Column(EnumType(Sex), nullable=True, default=Sex.unknown)
     title = Column(String(10), nullable=True)
     first_name = Column(String(25), nullable=False)
     last_name = Column(String(25), nullable=False)
@@ -162,6 +157,11 @@ class Member(Base):
     def active(self):
         return self.status in MemberStatus.all_active()
 
+    def birth_month(self, as_of=None):
+        if self.birth_date:
+            return self.month
+        return None
+
     def age(self, as_of=None):
         if self.birth_date:
             if not as_of:
@@ -171,7 +171,12 @@ class Member(Base):
                     as_of.month == self.birth_date.month and as_of.day < self.birth_date.day):
                 years -= 1
             return years
-        return None
+        else:
+            # defaults
+            if self.member_type == MembershipType.junior:
+                return 10
+            else:
+                return 25
 
     def dues(self, as_of=None):
         if not as_of:
@@ -188,7 +193,11 @@ class Member(Base):
         return Dues.standard.value
 
     def current_payment_method(self):
-        return self.payments[0].method
+        if len(self.payments) > 0:
+            payments = sorted(self.payments, key=lambda p: p.date, reverse=True)
+            return payments[0].method
+        else:
+            return None
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())

@@ -1,29 +1,29 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, HiddenField, SelectField, FieldList, FormField, DecimalField
+from wtforms import StringField, SubmitField, HiddenField, FieldList, FormField, DecimalField
 from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
 import datetime
 
 from back_end.interface import get_new_member, get_member, save_member, get_new_comment, get_new_payment, \
     get_members_by_name, get_new_action
-from front_end.form_helpers import set_select_field
+from front_end.form_helpers import MySelectField, set_select_field
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
     ActionStatus
 
 
 class PaymentItemForm(FlaskForm):
     date = DateField(label='Date')
-    pay_type = SelectField(label='Type', choices=PaymentType.choices(), coerce=PaymentType.coerce)
+    pay_type = MySelectField(label='Type', choices=PaymentType.choices(), coerce=PaymentType.coerce)
     amount = DecimalField(label='Amount', validators=[Optional()])
-    method = SelectField(label='Method', choices=PaymentMethod.choices(), coerce=PaymentMethod.coerce)
+    method = MySelectField(label='Method', choices=PaymentMethod.choices(), coerce=PaymentMethod.coerce)
     comment = StringField(label='Comment')
 
 
 class ActionItemForm(FlaskForm):
     date = DateField(label='Date')
-    action = SelectField(label='Action', choices=MemberAction.choices(), coerce=MemberAction.coerce)
+    action = MySelectField(label='Action', choices=MemberAction.choices(blank=True), coerce=MemberAction.coerce)
     comment = StringField(label='Comment')
-    status = SelectField(label='Status', choices=ActionStatus.choices(), coerce=ActionStatus.coerce)
+    status = MySelectField(label='Status', choices=ActionStatus.choices(blank=True), coerce=ActionStatus.coerce)
 
 
 class CommentItemForm(FlaskForm):
@@ -36,8 +36,8 @@ class MemberDetailsForm(FlaskForm):
 
     member_id = HiddenField(label='Id')
     number = StringField(label='Member Id')
-    status = SelectField(label='Status', choices=MemberStatus.choices(), coerce=MemberStatus.coerce)
-    type = SelectField(label='Type', choices=MembershipType.choices(), coerce=MembershipType.coerce)
+    status = MySelectField(label='Status', choices=MemberStatus.choices(), coerce=MemberStatus.coerce)
+    type = MySelectField(label='Type', choices=MembershipType.choices(), coerce=MembershipType.coerce)
     start_date = DateField(label='Start Date')
     end_date = DateField(label='End Date')
     birth_date = DateField(label='Birth Date', validators=[Optional()])
@@ -46,7 +46,7 @@ class MemberDetailsForm(FlaskForm):
     title = StringField(label='Title')
     first_name = StringField(label='First Name', validators=[InputRequired()])
     last_name = StringField(label='Last Name', validators=[InputRequired()])
-    sex = SelectField(label='Sex', choices=Sex.choices(), coerce=Sex.coerce)
+    sex = MySelectField(label='Sex', choices=Sex.choices(), coerce=int)
 
     line1 = StringField(label='Address line 1')
     line2 = StringField(label='Address line 2')
@@ -60,7 +60,7 @@ class MemberDetailsForm(FlaskForm):
     home_phone = StringField(label='Home Phone')
     mobile_phone = StringField(label='Mobile')
     email = StringField(label='Email', validators=[Optional(), Email("Invalid email address")])
-    comms = SelectField(label='Comms', choices=CommsType.choices(), coerce=CommsType.coerce)
+    comms = MySelectField(label='Comms', choices=CommsType.choices(), coerce=CommsType.coerce)
 
     submit = SubmitField(label='Save')
 
@@ -72,64 +72,55 @@ class MemberDetailsForm(FlaskForm):
         new_member = member_id == 0
         if new_member:
             member = get_new_member()
-            self.full_name.data = 'new member'
-            self.number.data = ''
-            self.status.data = MemberStatus.current
-            self.type.data = MembershipType.standard
-            self.sex.data = Sex.unknown
-            self.start_date.data = datetime.date.today()
-            self.end_date.data = datetime.date(year=2019, month=8, day=1)
-            self.comms.data = CommsType.email
         else:
             member = get_member(member_id)
-            address = member.address
-            set_select_field(self.status, MemberStatus.choices(), default_selection=member.status.value)
-            set_select_field(self.type, MembershipType.choices(), default_selection=member.member_type.value)
-            set_select_field(self.sex, Sex.choices(), default_selection=member.sex.value)
+        address = member.address
 
-            self.number.data = member.dt_number()
-            self.status.data = member.status
-            self.type.data = member.member_type
-            self.start_date.data = member.start_date
-            self.end_date.data = member.end_date
-            self.birth_date.data = member.birth_date
-            self.age.data = member.age()
+        self.number.data = member.dt_number()
+        self.status.data = member.status.value
+        self.type.data = member.member_type.value
+        self.start_date.data = member.start_date
+        self.end_date.data = member.end_date
+        self.birth_date.data = member.birth_date
+        self.age.data = member.age()
 
-            self.full_name.data = member.full_name()
-            self.title.data = member.title
-            self.first_name.data = member.first_name
-            self.last_name.data = member.last_name
-            self.sex.data = member.sex
+        self.full_name.data = member.full_name()
+        self.title.data = member.title
+        self.first_name.data = member.first_name
+        self.last_name.data = member.last_name
+        self.sex.data = (member.sex or Sex.unknown).value
 
-            self.line1.data = address.line_1
-            self.line2.data = address.line_2
-            self.line3.data = address.line_3
-            self.city.data = address.city
-            self.state.data = address.state
-            self.post_code.data = address.post_code
-            self.county.data = address.county
-            self.country.data = address.country
+        self.line1.data = address.line_1
+        self.line2.data = address.line_2
+        self.line3.data = address.line_3
+        self.city.data = address.city
+        self.state.data = address.state
+        self.post_code.data = address.post_code
+        self.county.data = address.county
+        self.country.data = address.country
 
-            self.home_phone.data = member.home_phone
-            self.mobile_phone.data = member.mobile_phone
-            self.email.data = member.email
-            self.comms.data = member.comms
+        self.home_phone.data = member.home_phone
+        self.mobile_phone.data = member.mobile_phone
+        self.email.data = member.email
+        self.comms.data = member.comms.value
 
         for payment in [get_new_payment()] + member.payments:
             item_form = PaymentItemForm()
             item_form.date = payment.date
-            item_form.pay_type = payment.type
+            item_form.pay_type = payment.type.value ## nb: don't set the data attribute for select fiedls in a fieldlist!
             item_form.amount = payment.amount
-            item_form.method = payment.method or PaymentMethod.unknown
+            item_form.method = (payment.method or PaymentMethod.cc).value
             item_form.comment = payment.comment or ''
             self.payment_list.append_entry(item_form)
 
         for action in [get_new_action(new_member)] + member.actions:
             item_form = ActionItemForm()
+            if action.action:
+                item_form.action = action.action.value
+            if action.status:
+                item_form.status = action.status.value
             item_form.date = action.date
-            item_form.action = action.action
             item_form.comment = action.comment or ''
-            item_form.status = action.status
             self.action_list.append_entry(item_form)
 
         for comment in [get_new_comment()] + member.comments:
@@ -187,7 +178,7 @@ class MemberDetailsForm(FlaskForm):
                 member['payments'].append(payment)
 
         for action in self.action_list.data:
-            if action['action'] != MemberAction.none:
+            if action['action'] > 0:
                 member['actions'].append(action)
 
         for comment in self.comment_list.data:

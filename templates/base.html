@@ -6,7 +6,10 @@
 <nav class="navbar navbar-inverse">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="{{ url_for('index') }}">DT admin</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}" style="margin: -15px -15px;">
+                <img src="{{ url_for('static', filename='images/Dons Trust Logo.png') }}" style="display: inline-block;" />
+                <span style="display: inline-block;">DT admin</span>
+            </a>
         </div>
         <ul class="nav navbar-nav">
             <li class="dropdown">
@@ -23,6 +26,15 @@
                     <li><a href="{{ url_for('reports_certs') }}">Certificates</a></li>
                     <li><a href="{{ url_for('reports_cards') }}">Cards</a></li>
                     <li><a href="{{ url_for('reports_labels') }}">Labels</a></li>
+                </ul>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Extracts<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('extracts_certs') }}">Certificates</a></li>
+                    <li><a href="{{ url_for('extracts_cards') }}">Cards</a></li>
+                    <li><a href="{{ url_for('extracts_renewals') }}">Renewal notices</a></li>
+                    <li><a href="{{ url_for('extracts_juniors') }}">Juniors</a></li>
+                    <li><a href="{{ url_for('extracts_select') }}">Select members</a></li>
                 </ul>
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
@@ -45,25 +57,26 @@
 {% block content %}
 <div class="container-fluid">
     {% with messages = get_flashed_messages(with_categories=true) %}
-      <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }} alert-dismissible" role="alert">
-          <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-          {{ message }}
-          </div>
-        {% endfor %}
-      {% endif %}
+    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
     {% endwith %}
     {% block page_content %}{% endblock %}
 </div>
 {% endblock %}
 
 {% macro render_field(field) %}
-    {{ field(**kwargs)|safe }}
-    {% if field.errors %}
-        {% for error in field.errors %}
-          <span style="color: red;">{{ error }}</span>
-        {% endfor %}
-  {% endif %}
+{{ field(**kwargs)|safe }}
+{% if field.errors %}
+{% for error in field.errors %}
+<span style="color: red;">{{ error }}</span>
+{% endfor %}
+{% endif %}
 {% endmacro %}

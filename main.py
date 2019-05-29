@@ -10,6 +10,7 @@ from views.home import *
 from views.members import *
 from views.payments import *
 from views.reports import *
+from views.extracts import *
 from views.help import *
 from views.testing import *
 from views.others import page_not_found, internal_error, unauthorised

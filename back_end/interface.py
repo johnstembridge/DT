@@ -1,12 +1,12 @@
-from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, UserRole, ActionStatus
-from main import db
-from models.dt_db import Member, Address, User, Payment, Action, Comment
 from sqlalchemy import text, and_, func
 import datetime
+from flask import send_file
+import io, csv
 
+from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, UserRole, ActionStatus, Sex, CommsType
+from main import db
+from models.dt_db import Member, Address, User, Payment, Action, Comment
 from back_end.data_utilities import first_or_default
-from globals import config
-from back_end.file_access import get_records, update_html_elements, get_file_contents
 
 db_session = db.session
 
@@ -23,16 +23,20 @@ def get_member(member_id):
 
 def get_new_member():
     member = Member()
+
+    member.id = 0
+    member.first_name = 'new'
+    member.last_name = 'member'
+    member.status = MemberStatus.current
+    member.member_type = MembershipType.standard
+    member.sex = Sex.unknown
+    member.start_date = datetime.date.today()
+    member.end_date = datetime.date(year=2019, month=8, day=1)
+    member.comms = CommsType.email
+
     member.address = get_new_address()
+
     return member
-
-
-def get_member_by_name(name):
-    res = get_members_by_name(name)
-    if len(res) == 0:
-        return None
-    else:
-        return res.first()
 
 
 def get_members_by_name(name):
@@ -48,35 +52,44 @@ def get_members_by_name(name):
         return []
 
 
-def get_members_by_status(status):
-    members = db_session.query(Member).filter_by(status=status)
-    return members
+def select(select, where):
+    return db_session.query(select).filter(*where)
 
 
-def get_members_by_select(select_fields):
-    tables = list(set([globals()[t[0]] for t in [['Member']] + select_fields]))
-    select = []
+def get_members_by_select(select_fields, default_table='Member'):
+    tables = list(set([globals()[t[0]] for t in [[default_table]] + select_fields]))
+    clauses = []
     for field in select_fields:
-        table, column, value, condition = field
-        type, values = field_type(globals()[table], column)
+        table, column, value, condition, func = field
+        type, values = field_type(table, column)
+        table = class_name_to_table_name(table)
         if type == 'string':
             if condition == '=':
-                s = 'lower({}) like lower("%{}%")'.format(column, value)
+                s = 'lower({}.{}) like lower("%{}%")'.format(table, column, value)
             else:
-                s = '{} {} "{}"'.format(column, condition, value)
+                s = '{}.{} {} "{}"'.format(table, column, condition, value)
         elif type == 'enum':
-            s = '{} {} {}'.format(column, condition, value)
+            s = '{}.{} {} {}'.format(table, column, condition, value)
         elif type == 'date':
-            date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
-            s = '{} {} "{}"'.format(column, condition, date)
+            if not func:
+                date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
+                s = '{}.{} {} "{}"'.format(table, column, condition, date)
+            if func == 'month':
+                s = 'strftime("%m", {}.{}){} "{:02}"'.format(table, column, condition, value)
+            if func == 'age':
+                if '>' in condition:
+                    condition = condition.replace('>', '<')
+                elif '<' in condition:
+                    condition = condition.replace('<', '>')
+                s = '{}.{} {} date("now", "-{} years")'.format(table, column, condition, value)
         else:
-            s = '{} {} {}'.format(column, condition, value)
-        select.append(s)
+            s = '{}.{} {} {}'.format(table, column, condition, value)
+        clauses.append(s)
     q = db_session.query(tables[0])
     for table in tables[1:]:
         q = q.join(table)
-    if len(select) > 0:
-        statement = ' and '.join(select)
+    if len(clauses) > 0:
+        statement = ' and '.join(clauses)
         return q.filter(text(statement))
     else:
         return q
@@ -92,10 +105,10 @@ def save_member(member_id, details):
     member.title = details['title']
     member.first_name = details['first_name']
     member.last_name = details['last_name']
-    member.sex = details['sex']
+    member.sex = Sex(details['sex'])
 
-    member.member_type = details['member_type']
-    member.status = details['status']
+    member.member_type = MembershipType(details['member_type'])
+    member.status = MemberStatus(details['status'])
     member.start_date = details['start_date']
     member.end_date = details['end_date']
     member.birth_date = details['birth_date']
@@ -103,7 +116,7 @@ def save_member(member_id, details):
     member.home_phone = details['home_phone']
     member.mobile_phone = details['mobile_phone']
     member.mobile_phone = details['mobile_phone']
-    member.comms = details['comms']
+    member.comms = CommsType(details['comms'])
 
     member.address.line_1 = details['line_1']
     member.address.line_2 = details['line_2']
@@ -121,39 +134,42 @@ def save_member(member_id, details):
         item = first_or_default([p for p in member.payments if p.date == payment['date']], None)
         if item:
             item.date = payment['date']
-            item.type = payment['pay_type']
+            item.type = PaymentType(payment['pay_type'])
             item.amount = payment['amount']
-            item.method = payment['method']
+            item.method = PaymentMethod(payment['method'])
             item.comment = payment['comment']
         else:
             item = Payment(
                 member_id=member_id,
                 date=payment['date'],
-                type=payment['pay_type'],
+                type=PaymentType(payment['pay_type']),
                 amount=payment['amount'],
-                method=payment['method'],
+                method=PaymentMethod(payment['method']),
                 comment=payment['comment']
             )
         payments.append(item)
     member.payments = payments
 
+    if len(payments) > 0:
+        member.last_payment_method = [p.method for p in payments if p.date == max([p.date for p in payments])][0]
+
     actions = []
     for action in details['actions']:
-        if action['action'] is MemberAction.none:
+        if action['action'] == 0:
             continue
         item = first_or_default([a for a in member.actions if a.date == action['date']], None)
         if item:
             item.date = action['date']
-            item.action = action['action']
+            item.action = MemberAction(action['action'])
             item.comment = action['comment']
-            item.status = action['status']
+            item.status = ActionStatus(action['status'])
         else:
             item = Action(
                 member_id=member_id,
                 date=action['date'],
-                action=action['action'],
+                action=MemberAction(action['action']),
                 comment=action['comment'],
-                status=action['status']
+                status=ActionStatus(action['status'])
             )
         actions.append(item)
     member.actions = actions
@@ -215,7 +231,7 @@ def get_new_payment():
     return Payment(
         date=datetime.date.today(),
         type=PaymentType.dues,
-        method=PaymentMethod.unknown
+        method=None
     )
 
 
@@ -223,8 +239,14 @@ def get_new_address():
     return Address()
 
 
+def class_name_to_table_name(name):
+    if name.lower() == 'address':
+        name = name + 'e'
+    return name.lower() + 's'
+
+
 def field_type(table, field_name):
-    f_type = table.__table__.c[field_name].type
+    f_type = globals()[table].__table__.c[field_name].type
     type_name = str(f_type)
     data = None
     type = 'unknown'
@@ -242,3 +264,31 @@ def field_type(table, field_name):
         elif type_name == 'DATE':
             type = 'date'
     return type, data
+
+
+def list_to_csv_object(csv_list):
+    csv_object = io.StringIO()
+    writer = csv.writer(csv_object)
+    writer.writerows(csv_list)
+    return csv_object
+
+
+def stringIO_to_bytesIO(stringIO_object):
+    # Creating a bytesIO object from a StringIO Object
+    bytesIO_object = io.BytesIO()
+    bytesIO_object.write(stringIO_object.getvalue().encode('utf-8'))
+    # seeking was necessary. Python 3.5.2, Flask 0.12.2
+    bytesIO_object.seek(0)
+    stringIO_object.close()
+    return bytesIO_object
+
+
+def return_csv_file(csv_list, file_name):
+    return return_file(stringIO_to_bytesIO(list_to_csv_object(csv_list)), file_name)
+
+
+def return_file(file_path_or_object, filename, mime_type='text/csv'):
+    try:
+        return send_file(file_path_or_object, mimetype=mime_type, attachment_filename=filename, as_attachment=True)
+    except Exception as e:
+        return str(e)

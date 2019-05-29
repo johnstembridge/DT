@@ -1,10 +1,16 @@
 from enum import Enum
+from back_end.data_utilities import force_list
 
 
 class FormEnum(Enum):
     @classmethod
-    def choices(cls, all=False):
-        return [(choice, choice.name.replace('_', ' ')) for choice in cls]
+    def choices(cls, blank=False, extra=None):
+        result = [(choice.value, choice.name.replace('_', ' ')) for choice in cls]
+        if extra:
+            result = extra + result
+        if blank:
+            result = [(0, '')] + result
+        return result
 
     @classmethod
     def coerce(cls, item):
@@ -49,13 +55,11 @@ class MembershipType(FormEnum):
 
 
 class MemberAction(FormEnum):
-    none = 0
     certificate = 1
     card = 2
 
 
 class ActionStatus(FormEnum):
-    none = 0
     open = 1
     closed = 2
 
@@ -66,7 +70,6 @@ class PaymentType(FormEnum):
 
 
 class PaymentMethod(FormEnum):
-    unknown = 0
     cc = 1
     dd = 2
     chq = 3
@@ -92,9 +95,9 @@ class UserRole(FormEnum):
 
 
 class Sex(FormEnum):
-    unknown = 0
     male = 1
     female = 2
+    unknown = 3
 
 
 class Dues(FormEnum):
@@ -105,3 +108,16 @@ class Dues(FormEnum):
     standard = 25
 
 
+class Months(FormEnum):
+    January = 1
+    February = 2
+    March = 3
+    April = 4
+    May = 5
+    June = 6
+    July = 7
+    August = 8
+    September = 9
+    October = 10
+    November = 11
+    December = 12

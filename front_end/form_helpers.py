@@ -1,12 +1,25 @@
 from flask import flash, url_for, current_app
-from wtforms import SelectField
+from wtforms import SelectField, StringField
 import os
 
-from back_end.data_utilities import force_list, lookup
+from back_end.data_utilities import force_list, lookup, first_or_default
 from globals import config
 
 
+class MyStringField(StringField):
+    def __init__(self, *args, db_map=None, **kwargs):
+        super().__init__(*args, **kwargs)       # Initialize the super class
+        self.db_map = db_map
+
+    def pre_validate(self, form):
+        if self.flags.required and self.data == 0:
+            raise ValueError(self.gettext('Please choose an option'))
+
+
 class MySelectField(SelectField):
+    def __init__(self, *args, db_map=None, **kwargs):
+        super().__init__(*args, **kwargs)       # Initialize the super class
+        self.db_map = db_map
 
     def pre_validate(self, form):
         if self.flags.required and self.data == 0:
@@ -17,23 +30,26 @@ def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
             flash(u"Error in the %s field - %s" % (
-                getattr(form, field).label.text,
+                getattr(form, field).name,
                 error
             ), 'danger')
 
 
-def set_select_field(field, choices, extra_items=None, default_selection=None):
-    if len(choices) > 0 and isinstance(choices[0], tuple):
-            items = choices
-    else:
-        items = [(c, c) for c in choices]
-    if extra_items:
-        field.choices = extra_items + items
-    else:
-        field.choices = items
+def set_select_field(field, choices=None, extra_items=None, default_selection=None, db_map=None):
+    if choices:
+        if len(choices) > 0 and isinstance(choices[0], tuple):
+                items = choices
+        else:
+            items = [(c, c) for c in choices]
+        if extra_items:
+            field.choices = extra_items + items
+        else:
+            field.choices = items
     if default_selection:
         field.default = default_selection
         field.data = default_selection
+    if db_map:
+        field.db_map = db_map
 
 
 def select_fields_to_query(select_fields, default_table):
@@ -41,26 +57,33 @@ def select_fields_to_query(select_fields, default_table):
     for field in select_fields:
         if field.data:
             if field.type == 'MySelectField':
-                if field.data in [m[0].value for m in field.choices if not isinstance(m[0], int)]:
+                if field.data in [c[0].value for c in field.choices if not isinstance(c[0], int)]:
                     condition, value = '=', field.data
                 else:
                     v = [c[1] for c in field.choices if c[0] == field.data][0]
                     condition, value = split_condition_and_value(v)
-                    value = [c[0].value for c in field.choices if c[1] == value][0]
+                    if '(' in value:
+                        value = value[:value.find('(')-1]
+                    value = first_or_default([v[0] for v in field.choices if v[1] == value], None)
             else:
                 condition, value = split_condition_and_value(field.data)
+            func = None
             if isinstance(value, (int, float)) or len(value) > 0:
-                field_name = field.label.text
+                field_name = field.db_map
                 if '.' in field_name:
-                    table, column = field_name.split('.')
+                    a = field_name.split('.')
+                    if len(a) == 2:
+                        table, column = a
+                    if len(a) == 3:
+                        table, column, func = a
                 else:
                     table, column = default_table, field_name
-                query_clauses.append((table, column, value, condition))
+                query_clauses.append((table, column, value, condition, func))
     return query_clauses
 
 
 def split_condition_and_value(value):
-    if value[0] in [c[0] for c in ['!=', '=', '>', '>=', '<', '<=', '?']]:
+    if len(value) > 0 and value[0] in [c[0] for c in ['!=', '=', '>', '>=', '<', '<=', '?']]:
         c = 1
         if value[1] == '=':
             c = 2
