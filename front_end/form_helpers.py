@@ -1,6 +1,7 @@
 from flask import flash, url_for, current_app
 from wtforms import SelectField, StringField
 import os
+import pickle
 
 from back_end.data_utilities import force_list, lookup, first_or_default
 from globals import config
@@ -10,10 +11,6 @@ class MyStringField(StringField):
     def __init__(self, *args, db_map=None, **kwargs):
         super().__init__(*args, **kwargs)       # Initialize the super class
         self.db_map = db_map
-
-    def pre_validate(self, form):
-        if self.flags.required and self.data == 0:
-            raise ValueError(self.gettext('Please choose an option'))
 
 
 class MySelectField(SelectField):
@@ -108,6 +105,14 @@ def render_link(url, text="", image=None, icon=None, target=None):
         return '<a href="{}"{} title="{}" class="icon-block">{}'.format(url, target, text, icon)
     if text:
         return '<a href="{}"{}>{}</a>'.format(url, target, text)
+
+
+def url_pickle_dump(obj):
+    return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL).decode("ISO-8859-1")
+
+
+def url_pickle_load(obj):
+    return pickle.loads(bytes(obj, 'ISO-8859-1'))
 
 
 def render_html(template, **kwargs):

@@ -143,6 +143,34 @@ def lookup(item_list, items, index_origin=0, case_sensitive=None):
     return res
 
 
+def unique(item_list):
+    res = []
+    for item in item_list:
+        if item not in res:
+            res.append(item)
+    return res
+
+
+def take(n, item_list):
+    l = len(item_list)
+    if l < n:
+        return item_list + [None] * (n-l)
+    elif l == n:
+        return item_list
+    elif l > n:
+        return item_list[:n]
+
+
+def pop_next(str, sep):
+    i = str.find(sep)
+    if i == -1:
+        return str, None
+    else:
+        head = str[:i]
+        tail = str[i + 1:]
+        return head, tail
+
+
 def force_list(x):
     if type(x) is tuple:
         x = list(x)

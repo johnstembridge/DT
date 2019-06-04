@@ -73,7 +73,7 @@ class Address(Base):
               self.post_code,
               self.country_for_mail()
               ]
-             if len(item) > 0])
+             if item and len(item) > 0])
 
     def __repr__(self):
         return '<Address: {}>'.format(', '.join(self.full()))

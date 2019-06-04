@@ -1,8 +1,9 @@
-from flask import render_template, redirect, flash, url_for
+from flask import render_template, redirect, flash, url_for, request
 
-from front_end.form_helpers import flash_errors, render_link
-from back_end.interface import select
+from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load
+from back_end.interface import select, get_attr, get_members_for_query
 from front_end.query import QueryForm
+from front_end.extract import ExtractForm
 from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus
 from models.dt_db import Action, Member
 import datetime
@@ -116,11 +117,18 @@ class Extracts:
         form = QueryForm()
         if form.validate_on_submit():
             if form.submit.data:
-                if form.find_members():
-                    #flash('member saved', 'success')
-                    return redirect(url_for('extracts'))
+                query_clauses = form.find_members()
+                return redirect(url_for('extracts_show', page=1, query_clauses=url_pickle_dump(query_clauses)))
         elif form.errors:
             flash_errors(form)
 
         return render_template('query.html', form=form, render_link=render_link)
 
+    @staticmethod
+    def extract_show():
+        page = request.args.get('page', 1, int)
+        query_clauses = url_pickle_load(request.args.get('query_clauses'))
+        form = ExtractForm()
+        query = get_members_for_query(query_clauses)
+        fields, page = form.populate_result(clauses=url_pickle_dump(query_clauses), query=query, page_number=page)
+        return render_template('extract.html', form=form, data=page.items, fields=fields, get_attr=get_attr)

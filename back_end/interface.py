@@ -6,7 +6,7 @@ import io, csv
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, UserRole, ActionStatus, Sex, CommsType
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment
-from back_end.data_utilities import first_or_default
+from back_end.data_utilities import first_or_default, unique, pop_next
 
 db_session = db.session
 
@@ -56,10 +56,10 @@ def select(select, where):
     return db_session.query(select).filter(*where)
 
 
-def get_members_by_select(select_fields, default_table='Member'):
-    tables = list(set([globals()[t[0]] for t in [[default_table]] + select_fields]))
+def get_members_for_query(query_clauses, default_table='Member'):
+    tables = unique([globals()[t[0]] for t in [[default_table]] + query_clauses])
     clauses = []
-    for field in select_fields:
+    for field in query_clauses:
         table, column, value, condition, func = field
         type, values = field_type(table, column)
         table = class_name_to_table_name(table)
@@ -237,6 +237,19 @@ def get_new_payment():
 
 def get_new_address():
     return Address()
+
+
+def get_attr(obj, attr):
+    attr, tail = pop_next(attr, '.')
+    if '()' in attr:    # function call
+        res = getattr(obj, attr.replace('()', ''))()
+    elif '[]' in attr:  # list - get first
+        res = first_or_default(getattr(obj, attr.replace('[]', '')), None)
+    else:               # property
+        res = getattr(obj, attr)
+    if res and tail:
+        res = get_attr(res, tail)
+    return res
 
 
 def class_name_to_table_name(name):

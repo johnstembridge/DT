@@ -39,3 +39,10 @@ def extracts_juniors():
 @role_required('admin')
 def extracts_select():
     return Extracts.extract_select()
+
+
+@app.route('/extracts/show', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_show():
+    return Extracts.extract_show()
