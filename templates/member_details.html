@@ -29,13 +29,13 @@
     <hr/>
     <table width="60%">
         <tr>
-            <td>{{ form.title.label }}</td>
+            <td>{{ form.title.label }} </td>
             <td>{{ form.title(size='4') }}</td>
-            <td>{{ form.first_name.label }}</td>
+            <td>{{ form.first_name.label }} </td>
             <td>{{ form.first_name(size='25', required='required') }}</td>
-            <td>{{ form.last_name.label }}</td>
+            <td>{{ form.last_name.label }} </td>
             <td>{{ form.last_name(size='25', required='required') }}</td>
-            <td>{{ form.sex.label }}</td>
+            <td>{{ form.sex.label }} </td>
             <td>{{ form.sex(size='1') }}</td>
         </tr>
     </table>
@@ -43,15 +43,15 @@
     <table width="60%">
         <tr>
             <td>{{ form.line1.label }}</td>
-            <td colspan=3>{{ form.line1(size='60', required='required') }}</td>
+            <td colspan=5>{{ form.line1(size='60', required='required') }}</td>
         </tr>
         <tr>
             <td>{{ form.line2.label }}</td>
-            <td colspan=3>{{ form.line2(size='60') }}</td>
+            <td colspan=5>{{ form.line2(size='60') }}</td>
         </tr>
         <tr>
             <td>{{ form.line3.label }}</td>
-            <td colspan=3>{{ form.line3(size='60') }}</td>
+            <td colspan=5>{{ form.line3(size='60') }}</td>
         </tr>
         <tr>
             <td>{{ form.city.label }}</td>
@@ -79,8 +79,11 @@
             <td>{{ form.mobile_phone(size='20') }}</td>
         </tr>
         <tr>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
             <td>{{ form.email.label }}</td>
-            <td>{{ form.email(size='50') }}</td>
+            <td>{{ form.email(size='40') }}</td>
             <td>{{ form.comms.label }}</td>
             <td>{{ form.comms(required='required') }}</td>
         </tr>

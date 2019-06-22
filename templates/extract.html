@@ -3,6 +3,7 @@
 
 {% block page_content %}
 <form method="POST">
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/dt_admin.css') }}">
     {{ form.csrf_token }}
     {{ form.hidden_tag() }}
     <h2>Results</h2>
@@ -13,23 +14,25 @@
     {% if form.next_url %}
         <a href="{{ form.next_url }}">Next page</a>
     {% endif %}
-    <table width="100%" class="table">
-        <thead>
-        <tr>
-            {% for field in fields %}
-                <th>{{ field[0] }}</th>
-            {% endfor %}
-        </tr>
-        </thead>
-        <tbody>
-        {% for row in data %}
+    <div class="scroll">
+        <table width="100%" class="scroll, table">
+            <thead>
             <tr>
-            {% for field in fields %}
-                <td>{{ get_attr(row, field[1]) }}</td>
-            {% endfor %}
+                {% for field in fields %}
+                    <th>{{ field[0] }}</th>
+                {% endfor %}
             </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            {% for row in data %}
+                <tr>
+                {% for field in fields %}
+                    <td>{{ get_attr(row, field[1]) }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </form>
 {% endblock %}

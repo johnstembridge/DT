@@ -14,7 +14,12 @@ class ExtractForm(FlaskForm):
         ('Start', 'start_date'),
         ('End', 'end_date'),
         ('Birth', 'birth_date'),
+        ('Email', 'email'),
+        ('Home Phone', 'home_phone'),
+        ('Mobile Phone', 'mobile_phone'),
+        ('Comms', 'comms.name'),
         ('Address', 'address.full()'),
+        ('Payment', 'last_payment_method.name'),
         ('Action', 'actions[].action.name'),
         ('Status', 'actions[].status.name')
     ]
@@ -24,7 +29,7 @@ class ExtractForm(FlaskForm):
     prev_url = StringField(label='previous page')
 
     def populate_result(self, clauses, query, page_number=1):
-        page = query.paginate(page=page_number)
+        page = query.paginate(page=page_number, per_page=15)
         self.total.data = page.total
         self.current_page.data = page_number
         self.next_url = url_for('extracts_show', page=page_number + 1, query_clauses=clauses) if page.has_next else None

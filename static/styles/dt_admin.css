@@ -1,3 +1,2 @@
-.scrollme {
-    overflow-y: auto;
-}
+.scroll { overflow-x: auto; }
+.scroll table { white-space: nowrap }

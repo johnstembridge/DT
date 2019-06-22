@@ -34,18 +34,18 @@ class CommentItemForm(FlaskForm):
 class MemberDetailsForm(FlaskForm):
     full_name = StringField(label='Full Name')
 
-    member_id = HiddenField(label='Id')
-    number = StringField(label='Member Id')
+    member_id = HiddenField(label='Member Id')
+    number = StringField(label='Id')
     status = MySelectField(label='Status', choices=MemberStatus.choices(), coerce=MemberStatus.coerce)
     type = MySelectField(label='Type', choices=MembershipType.choices(), coerce=MembershipType.coerce)
-    start_date = DateField(label='Start Date')
-    end_date = DateField(label='End Date')
-    birth_date = DateField(label='Birth Date', validators=[Optional()])
+    start_date = DateField(label='Start')
+    end_date = DateField(label='End')
+    birth_date = DateField(label='Birth', validators=[Optional()])
     age = HiddenField(label='Age')
 
     title = StringField(label='Title')
-    first_name = StringField(label='First Name', validators=[InputRequired()])
-    last_name = StringField(label='Last Name', validators=[InputRequired()])
+    first_name = StringField(label='First', validators=[InputRequired()])
+    last_name = StringField(label='Last', validators=[InputRequired()])
     sex = MySelectField(label='Sex', choices=Sex.choices(), coerce=int)
 
     line1 = StringField(label='Address line 1')
@@ -107,9 +107,9 @@ class MemberDetailsForm(FlaskForm):
         for payment in [get_new_payment()] + member.payments:
             item_form = PaymentItemForm()
             item_form.date = payment.date
-            item_form.pay_type = payment.type.value ## nb: don't set the data attribute for select fiedls in a fieldlist!
+            item_form.pay_type = payment.type.value ## nb: don't set the data attribute for select fields in a fieldlist!
             item_form.amount = payment.amount
-            item_form.method = (payment.method or PaymentMethod.cc).value
+            item_form.method = (payment.method or PaymentMethod.na).value
             item_form.comment = payment.comment or ''
             self.payment_list.append_entry(item_form)
 

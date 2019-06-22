@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Time, Numeric, ForeignKey, Boolean, TypeDecorator
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus
+    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift
 
 import datetime
 from time import time, localtime, strftime
@@ -120,10 +120,21 @@ class Comment(Base):
         return '<Comment {} {} {}>'.format(self.member_id, self.date, self.comment)
 
 
+class Junior(Base):
+    __tablename__ = 'juniors'
+    id = Column(Integer, primary_key=True)
+    member_id = Column(Integer, ForeignKey('members.id'))
+    member = relationship('Member', back_populates='junior')
+    parent_email = Column(String(120))
+    gift = Column(EnumType(JuniorGift), nullable=True)
+
+    def __repr__(self):
+        return '<Junior {} {} {}>'.format(self.member_id, self.parent_email, self.gift)
+
+
 class Member(Base):
     __tablename__ = 'members'
     id = Column(Integer, primary_key=True)
-    number = Column(Integer)
     sex = Column(EnumType(Sex), nullable=True, default=Sex.unknown)
     title = Column(String(10), nullable=True)
     first_name = Column(String(25), nullable=False)
@@ -146,6 +157,7 @@ class Member(Base):
     payments = relationship('Payment', order_by='desc(Payment.date)', back_populates='member')
     comments = relationship('Comment', order_by='desc(Comment.date)', back_populates='member')
     actions = relationship('Action', order_by='desc(Action.date)', back_populates='member')
+    junior = relationship("Junior", uselist=False, back_populates="member")
 
     def dt_number(self):
         member_type = 'JD' if self.member_type == MembershipType.junior else 'DT'
@@ -157,7 +169,7 @@ class Member(Base):
     def active(self):
         return self.status in MemberStatus.all_active()
 
-    def birth_month(self, as_of=None):
+    def birth_month(self):
         if self.birth_date:
             return self.month
         return None

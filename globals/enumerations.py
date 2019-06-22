@@ -57,6 +57,7 @@ class MembershipType(FormEnum):
 class MemberAction(FormEnum):
     certificate = 1
     card = 2
+    gift = 3
 
 
 class ActionStatus(FormEnum):
@@ -67,9 +68,11 @@ class ActionStatus(FormEnum):
 class PaymentType(FormEnum):
     dues = 1
     donation = 2
+    refund = 3
 
 
 class PaymentMethod(FormEnum):
+    na = 0
     cc = 1
     dd = 2
     chq = 3
@@ -121,3 +124,22 @@ class Months(FormEnum):
     October = 10
     November = 11
     December = 12
+
+
+class Title(FormEnum):
+    none = 0
+    Mr = 1
+    Mrs = 2
+    Ms = 3
+    Miss = 4
+    Dr = 5
+    Prof = 6
+    Revd = 7
+    Sir = 8
+    Lord = 9
+    Lady = 10
+
+
+class JuniorGift(FormEnum):
+    BaseballCap = 1
+    MiniFootball = 2

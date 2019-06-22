@@ -34,9 +34,6 @@ class QueryForm(FlaskForm):
     age = MyStringField(label='age', db_map='Member.birth_date.age')
     submit = SubmitField(label='Submit')
 
-    def populate_selections(self):
-        pass
-
     def find_members(self):
         all_sels = [self.number, self.status, self.member_type, self.start_date, self.end_date,
                     self.payment_method, self.comms, self.current_action, self.action_status,
