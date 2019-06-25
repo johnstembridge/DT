@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Time, Numeric, ForeignKey, Boolean, TypeDecorator
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift
+    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title
 
 import datetime
 from time import time, localtime, strftime
@@ -60,7 +60,7 @@ class Address(Base):
     members = relationship('Member', back_populates='address')
 
     def country_for_mail(self):
-        return self.country if self.country != 'United Kingdom' else ''
+        return self.country if self.country not in ['UK', 'United Kingdom'] else ''
 
     def full(self):
         return ', '.join(
@@ -135,8 +135,9 @@ class Junior(Base):
 class Member(Base):
     __tablename__ = 'members'
     id = Column(Integer, primary_key=True)
+    number = Column(Integer)
     sex = Column(EnumType(Sex), nullable=True, default=Sex.unknown)
-    title = Column(String(10), nullable=True)
+    title = Column(EnumType(Title), nullable=True)
     first_name = Column(String(25), nullable=False)
     last_name = Column(String(25), nullable=False)
     birth_date = Column(Date)
@@ -161,20 +162,30 @@ class Member(Base):
 
     def dt_number(self):
         member_type = 'JD' if self.member_type == MembershipType.junior else 'DT'
-        return '{}0-{:05d}'.format(member_type, self.id)
+        return '{}0-{:05d}'.format(member_type, self.id or 0)
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
 
-    def active(self):
+    def formal_name(self):
+        if self.title == Title.none:
+            title = ''
+        else:
+            title = self.title.name + ' '
+        return title + self.first_name + ' ' + self.last_name
+
+    def is_active(self):
         return self.status in MemberStatus.all_active()
 
     def birth_month(self):
         if self.birth_date:
-            return self.month
+            return self.birth_date.month
         return None
 
-    def age(self, as_of=None):
+    def is_founder(self):
+        return self.id <= 1889
+
+    def age(self, as_of=None, default=None):
         if self.birth_date:
             if not as_of:
                 as_of = datetime.date.today()
@@ -185,8 +196,15 @@ class Member(Base):
             return years
         else:
             # defaults
-            if self.member_type == MembershipType.junior:
-                return 10
+            if default:
+                return default
+            elif self.member_type:
+                if self.member_type == MembershipType.junior:
+                    return 10
+                elif self.member_type == MembershipType.intermediate:
+                    return 18
+                else:
+                    return 25
             else:
                 return 25
 
@@ -200,6 +218,8 @@ class Member(Base):
             return Dues.junior.value
         if age <= 21:
             return Dues.intermediate.value
+        if age >= 60:
+            return Dues.senior.value
         if self.member_type in MembershipType.all_concessions():
             return Dues.concession.value
         return Dues.standard.value

@@ -16,7 +16,7 @@ class FormEnum(Enum):
     def coerce(cls, item):
         if not item:
             return None
-        #return cls(int(item)) if not isinstance(item, cls) else item
+        # return cls(int(item)) if not isinstance(item, cls) else item
         if isinstance(item, cls):
             return item.value
         else:
@@ -31,8 +31,9 @@ class MemberStatus(FormEnum):
     founder = 2
     current = 3
     lapsed = 4
-    cancelled = 5
-    deceased = 6
+    suspended = 5
+    cancelled = 6
+    deceased = 7
 
     @staticmethod
     def all_active():
@@ -46,12 +47,14 @@ class MembershipType(FormEnum):
     senior = 4
     student = 5
     job_seeker = 6
-    other_concession = 7
-    honorary = 8
+    incapacity = 7
+    other_concession = 8
+    honorary = 9
 
     @staticmethod
     def all_concessions():
-        return [MembershipType.job_seeker, MembershipType.senior, MembershipType.student, MembershipType.other_concession]
+        return [MembershipType.job_seeker, MembershipType.senior, MembershipType.student, MembershipType.incapacity,
+                MembershipType.other_concession]
 
 
 class MemberAction(FormEnum):

@@ -2,10 +2,15 @@ import os
 from tempfile import mkstemp
 from shutil import move
 from collections import OrderedDict
-from back_end.data_utilities import force_list, force_lower
 from operator import itemgetter
 
+from back_end.data_utilities import force_list, force_lower
 from globals import config
+
+
+def delete_file(file):
+    if os.path.isfile(file):
+        os.remove(file)
 
 
 def get_record(file, key, value):
@@ -225,7 +230,7 @@ def get_fields(file, fields):
 
 
 def file_delimiter(filename):
-    file_type = (filename.split('.'))[1]
+    file_type = (filename.split('.'))[-1]
     if file_type == 'csv':
         delimiter = ','
     elif file_type == 'tab':

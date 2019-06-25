@@ -1,6 +1,5 @@
 from flask_login import login_required
-from flask_wtf import FlaskForm
-from flask import render_template, session
+from flask import render_template
 from globals.decorators import role_required
 from main import app
 

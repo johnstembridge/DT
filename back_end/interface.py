@@ -11,6 +11,12 @@ from back_end.data_utilities import first_or_default, unique, pop_next
 db_session = db.session
 
 
+def save_object(object):
+    if not object.id:
+        db_session.add(object)
+    db_session.commit()
+
+
 # region Members
 def get_member_by_email(email):
     # case-insensitive
@@ -24,7 +30,7 @@ def get_member(member_id):
 def get_new_member():
     member = Member()
 
-    member.id = 0
+    #member.id = 0
     member.first_name = 'new'
     member.last_name = 'member'
     member.status = MemberStatus.current

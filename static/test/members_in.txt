@@ -1,0 +1,51 @@
+Member ID	Sex	Prefix	First Name	Last Name	Birthdate	Email Address	Home Phone	Other Phone	Concession Type	Status Code	Start Date	End Date	Updated	Direct Debit	Use email	AFC has access
+0-00001	?		Ivor	Heller		Ivor.Heller@afcwimbledon.co.uk		07973 322409		F	07/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00002	?		Mags	Hutchinson	19/01/1952	mags_h@hotmail.com		07957 468 501	Senior	F	08/01/2002	01/08/2019	03/09/2018		yes	yes
+0-00003	?		Deborah	Buck	14/07/1962	dcbuck14@aol.com	020 8659 5798			F	08/01/2002	01/08/2019	26/05/2019	dd		yes
+0-00004	?		Stephen	Buck	07/06/1957	debcho14@aol.com		07802 659 5798	Senior	F	08/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00005	?		Peter	Bowles	29/07/1977	peter@bowlesie.com				F	08/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00006	?		Andrew	Goodwin		andrew.goodwin@hotmail.co.uk				F	08/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00007	?		Peter	Gray		petegry@aol.com	020 8767 2274			L	08/01/2002	01/02/2005	22/08/2004		yes	yes
+0-00008	?		Liz	Gray		lgray@lambeth.gov.uk	020 8767 2274			L	08/01/2002	01/02/2005	24/03/2004			yes
+0-00009	?		Julian	Lloyd		julian.lloyd@rethink.org				L	08/01/2002	01/02/2005	26/05/2019		yes	yes
+0-00010	?		Tudor	Jennings		tudorjennings@hotmail.co.uk	020 8542 1769	07958 212874		F	08/01/2002	01/08/2019	26/05/2019	dd	yes
+0-00011	?		Steve	Elson		selson@mac.com	020 8682 2330			F	08/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00012	?		Joe	Elson		joeelson22@aol.com				F	08/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00013	?		Fran	O'Toole		francisotoole25@gmail.com				F	08/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00014	?		Andy	Gritton		andygritton@gmail.com		07785 306205		F	08/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00015	?		Pieter	Samuelson		ps498uk@yahoo.co.uk				LIF	11/01/2002	01/08/2100	22/11/2017		yes	yes
+0-00016	?		Alice	Cuninghame		alcuninghame@googlemail.com		07986 295 108		F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00017	?		Colin	Dench		csdench@yahoo.co.uk	01273 272464	07796 614484		F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00018	?		Joe	Blair	05/07/1974	jblair@cadisedm.com	020 8540 8399			F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00019	?		Jacki	Harvie		jackiharvie@sky.com	020 8542 4774	07799 147752		L	11/01/2002	01/02/2008	03/07/2008			yes
+0-00020	?		Richard	Chin		rickc@itweb.force9.co.uk	020 8640 3897			L	11/01/2002	01/02/2004	23/03/2003			yes
+0-00021	?		Heather	Jackson		hevthewomble@btinternet.com	020 8648 1517	07778 385582		F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00022	?		David	Chan	24/02/1977	dwarfer77@hotmail.co.uk		07749 649441		F	11/01/2002	01/08/2019	07/08/2018		yes	yes
+0-00023	?		Mark	Brooman		mbrooman.d2d@talk21.com				L	11/01/2002	01/02/2004	06/11/2003
+0-00024	?		Tom	Gavin	16/05/1950	tom.gavin50@gmail.com	07971 061566		Senior	F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00025	?		Jean	Trayhorn	13/04/1942	ronronron@blueyonder.co.uk	020 8395 9462		Senior+Donation	F	11/01/2002	01/08/2019	03/09/2018		yes	yes
+0-00026	?		Ron	Trayhorn	26/03/1940	ronronron@blueyonder.co.uk	020 8395 9462		Senior	F	11/01/2002	01/08/2019	03/09/2018		yes	yes
+0-00027	?		Ian	Pollock	23/12/1956	ian@ipollock.co.uk	020 8542 7419		Senior	F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00028	?		Nigel	Higgs		nigehiggs@gmail.com	020 8947 4394	07803 167913		F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00029	?		Nicola	Bradley	09/05/1986	nmhbradley@gmail.com	020 8677 9971	07725 032741		L	11/01/2002	01/08/2015	26/05/2019	dd	yes	yes
+0-00030	?		Tamara	Higgs	30/04/1989	callmecrazyz@hotmail.com				L	11/01/2002	01/02/2006	21/03/2005
+0-00031	?		Tim	Hillyer	02/02/1959	timhillyer@gmail.com	020 8946 2671	07932 317044		LIF	11/01/2002	01/08/2100	01/09/2018	cc		yes
+0-00032	?		Mark	Hillyer	14/06/1962	mark.hillyer@gmail.com		07961 857285		F	11/01/2002	01/08/2019	27/08/2018	cc	yes	no
+0-00033	?		x	x	16/03/1932		020 8397 4585		Senior	D	11/01/2002	01/08/2017	27/06/2017	cc		yes
+0-00034	?		John	Stembridge	25/03/1952	john.stembridge@gmail.com		07948 213164	Senior	F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00035	?		Jill	Stembridge			2085405953			N	11/01/2002	01/02/2007	13/07/2008		no	yes
+0-00036	?		Thomas	Stembridge	01/10/1987	tom.stembridge@gmail.com	020 8540 5953	07702 170301		F	11/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00037	?		David	Stembridge	22/07/1990	david@stembridge.co.uk	020 8540 5953			N	11/01/2002	01/02/2007	13/07/2008
+0-00038	?		Mike	O'Shaughnessy	04/07/1949	mikeoshaughnessy530@gmail.com	01628 639060	07901 554399	Senior	F	11/01/2002	01/08/2019	04/08/2018		yes	yes
+0-00039	?		Eileen	Samuelson		eileen@esamuelson.co.uk				LIF	11/01/2002	01/08/2100	22/11/2017		yes	yes
+0-00040	?		John	Samuelson	13/04/1982	john.samuelson@yahoo.com	020 3532 5440	07736 316045		LIF	11/01/2002	01/08/2100	22/11/2017		yes	yes
+0-00041	?		Erik	Samuelson		erik@esamuelson.co.uk		07802 499 032		LIF	11/01/2002	01/08/2100	22/11/2017		yes	yes
+0-00042	?		Emma	Williams		ew298@hotmail.com				L	11/01/2002	01/02/2004	17/03/2003			yes
+0-00043	?		Paul	Raymond		paulnray@mac.com		07764 939156		F	12/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00044	?		Matt	Flynn			020 8643 6610	07905 008 709		L	12/01/2002	01/02/2005	22/03/2004			yes
+0-00045	?		James	O'Shaughnessy	26/03/1976					L	12/01/2002	01/02/2014	05/05/2014			yes
+0-00046	?		A	Thursby	03/02/1980	annafgthursby@gmail.com				L	12/01/2002	01/08/2018	01/11/2018	cc	yes	yes
+0-00047	?		V	O'Shaughnessy	12/08/1949	vmfosh@hotmail.com	01628 639060		Senior	F	12/01/2002	01/08/2019	04/08/2018		yes	yes
+0-00048	?		Martin	Drake	07/01/1971	martin.drake@blueyonder.co.uk	020 8407 4161			F	12/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00049	?		Marc	Williams	05/09/1980	womblemarc@hotmail.com		07956 742047		F	12/01/2002	01/08/2019	26/05/2019	dd	yes	yes
+0-00050	?		Owen	Williams		owenw@blueyonder.co.uk		07932 751007		L	12/01/2002	01/02/2006	05/06/2005		yes	yes

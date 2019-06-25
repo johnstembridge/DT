@@ -40,11 +40,6 @@ def url_for_app(app, endpoint, **values):
     return new
 
 
-def url_for_wags_site(end):
-    end = end.replace(" ", "%20")
-    return get('locations')['base_url'] + end
-
-
 def url_for_html(*paths):
     return os.path.join(get('locations')['base_url'], *paths)
 

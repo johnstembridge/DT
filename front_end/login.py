@@ -76,7 +76,7 @@ def user_register(role, new=True):
         if form.validate_on_submit():
             member = get_member_by_email(form.email.data)
             if member:
-                if not member.active():
+                if not member.is_active():
                     flash('Sorry, you are not a current member', 'danger')
                     return redirect(qualify_url(role))
                 if not member.user:

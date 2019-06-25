@@ -84,8 +84,7 @@ def fmt_date(date, fmt=None):
     return date.strftime(fmt)
 
 
-def parse_date(ymd, sep='/', reverse=False):
-
+def parse_date(ymd, sep='/', reverse=False, default=datetime.datetime.now().date()):
     if type(ymd) is datetime.date:
         return ymd
     else:
@@ -95,7 +94,16 @@ def parse_date(ymd, sep='/', reverse=False):
                 date = date[::-1]
             return datetime.date(int(date[0]), int(date[1]), int(date[2]))
         else:
-            return datetime.datetime.now().date()
+            return default
+
+
+def valid_date(date, fmt='%d/%m/%Y'):
+    try:
+        d = datetime.datetime.strptime(date, fmt)
+    except ValueError:
+        return False
+    else:
+        return True
 
 
 def in_date_range(date, date_from, date_to):
@@ -107,6 +115,7 @@ def in_date_range(date, date_from, date_to):
 
 def current_year():
     return datetime.datetime.now().year
+
 
 # endregion
 
@@ -154,7 +163,7 @@ def unique(item_list):
 def take(n, item_list):
     l = len(item_list)
     if l < n:
-        return item_list + [None] * (n-l)
+        return item_list + [None] * (n - l)
     elif l == n:
         return item_list
     elif l > n:
@@ -260,7 +269,7 @@ def my_round(float_num, dp=0):
 def mean(values):
     if type(first_or_default(values, 0)) == str:
         values = [float(v) for v in values]
-    return sum(values)/max(len(values), 1)
+    return sum(values) / max(len(values), 1)
 
 
 def gen_to_list(gen):
