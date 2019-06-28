@@ -1,2 +1,18 @@
 .scroll { overflow-x: auto; }
 .scroll table { white-space: nowrap }
+
+h2.table-title {color: #6E1285; font-size: 20pt; margin-top: 0px; margin-bottom: 10px; font-weight: bold}
+h3.table-title {color: #6E1285; font-size: 16pt; margin-top: 0px; margin-bottom: 10px; font-weight: bold}
+h4.table-title {color: #6E1285; font-size: 12pt; margin-top: 5px; margin-bottom: 5px; font-weight: bold}
+
+.right  {float:right;}
+.left   {float:left;}
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+}
+.top    {vertical-align: top}
+.bottom {vertical-align: bottom}
+.middle {vertical-align: middle}

@@ -60,7 +60,8 @@ class MembershipType(FormEnum):
 class MemberAction(FormEnum):
     certificate = 1
     card = 2
-    gift = 3
+    upgrade = 3  # junior to intermediate, intermediate to standard, standard to life, etc: see comment
+    gift = 4
 
 
 class ActionStatus(FormEnum):
@@ -75,7 +76,6 @@ class PaymentType(FormEnum):
 
 
 class PaymentMethod(FormEnum):
-    na = 0
     cc = 1
     dd = 2
     chq = 3
@@ -87,6 +87,13 @@ class PaymentMethod(FormEnum):
 class CommsType(FormEnum):
     email = 1
     post = 2
+
+
+class CommsStatus(FormEnum):
+    all_ok = 1
+    email_fail = 2
+    post_fail = 3
+    all_fail = 4
 
 
 class ExternalAccess(FormEnum):
@@ -130,7 +137,6 @@ class Months(FormEnum):
 
 
 class Title(FormEnum):
-    none = 0
     Mr = 1
     Mrs = 2
     Ms = 3

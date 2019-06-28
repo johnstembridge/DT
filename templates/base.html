@@ -1,6 +1,9 @@
 {% extends "bootstrap/base.html" %}
-<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/dt_admin.css') }}">
-
+{% block head %}
+    {{super()}}
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/dt_admin.css') }}">
+    <style>@media print{a[href]:after{content:none}}</style>
+{% endblock %}
 {% block title %}Dons Trust Membership Admin{% endblock %}
 
 {% block navbar %}

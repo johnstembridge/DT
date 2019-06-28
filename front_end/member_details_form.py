@@ -8,14 +8,14 @@ from back_end.interface import get_new_member, get_member, save_member, get_new_
     get_members_by_name, get_new_action
 from front_end.form_helpers import MySelectField, set_select_field
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
-    ActionStatus
+    ActionStatus, Title, CommsStatus
 
 
 class PaymentItemForm(FlaskForm):
     date = DateField(label='Date')
     pay_type = MySelectField(label='Type', choices=PaymentType.choices(), coerce=PaymentType.coerce)
     amount = DecimalField(label='Amount', validators=[Optional()])
-    method = MySelectField(label='Method', choices=PaymentMethod.choices(), coerce=PaymentMethod.coerce)
+    method = MySelectField(label='Method', choices=PaymentMethod.choices(blank=True), coerce=PaymentMethod.coerce)
     comment = StringField(label='Comment')
 
 
@@ -43,7 +43,7 @@ class MemberDetailsForm(FlaskForm):
     birth_date = DateField(label='Birth', validators=[Optional()])
     age = HiddenField(label='Age')
 
-    title = StringField(label='Title')
+    title = MySelectField(label='Title', choices=Title.choices(blank=True), coerce=Title.coerce)
     first_name = StringField(label='First', validators=[InputRequired()])
     last_name = StringField(label='Last', validators=[InputRequired()])
     sex = MySelectField(label='Sex', choices=Sex.choices(), coerce=int)
@@ -59,8 +59,9 @@ class MemberDetailsForm(FlaskForm):
 
     home_phone = StringField(label='Home Phone')
     mobile_phone = StringField(label='Mobile')
-    email = StringField(label='Email', validators=[Optional(), Email("Invalid email address")])
-    comms = MySelectField(label='Comms', choices=CommsType.choices(), coerce=CommsType.coerce)
+    email = StringField(label='Email ', validators=[Optional(), Email("Invalid email address")])
+    comms = MySelectField(label='Comms ', choices=CommsType.choices(), coerce=CommsType.coerce)
+    comms_status = MySelectField(label='Status ', choices=CommsStatus.choices(), coerce=CommsStatus.coerce)
 
     submit = SubmitField(label='Save')
 
@@ -85,7 +86,7 @@ class MemberDetailsForm(FlaskForm):
         self.age.data = member.age()
 
         self.full_name.data = member.full_name()
-        self.title.data = member.title
+        self.title.data = member.title.value if member.title else ''
         self.first_name.data = member.first_name
         self.last_name.data = member.last_name
         self.sex.data = (member.sex or Sex.unknown).value
@@ -103,13 +104,14 @@ class MemberDetailsForm(FlaskForm):
         self.mobile_phone.data = member.mobile_phone
         self.email.data = member.email
         self.comms.data = member.comms.value
+        self.comms_status.data = member.comms_status.value
 
         for payment in [get_new_payment()] + member.payments:
             item_form = PaymentItemForm()
             item_form.date = payment.date
             item_form.pay_type = payment.type.value ## nb: don't set the data attribute for select fields in a fieldlist!
             item_form.amount = payment.amount
-            item_form.method = (payment.method or PaymentMethod.na).value
+            item_form.method = payment.method.value if payment.method else None
             item_form.comment = payment.comment or ''
             self.payment_list.append_entry(item_form)
 
@@ -159,6 +161,7 @@ class MemberDetailsForm(FlaskForm):
             'mobile_phone': self.mobile_phone.data,
             'email': self.email.data,
             'comms': self.comms.data,
+            'comms_status': self.comms_status.data,
 
             'line_1': self.line1.data,
             'line_2': self.line2.data,

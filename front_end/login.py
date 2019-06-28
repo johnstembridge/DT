@@ -1,4 +1,4 @@
-from flask import render_template, flash, redirect
+from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
@@ -78,7 +78,7 @@ def user_register(role, new=True):
             if member:
                 if not member.is_active():
                     flash('Sorry, you are not a current member', 'danger')
-                    return redirect(qualify_url(role))
+                    return redirect(url_for('index'))
                 if not member.user:
                     user = User(user_name=form.username.data, member_id=member.id)
                 else:
@@ -90,13 +90,13 @@ def user_register(role, new=True):
                     user.roles.append(role)
                 save_user(user)
                 if new:
-                    flash('Congratulations, you are now a registered {}!'.format(role), 'success')
-                    return redirect(url_for_app(role, 'admin_login'))
+                    flash('Congratulations, you are now a registered {}!'.format(role.name), 'success')
+                    return redirect(url_for('index'))
                 else:
-                    flash('Login details reset'.format(role), 'success')
-                    return redirect(url_for_app(role, 'members_area'))
+                    flash('Login details reset'.format(role.name), 'success')
+                    return redirect(url_for('index'))
             else:
-                flash('Cannot find your membership - please give your WAGS contact email address')
+                flash('Cannot find your membership - please give your Dons Trust contact email address')
     return render_template('register.html', title=form_title, form=form)
 
 

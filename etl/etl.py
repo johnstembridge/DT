@@ -1,8 +1,10 @@
 import csv
 import re
+from datetime import date
 
-from models.dt_db import Member, Address, Payment, Comment
-from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType
+from models.dt_db import Member, Address, Payment, Comment, Action
+from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType, \
+    CommsStatus, MemberAction, ActionStatus
 from back_end.file_access import delete_file, file_delimiter
 from back_end.data_utilities import parse_date, valid_date, force_list
 from main import db
@@ -28,10 +30,14 @@ def process_etl_file(file_in, file_out, etl_fn):
 
 
 def process_etl_db(file_in, etl_fn):
+    print('Importing ' + file_in)
     with open(file_in, 'r') as in_file:
         reader = csv.DictReader(in_file, delimiter=file_delimiter(file_in))
+        count = 0
         for row in reader:
-            print('Processing ' + row['Member ID'])
+            count += 1
+            if count % 100 == 0:
+                print('Processing ' + row['Member ID'])
             obj = etl_fn(row)
             save_object(obj)
 
@@ -40,7 +46,7 @@ def member_etl(rec):
     member = Member(
         number=int(rec['Member ID'][2:]),  # drop "0-"
         sex=Sex.male if rec['Sex'] == 'M' else Sex.female if rec['Sex'] == 'F' else Sex.unknown,
-        title=Title[rec['Prefix']] if rec['Prefix'] != '' else Title.none,
+        title=Title[rec['Prefix']] if rec['Prefix'] != '' else None,
         first_name=rec['First Name'],
         last_name=rec['Last Name'],
         birth_date=parse_date(rec['Birthdate'], sep='/', reverse=True, default=None),
@@ -51,9 +57,12 @@ def member_etl(rec):
         start_date=parse_date(rec['Start Date'], sep='/', reverse=True),
         end_date=parse_date(rec['End Date'], sep='/', reverse=True),
         last_updated=parse_date(rec['Updated'], sep='/', reverse=True),
-        last_payment_method=PaymentMethod[rec['Direct Debit'] if rec['Direct Debit'] != '' else 'na'],
+        last_payment_method=PaymentMethod[rec['Direct Debit']] if rec['Direct Debit'] != '' else None,
         comms=CommsType.email if rec['Use email'] == 'yes' else CommsType.post,
-        address=address_etl(rec)
+        comms_status=CommsStatus.email_fail if (rec['Email Address'] != '') and (
+                    rec['Use email'] == 'bounced') else CommsStatus.all_ok,
+        address=address_etl(rec),
+        actions=actions_etl(rec)
     )
     member.member_type = type_etl(member, rec['Status Code'], rec['Concession Type'])
     return member
@@ -127,8 +136,31 @@ def address_etl(rec):
     return address
 
 
+def actions_etl(rec):
+    actions = []
+    if rec['Card'] == 'new':
+        action = Action(
+            date=date.today(),
+            action=MemberAction.certificate,
+            status=ActionStatus.open,
+            comment='from import'
+        )
+        actions.append(action)
+    if rec['Card'] == 'print':
+        action = Action(
+            date=date.today(),
+            action=MemberAction.card,
+            status=ActionStatus.open,
+            comment='from import'
+        )
+        actions.append(action)
+
+    return actions
+
+
 def donation_etl(rec):
-    header = ['Member ID', 'Donation Date Posted', 'Donation Amount Posted', 'Donation Posting Type', 'Donation Cheque Nbr', 'Donation Comments']
+    header = ['Member ID', 'Donation Date Posted', 'Donation Amount Posted', 'Donation Posting Type',
+              'Donation Cheque Nbr', 'Donation Comments']
     payment = Payment(
         member_id=int(rec['Member ID'][2:]),  # drop "0-"
         date=parse_date(rec['Donation Date Posted'], sep='/', reverse=True),
@@ -141,7 +173,8 @@ def donation_etl(rec):
 
 
 def payment_etl(rec):
-    header = ['Member ID', 'Dues Date Posted', 'Dues Amount Posted', 'Dues Posting Type', 'Dues Cheque Nbr', 'Dues Comments']
+    header = ['Member ID', 'Dues Date Posted', 'Dues Amount Posted', 'Dues Posting Type', 'Dues Cheque Nbr',
+              'Dues Comments']
     payment = Payment(
         member_id=int(rec['Member ID'][2:]),  # drop "0-"
         date=parse_date(rec['Dues Date Posted'], sep='/', reverse=True),
@@ -154,21 +187,21 @@ def payment_etl(rec):
 
 
 payment_method_map = {
-        'cash': PaymentMethod.cash,
-        'dd': PaymentMethod.dd,
-        'cc': PaymentMethod.cc,
-        'card': PaymentMethod.cc,
-        'so': PaymentMethod.so,
-        's/o': PaymentMethod.so,
-        'credit xfer': PaymentMethod.xfer,
-        'cheque': PaymentMethod.chq,
-    }
+    'cash': PaymentMethod.cash,
+    'dd': PaymentMethod.dd,
+    'cc': PaymentMethod.cc,
+    'card': PaymentMethod.cc,
+    'so': PaymentMethod.so,
+    's/o': PaymentMethod.so,
+    'credit xfer': PaymentMethod.xfer,
+    'cheque': PaymentMethod.chq,
+}
 
 
 def payment_method_etl(old):
     if old in payment_method_map.keys():
         return payment_method_map[old]
-    return PaymentMethod.na
+    return None
 
 
 def comment_etl(rec):

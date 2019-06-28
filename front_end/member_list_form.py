@@ -1,12 +1,9 @@
-import datetime
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, FieldList, FormField, HiddenField
-from wtforms.fields.html5 import DateField
-from wtforms.validators import InputRequired, Optional
 
 from back_end.data_utilities import fmt_date
 from back_end.interface import get_members_for_query
-from front_end.form_helpers import set_select_field, MyStringField, MySelectField, select_fields_to_query
+from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query
 from globals.enumerations import MemberStatus, MembershipType
 
 
@@ -29,7 +26,7 @@ class MemberListForm(FlaskForm):
     sel_status = MySelectField(label='Status', choices=MemberStatus.choices(extra=[(99, '<lapsed (active)')], blank=True), coerce=MemberStatus.coerce, db_map='Member.status')
     sel_member_type = MySelectField(label='Member type', choices=MembershipType.choices(blank=True), coerce=MembershipType.coerce, db_map='Member.member_type')
     sel_first_name = MyStringField(label='First name', db_map='Member.first_name')
-    sel_last_name = MyStringField(label='Lastname', db_map='Member.larst_name')
+    sel_last_name = MyStringField(label='Lastname', db_map='Member.last_name')
     sel_email = MyStringField(label='Email', db_map='Member.email')
     sel_post_code = MyStringField(label='Post code', db_map='Address.post_code')
     sel_country = MyStringField(label='Country', db_map='Address.country')
@@ -42,7 +39,7 @@ class MemberListForm(FlaskForm):
         select = []
         all_sels = [self.sel_number, self.sel_status, self.sel_member_type, self.sel_first_name, self.sel_last_name,
                     self.sel_email, self.sel_post_code, self.sel_country, self.sel_start_date, self.sel_end_date]
-        q = get_members_for_query(select_fields_to_query(all_sels, 'Member'))
+        q = get_members_for_query(select_fields_to_query(all_sels, 'Member'), limit=20)
         for member in q:  # get_all_members(select) :
             item_form = MemberItemForm()
             item_form.member_id = member.id

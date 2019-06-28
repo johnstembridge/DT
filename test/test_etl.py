@@ -24,6 +24,12 @@ class TestEtl(unittest.TestCase):
         out_file = 'payments_out.txt'
         process_etl_file(in_file, out_file, payment_etl)
 
+    def test_etl_db(self):
+        self.test_member_etl_db()
+        self.test_payment_etl_db()
+        self.test_donation_etl_db()
+        self.test_comment_etl_db()
+
     def test_member_etl_db(self):
         in_file = 'D:\donstrust\exports\members.txt'
         process_etl_db(in_file, member_etl)

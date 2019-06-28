@@ -6,15 +6,19 @@
 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/dt_admin.css') }}">
     {{ form.csrf_token }}
     {{ form.hidden_tag() }}
-    <h2>Results</h2>
-    {{ form.total.data }} results found. Showing page {{ form.current_page.data }}
-    {% if form.prev_url %}
-        <a href="{{ form.prev_url }}">Previous page</a>
-    {% endif %}
-    {% if form.next_url %}
-        <a href="{{ form.next_url }}">Next page</a>
-    {% endif %}
-    <div class="scroll">
+    <h4 class="left">{{ form.total.data }} results found</h4>
+    <h5 class="right">
+        <a href="{{ form.first_url }}"><span class="glyphicon">&#xe069;</span></a>
+        {% if form.prev_url %}
+            <a href="{{ form.prev_url }}"><span class="glyphicon">&#xe251;</span></a>
+        {% endif %}
+         page {{ form.current_page.data }} of {{ form.total_pages.data }}
+        {% if form.next_url %}
+            <a href="{{ form.next_url }}"><span class="glyphicon">&#xe250;</span></a>
+        {% endif %}
+        <a href="{{ form.last_url }}"><span class="glyphicon">&#xe077;</span></a>
+    </h5>
+    <div class="scroll left">
         <table width="100%" class="scroll, table">
             <thead>
             <tr>

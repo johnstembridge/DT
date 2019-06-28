@@ -30,7 +30,7 @@
     <table width="60%">
         <tr>
             <td>{{ form.title.label }} </td>
-            <td>{{ form.title(size='4') }}</td>
+            <td>{{ form.title(size='1') }}</td>
             <td>{{ form.first_name.label }} </td>
             <td>{{ form.first_name(size='25', required='required') }}</td>
             <td>{{ form.last_name.label }} </td>
@@ -81,11 +81,15 @@
         <tr>
             <td>&nbsp;</td>
         </tr>
+    </table>
+    <table>
         <tr>
-            <td>{{ form.email.label }}</td>
-            <td>{{ form.email(size='40') }}</td>
-            <td>{{ form.comms.label }}</td>
-            <td>{{ form.comms(required='required') }}</td>
+            <td>{{ form.email.label }}&nbsp;</td>
+            <td>{{ form.email(size='40') }}&nbsp;</td>
+            <td>{{ form.comms.label }}&nbsp;</td>
+            <td>{{ form.comms(required='required') }}&nbsp;</td>
+            <td>{{ form.comms_status.label }}&nbsp;</td>
+            <td>{{ form.comms_status(required='required') }}</td>
         </tr>
     </table>
     <hr/>

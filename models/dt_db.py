@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Time, Numeric, ForeignKey, Boolean, TypeDecorator
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title
+    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus
 
 import datetime
 from time import time, localtime, strftime
@@ -125,7 +125,7 @@ class Junior(Base):
     id = Column(Integer, primary_key=True)
     member_id = Column(Integer, ForeignKey('members.id'))
     member = relationship('Member', back_populates='junior')
-    parent_email = Column(String(120))
+    email = Column(String(120))
     gift = Column(EnumType(JuniorGift), nullable=True)
 
     def __repr__(self):
@@ -153,6 +153,7 @@ class Member(Base):
     last_updated = Column(Date)
     last_payment_method = Column(EnumType(PaymentMethod), nullable=True)
     comms = Column(EnumType(CommsType), nullable=True)
+    comms_status = Column(EnumType(CommsStatus), nullable=True)
     external_access = Column(EnumType(ExternalAccess), nullable=True)
     user = relationship('User', uselist=False, back_populates='member')
     payments = relationship('Payment', order_by='desc(Payment.date)', back_populates='member')
@@ -168,7 +169,7 @@ class Member(Base):
         return self.first_name + ' ' + self.last_name
 
     def formal_name(self):
-        if self.title == Title.none:
+        if not self.title:
             title = ''
         else:
             title = self.title.name + ' '

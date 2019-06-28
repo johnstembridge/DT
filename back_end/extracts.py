@@ -15,13 +15,13 @@ class Extracts:
     def extract_certificates():
         actions = select(Action, (Action.status == ActionStatus.open, Action.action == MemberAction.certificate))
         csv = []
-        head = ['id', 'status', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
+        head = ['id', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
                 'state', 'post_code', 'country', 'address']
         csv.append(head)
         for action in actions:
             row = [
                 action.member.dt_number(),
-                action.member.status.name,
+                action.member.member_type.name,
                 action.member.full_name(),
                 action.member.address.line_1,
                 action.member.address.line_2,

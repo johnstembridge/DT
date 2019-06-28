@@ -62,7 +62,7 @@ def select(select, where):
     return db_session.query(select).filter(*where)
 
 
-def get_members_for_query(query_clauses, default_table='Member'):
+def get_members_for_query(query_clauses, default_table='Member', limit=None):
     tables = unique([globals()[t[0]] for t in [[default_table]] + query_clauses])
     clauses = []
     for field in query_clauses:
@@ -96,9 +96,10 @@ def get_members_for_query(query_clauses, default_table='Member'):
         q = q.join(table)
     if len(clauses) > 0:
         statement = ' and '.join(clauses)
-        return q.filter(text(statement))
-    else:
-        return q
+        q = q.filter(text(statement))
+    if limit:
+        q = q.limit(limit)
+    return q
 
 
 def save_member(member_id, details):
@@ -108,7 +109,7 @@ def save_member(member_id, details):
         member = get_new_member()
         db_session.add(member)
 
-    member.title = details['title']
+    member.title = details['title'] if details['title'] > 0 else None
     member.first_name = details['first_name']
     member.last_name = details['last_name']
     member.sex = Sex(details['sex'])
@@ -121,8 +122,8 @@ def save_member(member_id, details):
 
     member.home_phone = details['home_phone']
     member.mobile_phone = details['mobile_phone']
-    member.mobile_phone = details['mobile_phone']
     member.comms = CommsType(details['comms'])
+    member.comms_status = CommsType(details['comms_status'])
 
     member.address.line_1 = details['line_1']
     member.address.line_2 = details['line_2']
@@ -142,7 +143,7 @@ def save_member(member_id, details):
             item.date = payment['date']
             item.type = PaymentType(payment['pay_type'])
             item.amount = payment['amount']
-            item.method = PaymentMethod(payment['method'])
+            item.method = PaymentMethod(payment['method']) if payment['method'] > 0 else None
             item.comment = payment['comment']
         else:
             item = Payment(
@@ -150,7 +151,7 @@ def save_member(member_id, details):
                 date=payment['date'],
                 type=PaymentType(payment['pay_type']),
                 amount=payment['amount'],
-                method=PaymentMethod(payment['method']),
+                method=PaymentMethod(payment['method']) if payment['method'] > 0 else None,
                 comment=payment['comment']
             )
         payments.append(item)
