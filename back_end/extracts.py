@@ -117,7 +117,7 @@ class Extracts:
         end_date = datetime.date(datetime.date.today().year, 8, 1).strftime('%Y-%m-%d')
         members = select(Member, (Member.end_date == end_date, Member.last_payment_method == PaymentMethod.dd))
         csv = []
-        head = ['id', 'status', 'email', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
+        head = ['id', 'status', 'email', 'home_phone', 'mobile_phone', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
                 'state', 'post_code', 'country', 'amount']
         csv.append(head)
         for member in members:
