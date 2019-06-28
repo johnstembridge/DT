@@ -3,7 +3,8 @@ import datetime
 from flask import send_file
 import io, csv
 
-from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, UserRole, ActionStatus, Sex, CommsType
+from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
+    Sex, CommsType
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment
 from back_end.data_utilities import first_or_default, unique, pop_next
@@ -30,7 +31,7 @@ def get_member(member_id):
 def get_new_member():
     member = Member()
 
-    #member.id = 0
+    # member.id = 0
     member.first_name = 'new'
     member.last_name = 'member'
     member.status = MemberStatus.current
@@ -202,6 +203,7 @@ def save_member(member_id, details):
 
     db_session.commit()
 
+
 # endregion
 
 
@@ -248,11 +250,11 @@ def get_new_address():
 
 def get_attr(obj, attr):
     attr, tail = pop_next(attr, '.')
-    if '()' in attr:    # function call
+    if '()' in attr:  # function call
         res = getattr(obj, attr.replace('()', ''))()
     elif '[]' in attr:  # list - get first
         res = first_or_default(getattr(obj, attr.replace('[]', '')), None)
-    else:               # property
+    else:  # property
         res = getattr(obj, attr)
     if res and tail:
         res = get_attr(res, tail)

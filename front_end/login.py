@@ -5,7 +5,7 @@ from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 from globals.config import url_for_app, qualify_url
-from globals.enumerations import UserRole, MemberStatus
+from globals.enumerations import UserRole
 from globals.email import send_mail
 from models.dt_db import User, Role
 from back_end.interface import get_member_by_email, get_user, save_user

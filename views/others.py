@@ -1,4 +1,4 @@
-from flask import render_template, session
+from flask import render_template
 
 
 def unauthorised(e):

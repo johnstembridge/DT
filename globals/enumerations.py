@@ -1,5 +1,4 @@
 from enum import Enum
-from back_end.data_utilities import force_list
 
 
 class FormEnum(Enum):

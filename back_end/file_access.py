@@ -275,10 +275,3 @@ def my_open(filename, mode, access_all=False):
             else:
                 os.chmod(filename, 0o664)
     return fh
-
-
-def update_html_elements(file, pairs):
-    html = get_file_contents(file)
-    html = update_html(html, pairs)
-    write_file(file, html)
-

@@ -3,7 +3,7 @@ from wtforms import SelectField, StringField
 import os
 import pickle
 
-from back_end.data_utilities import force_list, lookup, first_or_default
+from back_end.data_utilities import force_list, first_or_default
 from globals import config
 
 

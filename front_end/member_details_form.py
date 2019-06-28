@@ -2,11 +2,10 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, HiddenField, FieldList, FormField, DecimalField
 from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
-import datetime
 
 from back_end.interface import get_new_member, get_member, save_member, get_new_comment, get_new_payment, \
     get_members_by_name, get_new_action
-from front_end.form_helpers import MySelectField, set_select_field
+from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
     ActionStatus, Title, CommsStatus
 

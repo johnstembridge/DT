@@ -1,4 +1,4 @@
-from flask import render_template, redirect, flash, url_for, request
+from flask import render_template, redirect, url_for, request
 
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load
 from back_end.interface import select, get_attr, get_members_for_query

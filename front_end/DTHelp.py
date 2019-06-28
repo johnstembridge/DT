@@ -1,6 +1,6 @@
 from flask import render_template, redirect, flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField
+from wtforms import StringField
 
 from flask import url_for
 

@@ -1,6 +1,6 @@
 import unittest
 
-from etl.etl import process_etl_file, process_etl_db, member_etl, payment_etl, donation_etl, comment_etl, parse_comments
+from etl.etl import process_etl_file, process_etl_db, member_etl, payment_etl, donation_etl, comment_etl
 
 
 class TestEtl(unittest.TestCase):
