@@ -119,6 +119,7 @@ class Dues(FormEnum):
     intermediate = 10
     concession = 10
     standard = 25
+    senior = 10
 
 
 class Months(FormEnum):

@@ -34,6 +34,13 @@ def extracts_juniors():
     return return_csv_file(Extracts.extract_juniors(), 'juniors.csv')
 
 
+@app.route('/extracts/debits', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_debits():
+    return return_csv_file(Extracts.extract_debits(), 'debits.csv')
+
+
 @app.route('/extracts/select', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')

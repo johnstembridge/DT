@@ -3,8 +3,8 @@ from flask import render_template, redirect, flash, url_for, request
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load
 from back_end.interface import select, get_attr, get_members_for_query
 from front_end.query import QueryForm
-from front_end.extract import ExtractForm
-from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus
+from front_end.extract_form import ExtractForm
+from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod
 from models.dt_db import Action, Member
 import datetime
 
@@ -99,6 +99,35 @@ class Extracts:
                 member.dt_number(),
                 member.status.name,
                 member.full_name(),
+                member.address.line_1,
+                member.address.line_2,
+                member.address.line_3,
+                member.address.city,
+                member.address.county,
+                member.address.state,
+                member.address.post_code,
+                member.address.country_for_mail(),
+                member.dues()
+            ]
+            csv.append(row)
+        return csv
+
+    @staticmethod
+    def extract_debits():
+        end_date = datetime.date(datetime.date.today().year, 8, 1).strftime('%Y-%m-%d')
+        members = select(Member, (Member.end_date == end_date, Member.last_payment_method == PaymentMethod.dd))
+        csv = []
+        head = ['id', 'status', 'email', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
+                'state', 'post_code', 'country', 'amount']
+        csv.append(head)
+        for member in members:
+            row = [
+                member.dt_number(),
+                member.status.name,
+                member.full_name(),
+                member.email,
+                member.home_phone,
+                member.mobile_phone,
                 member.address.line_1,
                 member.address.line_2,
                 member.address.line_3,
