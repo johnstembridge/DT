@@ -1,0 +1,19 @@
+{
+  "OS": "Unix",
+  "apache_group_name": "www-data",
+  "SECRET_KEY": "secret squirrel",
+  "override": false,
+  "send_mail": true,
+  "db_path": "sqlite:////var/data/dt.db",
+  "locations": {
+    "base_url": "http://80.82.115.246/",
+    "html": "/var/www/html",
+    "logs": "/var/log/dt",
+    "templates": "templates"
+  },
+    "url_prefix": {
+    "admin": "",
+    "user": "",
+    "html": ".."
+  }
+}

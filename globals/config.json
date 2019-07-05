@@ -3,21 +3,12 @@
   "SECRET_KEY": "secret squirrel",
   "override": false,
   "send_mail": false,
-//  "db_path": "sqlite:///C:\\Users\\jstembridge\\wagsite\\wags.db",
   "db_path": "sqlite:///D:\\python\\dt\\dt.db",
   "locations": {
     "base_url": "http://127.0.0.1:5000/",
     "templates": "templates",
-//    "html": "C:\\Users\\jstembridge\\wagsite\\v2",
-//    "reports": "C:\\Users\\jstembridge\\wagsite\\v2\\reports",
-//    "data": "C:\\Users\\jstembridge\\wagsite\\v2\\data",
-//    "minutes": "C:\\Users\\jstembridge\\wagsite\\v2\\minutes",
-//    "logs": "C:\\Users\\jstembridge\\PycharmProjects\\wagsv\\logs"
     "html": "D:\\python\\dt\\",
-    "reports": "D:\\wagsite_new\\v2\\reports",
-    "minutes": "D:\\wagsite_new\\v2\\minutes",
     "output": "D:\\donstrust\\output",
-    "data": "D:\\wagsite_new\\html\\data",
     "logs": "D:\\python\\dt\\logs"
   },
   "url_prefix": {

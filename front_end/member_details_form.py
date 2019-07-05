@@ -103,7 +103,7 @@ class MemberDetailsForm(FlaskForm):
         self.mobile_phone.data = member.mobile_phone
         self.email.data = member.email
         self.comms.data = member.comms.value
-        self.comms_status.data = member.comms_status.value
+        self.comms_status.data = member.comms_status.value if member.comms_status else CommsStatus.all_ok
 
         for payment in [get_new_payment()] + member.payments:
             item_form = PaymentItemForm()
