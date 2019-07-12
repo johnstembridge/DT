@@ -35,6 +35,10 @@ class MemberStatus(FormEnum):
     deceased = 7
 
     @staticmethod
+    def active():
+        return [MemberStatus.founder, MemberStatus.current]
+
+    @staticmethod
     def all_active():
         return [MemberStatus.life, MemberStatus.founder, MemberStatus.current]
 
@@ -75,6 +79,7 @@ class PaymentType(FormEnum):
 
 
 class PaymentMethod(FormEnum):
+    na = 0
     cc = 1
     dd = 2
     chq = 3

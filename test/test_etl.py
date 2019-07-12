@@ -9,7 +9,7 @@ class TestEtl(unittest.TestCase):
     def members_etl(rec):
         header = ['Member ID', 'Sex', 'Prefix', 'First Name', 'Last Name', 'Birthdate', 'Email Address', 'Home Phone',
                   'Other Phone', 'Concession Type', 'Status Code', 'Start Date', 'End Date', 'Updated', 'Direct Debit',
-                  'Use email', 'AFC has access']
+                  'Use email', 'AFC has access', '3rdPty have access']
         if type(rec) is str:
             return header
         return rec

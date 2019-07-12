@@ -90,10 +90,10 @@ def user_register(role, new=True):
                     user.roles.append(role)
                 save_user(user)
                 if new:
-                    flash('Congratulations, you are now a registered {}!'.format(role.name), 'success')
+                    flash('Congratulations, you are now a registered {}!'.format(role.role.name), 'success')
                     return redirect(url_for('index'))
                 else:
-                    flash('Login details reset'.format(role.name), 'success')
+                    flash('Login details reset to {}'.format(role.role.name), 'success')
                     return redirect(url_for('index'))
             else:
                 flash('Cannot find your membership - please give your Dons Trust contact email address')

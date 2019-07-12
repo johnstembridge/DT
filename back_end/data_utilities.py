@@ -79,6 +79,8 @@ def coerce_fmt_date(x):
 
 
 def fmt_date(date, fmt=None):
+    if not date:
+        return ''
     if not fmt:
         fmt = '%d/%m/%Y'
     return date.strftime(fmt)
@@ -283,3 +285,7 @@ def html_escape(text):
 
 def html_unescape(text):
     return text.replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&')
+
+
+def yes_no(true_false):
+    return 'yes' if true_false else 'no'

@@ -159,7 +159,7 @@ class Member(Base):
     payments = relationship('Payment', order_by='desc(Payment.date)', back_populates='member')
     comments = relationship('Comment', order_by='desc(Comment.date)', back_populates='member')
     actions = relationship('Action', order_by='desc(Action.date)', back_populates='member')
-    junior = relationship("Junior", uselist=False, back_populates="member")
+    junior = relationship('Junior', uselist=False, back_populates='member')
 
     def dt_number(self):
         member_type = 'JD' if self.member_type == MembershipType.junior else 'DT'
@@ -231,6 +231,15 @@ class Member(Base):
             return payments[0].method
         else:
             return None
+
+    def use_email(self):
+        return self.comms == CommsType.email and self.comms_status == CommsStatus.all_ok
+
+    def afcw_has_access(self):
+        return (self.external_access or ExternalAccess.AFCW).value > 0
+
+    def third_pty_access(self):
+        return (self.external_access or ExternalAccess.AFCW).value == 2
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())

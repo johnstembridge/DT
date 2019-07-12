@@ -4,7 +4,7 @@ from datetime import date
 
 from models.dt_db import Member, Address, Payment, Comment, Action
 from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType, \
-    CommsStatus, MemberAction, ActionStatus
+    CommsStatus, MemberAction, ActionStatus, ExternalAccess
 from back_end.file_access import delete_file, file_delimiter
 from back_end.data_utilities import parse_date, valid_date, force_list
 from main import db
@@ -58,6 +58,7 @@ def member_etl(rec):
         end_date=parse_date(rec['End Date'], sep='/', reverse=True),
         last_updated=parse_date(rec['Updated'], sep='/', reverse=True),
         last_payment_method=PaymentMethod[rec['Direct Debit']] if rec['Direct Debit'] != '' else None,
+        external_access=external_access_etl(rec),
         comms=CommsType.email if rec['Use email'] == 'yes' else CommsType.post,
         comms_status=CommsStatus.email_fail if (rec['Email Address'] != '') and (
                     rec['Use email'] == 'bounced') else CommsStatus.all_ok,
@@ -88,15 +89,16 @@ status_etl = {
 
 
 def type_etl(member, old_status, old_concession_type):
+    age = member.age(as_of=date(2019, 8, 1), default=25)
     if member.is_active():
         type = {
             'LIF': MembershipType.standard,
             'JLF': MembershipType.junior,
-            'FJ': MembershipType.junior,
+            'FJ': MembershipType.junior if age < 16 else MembershipType.intermediate,
             'FI': MembershipType.intermediate,
             'F': MembershipType.standard,
             'S': MembershipType.standard,
-            'J': MembershipType.junior,
+            'J': MembershipType.junior if age < 16 else MembershipType.intermediate,
             'I': MembershipType.intermediate,
             'H': MembershipType.honorary
         }[old_status]
@@ -110,7 +112,6 @@ def type_etl(member, old_status, old_concession_type):
                 'Young Adult': MembershipType.intermediate
             }[old_concession_type]
     else:
-        age = member.age(default=25)
         if age < 16:
             type = MembershipType.junior
         elif age <= 21:
@@ -122,6 +123,18 @@ def type_etl(member, old_status, old_concession_type):
     return type
 
 
+def external_access_etl(rec):
+    afc = rec['AFC has access']
+    pty = rec['3rdPty have acc']
+    if afc == 'no':
+        return ExternalAccess.none
+    if afc == 'yes':
+        if pty == 'yes':
+            return ExternalAccess.all
+        else:
+            return ExternalAccess.AFCW
+
+
 def address_etl(rec):
     address = Address(
         line_1=rec['Address Line 1'],
@@ -131,7 +144,7 @@ def address_etl(rec):
         county=rec['County'],
         state=rec['State/Province'],
         post_code=rec['ZIP/Post Code'],
-        country=rec['Country Code']
+        country=rec['Country Name']
     )
     return address
 
