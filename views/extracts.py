@@ -20,6 +20,13 @@ def extracts_cards():
     return return_csv_file(Extracts.extract_cards(), 'cards.csv')
 
 
+@app.route('/extracts/cards_all', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_cards_all():
+    return return_csv_file(Extracts.extract_cards_all(), 'cards_all.csv')
+
+
 @app.route('/extracts/renewals', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')

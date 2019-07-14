@@ -4,9 +4,9 @@ from flask import send_file
 import io, csv
 
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
-    Sex, CommsType
+    Sex, CommsType, JuniorGift
 from main import db
-from models.dt_db import Member, Address, User, Payment, Action, Comment
+from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior
 from back_end.data_utilities import first_or_default, unique, pop_next
 
 db_session = db.session
@@ -25,7 +25,10 @@ def get_member_by_email(email):
 
 
 def get_member(member_id):
-    return db_session.query(Member).filter_by(id=member_id).first()
+    member = db_session.query(Member).filter_by(id=member_id).first()
+    if member.member_type == MembershipType.junior and not member.junior:
+        member.junior = Junior()
+    return member
 
 
 def get_new_member():
@@ -42,6 +45,8 @@ def get_new_member():
     member.comms = CommsType.email
 
     member.address = get_new_address()
+
+    member.junior = Junior()
 
     return member
 
@@ -123,6 +128,7 @@ def save_member(member_id, details):
 
     member.home_phone = details['home_phone']
     member.mobile_phone = details['mobile_phone']
+    member.email = details['email']
     member.comms = CommsType(details['comms'])
     member.comms_status = CommsType(details['comms_status'])
 
@@ -134,6 +140,10 @@ def save_member(member_id, details):
     member.address.post_code = details['post_code']
     member.address.county = details['county']
     member.address.country = details['country']
+
+    if member.member_type == MembershipType.junior:
+        member.junior.email = details['jd_mail']
+        member.junior.gift = JuniorGift(details['jd_gift'])
 
     payments = []
     for payment in details['payments']:

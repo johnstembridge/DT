@@ -7,7 +7,7 @@ from back_end.interface import get_new_member, get_member, save_member, get_new_
     get_members_by_name, get_new_action
 from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
-    ActionStatus, Title, CommsStatus
+    ActionStatus, Title, CommsStatus, JuniorGift
 
 
 class PaymentItemForm(FlaskForm):
@@ -67,6 +67,9 @@ class MemberDetailsForm(FlaskForm):
     payment_list = FieldList(FormField(PaymentItemForm))
     action_list = FieldList(FormField(ActionItemForm))
     comment_list = FieldList(FormField(CommentItemForm))
+
+    jd_email = StringField(label='JD Email ', validators=[Optional(), Email("Invalid email address")])
+    jd_gift = MySelectField(label='JD Gift', choices=JuniorGift.choices(blank=True), coerce=JuniorGift.coerce)
 
     def populate_member(self, member_id):
         new_member = member_id == 0
@@ -130,6 +133,12 @@ class MemberDetailsForm(FlaskForm):
             item_form.comment = comment.comment or ''
             self.comment_list.append_entry(item_form)
 
+        if new_member or member.member_type == MembershipType.junior:
+            self.jd_email.data = member.junior.email or ''
+            self.jd_gift.data = (member.junior.gift or JuniorGift.none).value
+        else:
+            self.jd_email = self.jd_gift = None
+
     def validate(self):
         result = True
         new_member = self.member_id.data == 0
@@ -175,6 +184,10 @@ class MemberDetailsForm(FlaskForm):
             'actions': [],
             'comments': []
         }
+        if self.type.data == MembershipType.junior.value:
+            member['jd_mail'] = self.jd_email.data
+            member['jd_gift'] = self.jd_gift.data
+
         for payment in self.payment_list.data:
             if payment['amount']:
                 member['payments'].append(payment)

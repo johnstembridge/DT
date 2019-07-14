@@ -1,10 +1,10 @@
 from flask import render_template, redirect, url_for, request
 
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load
-from back_end.interface import select, get_attr, get_members_for_query
-from back_end.data_utilities import fmt_date, yes_no
 from front_end.query import QueryForm
 from front_end.extract_form import ExtractForm
+from back_end.interface import select, get_attr, get_members_for_query
+from back_end.data_utilities import fmt_date, yes_no
 from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod
 from models.dt_db import Action, Member, Junior
 import datetime
@@ -58,6 +58,28 @@ class Extracts:
                 card.member.address.post_code,
                 card.member.address.country_for_mail(),
                 card.member.start_date.year
+            ]
+            csv.append(row)
+        return csv
+
+    @staticmethod
+    def extract_cards_all():
+        # annual replacement cards
+        members = select(Member, (Member.status.in_(MemberStatus.all_active()),))
+        csv = []
+        head = ['id', 'name', 'since']
+        csv.append(head)
+        for member in members:
+            if member.status == MemberStatus.founder:
+                extra = ' (founder)'
+            elif member.status == MemberStatus.life:
+                extra = ' (life member)'
+            else:
+                extra = ''
+            row = [
+                member.dt_number(),
+                member.full_name(),
+                str(member.start_date.year) + extra
             ]
             csv.append(row)
         return csv

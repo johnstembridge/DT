@@ -91,6 +91,16 @@
             <td>{{ form.comms_status.label }}&nbsp;</td>
             <td>{{ form.comms_status(required='required') }}</td>
         </tr>
+        {% if form.jd_email %}
+            <tr>
+                <td>{{ form.jd_email.label }}&nbsp;</td>
+                <td>{{ form.jd_email(size='40') }}&nbsp;</td>
+                <td>{{ form.jd_gift.label }}&nbsp;</td>
+                <td>{{ form.jd_gift }}</td>
+                <td></td>
+                <td></td>
+            </tr>
+        {% endif %}
     </table>
     <hr/>
     <h4><a data-toggle="collapse" href="#payments" aria-expanded="false" aria-controls="payments">Payments</a></h4>

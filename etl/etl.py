@@ -89,7 +89,7 @@ status_etl = {
 
 
 def type_etl(member, old_status, old_concession_type):
-    age = member.age(as_of=date(2019, 8, 1), default=25)
+    age = member.age(as_of=date(2019, 8, 1))
     if member.is_active():
         type = {
             'LIF': MembershipType.standard,
@@ -223,10 +223,11 @@ def comment_etl(rec):
     objects = []
     for rec in recs:
         if rec['Comment'] == 'dd payment made':
+            date = parse_date(rec['Date'], sep='/', reverse=True)
             payment = Payment(
                 member_id=number,
-                date=parse_date(rec['Date'], sep='/', reverse=True),
-                amount=0.0,
+                date=date,
+                amount=db_session.query(Member).filter_by(id=number).first().dues(date),
                 type=PaymentType.dues,
                 method=PaymentMethod.dd,
                 comment=None
