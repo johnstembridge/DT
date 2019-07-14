@@ -59,6 +59,10 @@ class MembershipType(FormEnum):
         return [MembershipType.job_seeker, MembershipType.senior, MembershipType.student, MembershipType.incapacity,
                 MembershipType.other_concession]
 
+    @staticmethod
+    def volatile_concessions():
+        return [MembershipType.job_seeker, MembershipType.student, MembershipType.incapacity, MembershipType.other_concession]
+
 
 class MemberAction(FormEnum):
     certificate = 1

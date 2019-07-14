@@ -225,21 +225,17 @@ class Member(Base):
             return Dues.concession.value
         return Dues.standard.value
 
-    def current_payment_method(self):
-        if len(self.payments) > 0:
-            payments = sorted(self.payments, key=lambda p: p.date, reverse=True)
-            return payments[0].method
-        else:
-            return None
-
     def use_email(self):
         return self.comms == CommsType.email and self.comms_status == CommsStatus.all_ok
 
     def afcw_has_access(self):
-        return (self.external_access or ExternalAccess.AFCW).value > 0
+        return (self.external_access or ExternalAccess.AFCW).value > ExternalAccess.none.value
 
     def third_pty_access(self):
-        return (self.external_access or ExternalAccess.AFCW).value == 2
+        return (self.external_access or ExternalAccess.AFCW) == ExternalAccess.all
+
+    def volatile_concession(self):
+        return self.member_type in MembershipType.volatile_concessions()
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())

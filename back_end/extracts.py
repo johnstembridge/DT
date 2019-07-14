@@ -91,7 +91,7 @@ class Extracts:
         csv = []
         head = ['member_id', 'status', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city',
                 'county', 'state', 'post_code', 'country', 'amount', 'pay_method', 'birth_date', 'email', 'use_email',
-                'afcw_access', 'third_pty_access', 'home_phone', 'mobile_phone', 'jd_email']
+                'afcw_access', 'third_pty_access', 'home_phone', 'mobile_phone', 'jd_email', 'volatile_concession']
         csv.append(head)
         for member in members:
             row = [
@@ -116,7 +116,8 @@ class Extracts:
                 yes_no(member.third_pty_access()),
                 member.home_phone,
                 member.mobile_phone,
-                (member.junior or Junior(email='')).email
+                (member.junior or Junior(email='')).email,
+                yes_no(member.volatile_concession())
             ]
             csv.append(row)
         return csv
