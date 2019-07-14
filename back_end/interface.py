@@ -4,7 +4,7 @@ from flask import send_file
 import io, csv
 
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
-    Sex, CommsType, JuniorGift
+    Sex, CommsType, JuniorGift, ExternalAccess
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior
 from back_end.data_utilities import first_or_default, unique, pop_next
@@ -126,6 +126,9 @@ def save_member(member_id, details):
     member.end_date = details['end_date']
     member.birth_date = details['birth_date']
 
+    member.last_payment_method = PaymentMethod(details['payment_method'])
+    member.external_access = ExternalAccess(details['external_access'])
+
     member.home_phone = details['home_phone']
     member.mobile_phone = details['mobile_phone']
     member.email = details['email']
@@ -168,8 +171,8 @@ def save_member(member_id, details):
         payments.append(item)
     member.payments = payments
 
-    if len(payments) > 0:
-        member.last_payment_method = [p.method for p in payments if p.date == max([p.date for p in payments])][0]
+    # if len(payments) > 0:
+    #     member.last_payment_method = [p.method for p in payments if p.date == max([p.date for p in payments])][0]
 
     actions = []
     for action in details['actions']:

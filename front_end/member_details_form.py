@@ -7,7 +7,7 @@ from back_end.interface import get_new_member, get_member, save_member, get_new_
     get_members_by_name, get_new_action
 from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
-    ActionStatus, Title, CommsStatus, JuniorGift
+    ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess
 
 
 class PaymentItemForm(FlaskForm):
@@ -41,6 +41,8 @@ class MemberDetailsForm(FlaskForm):
     end_date = DateField(label='End')
     birth_date = DateField(label='Birth', validators=[Optional()])
     age = HiddenField(label='Age')
+    payment_method = MySelectField(label='Current payment method', choices=PaymentMethod.choices(), coerce=PaymentMethod.coerce)
+    external_access = MySelectField(label='External access', choices=ExternalAccess.choices(), coerce=ExternalAccess.coerce)
 
     title = MySelectField(label='Title', choices=Title.choices(blank=True), coerce=Title.coerce)
     first_name = StringField(label='First', validators=[InputRequired()])
@@ -86,6 +88,9 @@ class MemberDetailsForm(FlaskForm):
         self.end_date.data = member.end_date
         self.birth_date.data = member.birth_date
         self.age.data = member.age()
+
+        self.payment_method.data = member.last_payment_method.value
+        self.external_access.data = member.external_access.value
 
         self.full_name.data = member.full_name()
         self.title.data = member.title.value if member.title else ''
@@ -164,6 +169,9 @@ class MemberDetailsForm(FlaskForm):
             'start_date': self.start_date.data,
             'end_date': self.end_date.data,
             'birth_date': self.birth_date.data,
+
+            'payment_method': self.payment_method.data,
+            'external_access': self.external_access.data,
 
             'home_phone': self.home_phone.data,
             'mobile_phone': self.mobile_phone.data,

@@ -26,6 +26,15 @@
             <td>{{ form.birth_date }}{%if form.age.data %} ({{ form.age.data }}){% endif %}</td>
         </tr>
     </table>
+    <table width="30%">
+        <tr>&nbsp;</tr>
+        <tr>
+            <td>{{ form.payment_method.label }}&nbsp;</td>
+            <td>{{ form.payment_method }}&nbsp;</td>
+            <td>{{ form.external_access.label }}&nbsp;</td>
+            <td>{{ form.external_access }}&nbsp;</td>
+        </tr>
+    </table>
     <hr/>
     <table width="60%">
         <tr>
