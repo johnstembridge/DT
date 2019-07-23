@@ -47,14 +47,14 @@ class TestDb(unittest.TestCase):
         active = self.session.query(Member).filter(Member.status < MemberStatus.lapsed)
         for member in active:
             pay_method = member.last_payment_method
-            if pay_method is None:
-                pass
+            # if pay_method is None:
+            #     pass
             if len(member.payments) > 0:
                 actual = member.payments[0].method
                 if actual == pay_method:
                     continue
                 else:
-                    pass
+                    print('id: {}, stored: {}, active: {}'.format(member.id, pay_method, actual))
             else:
                 pass
 

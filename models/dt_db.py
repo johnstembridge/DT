@@ -217,7 +217,7 @@ class Member(Base):
             if self.start_date.year == self.end_date.year and as_of < self.end_date:
                 return Dues.junior_new.value
             return Dues.junior.value
-        if age <= 21:
+        if age < 21:
             return Dues.intermediate.value
         if age >= 60:
             return Dues.senior.value

@@ -24,7 +24,7 @@ def extracts_cards():
 @login_required
 @role_required('admin')
 def extracts_cards_all():
-    return return_csv_file(Extracts.extract_cards_all(), 'cards_all.csv')
+    return return_csv_file(Extracts.extract_cards_all(), 'cards_all.txt')
 
 
 @app.route('/extracts/renewals', methods=['GET', 'POST'])
@@ -38,14 +38,14 @@ def extracts_renewals():
 @login_required
 @role_required('admin')
 def extracts_juniors():
-    return return_csv_file(Extracts.extract_juniors(), 'juniors.csv')
+    return return_csv_file(Extracts.extract_juniors(), 'juniors.txt')
 
 
 @app.route('/extracts/debits', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
 def extracts_debits():
-    return return_csv_file(Extracts.extract_debits(), 'debits.csv')
+    return return_csv_file(Extracts.extract_debits(), 'debits.txt')
 
 
 @app.route('/extracts/select', methods=['GET', 'POST'])

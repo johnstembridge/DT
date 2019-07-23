@@ -8,6 +8,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior
 from back_end.data_utilities import first_or_default, unique, pop_next
+from back_end.file_access import file_delimiter
 
 db_session = db.session
 
@@ -16,6 +17,15 @@ def save_object(object):
     if not object.id:
         db_session.add(object)
     db_session.commit()
+
+
+def add_object(object):
+    if not object.id:
+        db_session.add(object)
+
+
+def select(select, where):
+    return db_session.query(select).filter(*where)
 
 
 # region Members
@@ -64,10 +74,6 @@ def get_members_by_name(name):
         return []
 
 
-def select(select, where):
-    return db_session.query(select).filter(*where)
-
-
 def get_members_for_query(query_clauses, default_table='Member', limit=None):
     tables = unique([globals()[t[0]] for t in [[default_table]] + query_clauses])
     clauses = []
@@ -108,7 +114,12 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
     return q
 
 
-def save_member(member_id, details):
+def save_member(member):
+    member.last_updated = datetime.date.today()
+    save_object(member)
+
+
+def save_member_details(member_id, details):
     if member_id > 0:
         member = get_member(member_id)
     else:
@@ -301,9 +312,13 @@ def field_type(table, field_name):
     return type, data
 
 
-def list_to_csv_object(csv_list):
+def list_to_csv_object(csv_list, delimiter=','):
     csv_object = io.StringIO()
-    writer = csv.writer(csv_object)
+    if delimiter == '\t':
+        dialect = 'excel-tab'
+    else:
+        dialect = 'excel'
+    writer = csv.writer(csv_object, dialect=dialect)
     writer.writerows(csv_list)
     return csv_object
 
@@ -311,7 +326,8 @@ def list_to_csv_object(csv_list):
 def stringIO_to_bytesIO(stringIO_object):
     # Creating a bytesIO object from a StringIO Object
     bytesIO_object = io.BytesIO()
-    bytesIO_object.write(stringIO_object.getvalue().encode('utf-8'))
+    encoding = 'utf-8-sig'  # add BOM signature for Excel
+    bytesIO_object.write(stringIO_object.getvalue().encode(encoding))
     # seeking was necessary. Python 3.5.2, Flask 0.12.2
     bytesIO_object.seek(0)
     stringIO_object.close()
@@ -319,7 +335,8 @@ def stringIO_to_bytesIO(stringIO_object):
 
 
 def return_csv_file(csv_list, file_name):
-    return return_file(stringIO_to_bytesIO(list_to_csv_object(csv_list)), file_name)
+    delimiter = file_delimiter(file_name)
+    return return_file(stringIO_to_bytesIO(list_to_csv_object(csv_list, delimiter)), file_name)
 
 
 def return_file(file_path_or_object, filename, mime_type='text/csv'):

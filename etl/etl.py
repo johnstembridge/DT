@@ -66,6 +66,28 @@ def member_etl(rec):
         actions=actions_etl(rec)
     )
     member.member_type = type_etl(member, rec['Status Code'], rec['Concession Type'])
+    member = handle_upgrade(member, date(2019, 8, 1))
+    return member
+
+
+def handle_upgrade(member, end_date):
+    age = member.age(end_date)
+    if member.member_type == MembershipType.junior and age >= 16:
+        member.member_type = MembershipType.intermediate
+        member.actions.insert(0, Action(
+            date=end_date,
+            action=MemberAction.upgrade,
+            status=ActionStatus.open,
+            comment='Automatic upgrade from Junior on ETL load'
+        ))
+    elif member.member_type == MembershipType.intermediate and age >= 21:
+        member.member_type = MembershipType.standard
+        member.actions.insert(0, Action(
+            date=end_date,
+            action=MemberAction.upgrade,
+            status=ActionStatus.closed,
+            comment='Automatic update status from Young Adult on ETL load'
+        ))
     return member
 
 
@@ -94,11 +116,11 @@ def type_etl(member, old_status, old_concession_type):
         type = {
             'LIF': MembershipType.standard,
             'JLF': MembershipType.junior,
-            'FJ': MembershipType.junior if age < 16 else MembershipType.intermediate,
+            'FJ': MembershipType.junior, # if age < 16 else MembershipType.intermediate,
             'FI': MembershipType.intermediate,
             'F': MembershipType.standard,
             'S': MembershipType.standard,
-            'J': MembershipType.junior if age < 16 else MembershipType.intermediate,
+            'J': MembershipType.junior, # if age < 16 else MembershipType.intermediate,
             'I': MembershipType.intermediate,
             'H': MembershipType.honorary
         }[old_status]
@@ -114,7 +136,7 @@ def type_etl(member, old_status, old_concession_type):
     else:
         if age < 16:
             type = MembershipType.junior
-        elif age <= 21:
+        elif age < 21:
             type = MembershipType.intermediate
         elif age > 60:
             type = MembershipType.senior
@@ -151,20 +173,39 @@ def address_etl(rec):
 
 def actions_etl(rec):
     actions = []
-    if rec['Card'] == 'new':
+    card = rec['Card']
+    if 'new' in card:
         action = Action(
             date=date.today(),
             action=MemberAction.certificate,
             status=ActionStatus.open,
-            comment='from import'
+            comment='from import: {}'.format(card)
         )
         actions.append(action)
-    if rec['Card'] == 'print':
+    elif card == 'print':
         action = Action(
             date=date.today(),
             action=MemberAction.card,
             status=ActionStatus.open,
-            comment='from import'
+            comment='from import: {}'.format(card)
+        )
+        actions.append(action)
+
+    elif card in['resend', 'replacement']:
+        action = Action(
+            date=date.today(),
+            action=MemberAction.card,
+            status=ActionStatus.open,
+            comment='from import: {}'.format(card)
+        )
+        actions.append(action)
+
+    elif 'upgrade' in card:
+        action = Action(
+            date=date.today(),
+            action=MemberAction.upgrade,
+            status=ActionStatus.open,
+            comment='from import: {}'.format(card)
         )
         actions.append(action)
 
@@ -208,6 +249,7 @@ payment_method_map = {
     's/o': PaymentMethod.so,
     'credit xfer': PaymentMethod.xfer,
     'cheque': PaymentMethod.chq,
+    'chq': PaymentMethod.chq,
 }
 
 

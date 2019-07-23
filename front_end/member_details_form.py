@@ -3,7 +3,7 @@ from wtforms import StringField, SubmitField, HiddenField, FieldList, FormField,
 from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
 
-from back_end.interface import get_new_member, get_member, save_member, get_new_comment, get_new_payment, \
+from back_end.interface import get_new_member, get_member, save_member_details, get_new_comment, get_new_payment, \
     get_members_by_name, get_new_action
 from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
@@ -89,8 +89,8 @@ class MemberDetailsForm(FlaskForm):
         self.birth_date.data = member.birth_date
         self.age.data = member.age()
 
-        self.payment_method.data = member.last_payment_method.value
-        self.external_access.data = member.external_access.value
+        self.payment_method.data = (member.last_payment_method or PaymentMethod.na).value
+        self.external_access.data = (member.external_access or ExternalAccess.none).value
 
         self.full_name.data = member.full_name()
         self.title.data = member.title.value if member.title else ''
@@ -208,5 +208,5 @@ class MemberDetailsForm(FlaskForm):
             if comment['comment']:
                 member['comments'].append(comment)
 
-        save_member(member_id, member)
+        save_member_details(member_id, member)
         return True
