@@ -49,7 +49,7 @@ def decode_date_formal(wdm):
         return None
 
 
-def encode_date_formal(date):
+def encode_date_formal(date, cert=False):
     # result is in the form 8th September 2013
     if date is None:
         return ''
@@ -60,8 +60,10 @@ def encode_date_formal(date):
 
     if isinstance(date, str):
         date = datetime.datetime.strptime(date, '%Y/%m/%d')
-
-    return custom_strftime('{TH} %B %Y', date.timetuple())
+    if cert:
+        return custom_strftime('{TH} day of %B %Y', date.timetuple())
+    else:
+        return custom_strftime('{TH} %B %Y', date.timetuple())
 
 
 def decode_date_range(dr, year):

@@ -9,7 +9,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Co
 class QueryForm(FlaskForm):
     months = [(m, calendar.month_name[m]) for m in range(1, 13)]
 
-    number = MyStringField(label='number', db_map='Member.id')
+    number = MyStringField(label='number', db_map='Member.number')
     status = MySelectField(label='status', choices=MemberStatus.choices(extra=[(99, '<lapsed (active)')], blank=True),
                            coerce=MemberStatus.coerce, db_map='Member.status')
     member_type = MySelectField(label='member type', choices=MembershipType.choices(blank=True),

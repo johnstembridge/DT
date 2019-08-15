@@ -12,11 +12,11 @@ def members():
     return MaintainMembers.list_members()
 
 
-@app.route('/members/<int:member_id>/details', methods=['GET', 'POST'])
+@app.route('/members/<int:member_number>/details', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
-def edit_member(member_id):
-    return MaintainMembers.edit_member(member_id)
+def edit_member(member_number):
+    return MaintainMembers.edit_member(member_number)
 
 
 @app.route('/members_find', methods=['GET', 'POST'])

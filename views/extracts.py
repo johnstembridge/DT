@@ -10,7 +10,7 @@ from back_end.interface import return_csv_file
 @login_required
 @role_required('admin')
 def extracts_certs():
-    return return_csv_file(Extracts.extract_certificates(), 'certs.csv')
+    return return_csv_file(Extracts.extract_certificates(), 'certs.txt')
 
 
 @app.route('/extracts/cards', methods=['GET', 'POST'])
@@ -38,7 +38,7 @@ def extracts_renewals():
 @login_required
 @role_required('admin')
 def extracts_juniors():
-    return return_csv_file(Extracts.extract_juniors(), 'juniors.txt')
+    return return_csv_file(Extracts.extract_junior_birthdays(), 'juniors.csv')
 
 
 @app.route('/extracts/debits', methods=['GET', 'POST'])
@@ -46,6 +46,13 @@ def extracts_juniors():
 @role_required('admin')
 def extracts_debits():
     return return_csv_file(Extracts.extract_debits(), 'debits.txt')
+
+
+@app.route('/extracts/email', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_email():
+    return return_csv_file(Extracts.extract_email(), 'email.csv')
 
 
 @app.route('/extracts/select', methods=['GET', 'POST'])

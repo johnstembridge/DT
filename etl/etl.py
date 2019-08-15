@@ -61,33 +61,28 @@ def member_etl(rec):
         external_access=external_access_etl(rec),
         comms=CommsType.email if rec['Use email'] == 'yes' else CommsType.post,
         comms_status=CommsStatus.email_fail if (rec['Email Address'] != '') and (
-                    rec['Use email'] == 'bounced') else CommsStatus.all_ok,
+                rec['Use email'] == 'bounced') else CommsStatus.all_ok,
         address=address_etl(rec),
         actions=actions_etl(rec)
     )
     member.member_type = type_etl(member, rec['Status Code'], rec['Concession Type'])
-    member = handle_upgrade(member, date(2019, 8, 1))
+    # member = handle_upgrade(member, date(2019, 8, 1))
     return member
 
 
 def handle_upgrade(member, end_date):
     age = member.age(end_date)
-    if member.member_type == MembershipType.junior and age >= 16:
-        member.member_type = MembershipType.intermediate
-        member.actions.insert(0, Action(
-            date=end_date,
-            action=MemberAction.upgrade,
-            status=ActionStatus.open,
-            comment='Automatic upgrade from Junior on ETL load'
-        ))
+    if member.member_type == MembershipType.junior:
+        if age >= 16:
+            member.member_type = MembershipType.intermediate if age < 21 else MembershipType.standard
+            member.actions.insert(0, Action(
+                date=end_date,
+                action=MemberAction.upgrade,
+                status=ActionStatus.open,
+                comment='Automatic upgrade from Junior on ETL load'
+            ))
     elif member.member_type == MembershipType.intermediate and age >= 21:
         member.member_type = MembershipType.standard
-        member.actions.insert(0, Action(
-            date=end_date,
-            action=MemberAction.upgrade,
-            status=ActionStatus.closed,
-            comment='Automatic update status from Young Adult on ETL load'
-        ))
     return member
 
 
@@ -111,16 +106,15 @@ status_etl = {
 
 
 def type_etl(member, old_status, old_concession_type):
-    age = member.age(as_of=date(2019, 8, 1))
     if member.is_active():
         type = {
             'LIF': MembershipType.standard,
             'JLF': MembershipType.junior,
-            'FJ': MembershipType.junior, # if age < 16 else MembershipType.intermediate,
+            'FJ': MembershipType.junior,  # if age < 16 else MembershipType.intermediate,
             'FI': MembershipType.intermediate,
             'F': MembershipType.standard,
             'S': MembershipType.standard,
-            'J': MembershipType.junior, # if age < 16 else MembershipType.intermediate,
+            'J': MembershipType.junior,  # if age < 16 else MembershipType.intermediate,
             'I': MembershipType.intermediate,
             'H': MembershipType.honorary
         }[old_status]
@@ -134,6 +128,7 @@ def type_etl(member, old_status, old_concession_type):
                 'Young Adult': MembershipType.intermediate
             }[old_concession_type]
     else:
+        age = member.age()
         if age < 16:
             type = MembershipType.junior
         elif age < 21:
@@ -182,16 +177,8 @@ def actions_etl(rec):
             comment='from import: {}'.format(card)
         )
         actions.append(action)
-    elif card == 'print':
-        action = Action(
-            date=date.today(),
-            action=MemberAction.card,
-            status=ActionStatus.open,
-            comment='from import: {}'.format(card)
-        )
-        actions.append(action)
 
-    elif card in['resend', 'replacement']:
+    elif card in ['print' 'resend', 'replacement']:
         action = Action(
             date=date.today(),
             action=MemberAction.card,
@@ -216,7 +203,7 @@ def donation_etl(rec):
     header = ['Member ID', 'Donation Date Posted', 'Donation Amount Posted', 'Donation Posting Type',
               'Donation Cheque Nbr', 'Donation Comments']
     payment = Payment(
-        member_id=int(rec['Member ID'][2:]),  # drop "0-"
+        member_id=get_member_id(int(rec['Member ID'][2:])),  # drop "0-"
         date=parse_date(rec['Donation Date Posted'], sep='/', reverse=True),
         amount=float(rec['Donation Amount Posted']),
         type=PaymentType.donation,
@@ -230,7 +217,7 @@ def payment_etl(rec):
     header = ['Member ID', 'Dues Date Posted', 'Dues Amount Posted', 'Dues Posting Type', 'Dues Cheque Nbr',
               'Dues Comments']
     payment = Payment(
-        member_id=int(rec['Member ID'][2:]),  # drop "0-"
+        member_id=get_member_id(int(rec['Member ID'][2:])),  # drop "0-"
         date=parse_date(rec['Dues Date Posted'], sep='/', reverse=True),
         amount=float(rec['Dues Amount Posted']),
         type=PaymentType.dues,
@@ -260,16 +247,16 @@ def payment_method_etl(old):
 
 
 def comment_etl(rec):
-    number = int(rec['Member ID'][2:])  # drop "0-"
-    recs = parse_comments(rec['Comments'])
+    member_id = get_member_id(int(rec['Member ID'][2:]))  # drop "0-"
+    recs = parse_comments(rec['Comments'].strip())
     objects = []
     for rec in recs:
         if rec['Comment'] == 'dd payment made':
             date = parse_date(rec['Date'], sep='/', reverse=True)
             payment = Payment(
-                member_id=number,
+                member_id=member_id,
                 date=date,
-                amount=db_session.query(Member).filter_by(id=number).first().dues(date),
+                amount=db_session.query(Member).filter_by(id=member_id).first().dues(date),
                 type=PaymentType.dues,
                 method=PaymentMethod.dd,
                 comment=None
@@ -277,7 +264,7 @@ def comment_etl(rec):
             objects.append(payment)
         else:
             comment = Comment(
-                member_id=number,
+                member_id=member_id,
                 date=parse_date(rec['Date'], sep='/', reverse=True),
                 comment=rec['Comment']
             )
@@ -305,3 +292,7 @@ def save_object(objects):
         if not object.id:
             db_session.add(object)
         db_session.commit()
+
+
+def get_member_id(member_number):
+    return db_session.query(Member).filter(Member.number == member_number).first().id

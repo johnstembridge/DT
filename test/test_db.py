@@ -31,7 +31,7 @@ class TestDb(unittest.TestCase):
 
     def test_get_cards(self):
         details = self.session \
-            .query(Member.id, Member.first_name, Member.last_name, Member.start_date, Address, Action) \
+            .query(Member.number, Member.first_name, Member.last_name, Member.start_date, Address, Action) \
             .join(Address) \
             .outerjoin(Action) \
             .filter(Action.status == ActionStatus.open, Action.action == MemberAction.card).all()
@@ -54,7 +54,7 @@ class TestDb(unittest.TestCase):
                 if actual == pay_method:
                     continue
                 else:
-                    print('id: {}, stored: {}, active: {}'.format(member.id, pay_method, actual))
+                    print('number: {}, stored: {}, active: {}'.format(member.number, pay_method, actual))
             else:
                 pass
 

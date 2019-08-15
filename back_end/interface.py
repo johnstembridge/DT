@@ -34,8 +34,8 @@ def get_member_by_email(email):
     return db_session.query(Member).filter(func.lower(Member.email) == func.lower(email)).first()
 
 
-def get_member(member_id):
-    member = db_session.query(Member).filter_by(id=member_id).first()
+def get_member(member_number):
+    member = db_session.query(Member).filter_by(number=member_number).first()
     if member.member_type == MembershipType.junior and not member.junior:
         member.junior = Junior()
     return member
@@ -43,8 +43,7 @@ def get_member(member_id):
 
 def get_new_member():
     member = Member()
-
-    # member.id = 0
+    member.number = 0
     member.first_name = 'new'
     member.last_name = 'member'
     member.status = MemberStatus.current
@@ -119,12 +118,11 @@ def save_member(member):
     save_object(member)
 
 
-def save_member_details(member_id, details):
-    if member_id > 0:
-        member = get_member(member_id)
+def save_member_details(member_number, details):
+    if member_number > 0:
+        member = get_member(member_number)
     else:
         member = get_new_member()
-        db_session.add(member)
 
     member.title = details['title'] if details['title'] > 0 else None
     member.first_name = details['first_name']
@@ -172,7 +170,7 @@ def save_member_details(member_id, details):
             item.comment = payment['comment']
         else:
             item = Payment(
-                member_id=member_id,
+                member_id=member.id,
                 date=payment['date'],
                 type=PaymentType(payment['pay_type']),
                 amount=payment['amount'],
@@ -197,7 +195,7 @@ def save_member_details(member_id, details):
             item.status = ActionStatus(action['status'])
         else:
             item = Action(
-                member_id=member_id,
+                member_id=member.id,
                 date=action['date'],
                 action=MemberAction(action['action']),
                 comment=action['comment'],
@@ -216,7 +214,7 @@ def save_member_details(member_id, details):
             item.comment = comment['comment']
         else:
             item = Comment(
-                member_id=member_id,
+                member_id=member.id,
                 date=comment['date'],
                 comment=comment['comment']
             )
@@ -225,8 +223,15 @@ def save_member_details(member_id, details):
 
     member.last_updated = datetime.date.today()
 
+    if member.number == 0:
+        member.number = next_member_number()
+        db_session.add(member)
+
     db_session.commit()
 
+
+def next_member_number():
+    return db_session.query(func.max(Member.number)).scalar() + 1
 
 # endregion
 
@@ -318,7 +323,7 @@ def list_to_csv_object(csv_list, delimiter=','):
         dialect = 'excel-tab'
     else:
         dialect = 'excel'
-    writer = csv.writer(csv_object, dialect=dialect)
+    writer = csv.writer(csv_object, dialect=dialect, delimiter=delimiter)
     writer.writerows(csv_list)
     return csv_object
 

@@ -4,8 +4,8 @@ from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, u
 from front_end.query import QueryForm
 from front_end.extract_form import ExtractForm
 from back_end.interface import select, get_attr, get_members_for_query
-from back_end.data_utilities import fmt_date, yes_no, first_or_default
-from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod
+from back_end.data_utilities import fmt_date, yes_no, first_or_default, encode_date_formal
+from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod, CommsType
 from models.dt_db import Action, Member, Junior
 import datetime
 
@@ -14,12 +14,17 @@ class Extracts:
 
     @staticmethod
     def extract_certificates():
-        certs = select(Action, (Action.status == ActionStatus.open, Action.action == MemberAction.certificate))
+        certs = select(Action, (
+            Action.status == ActionStatus.open,
+            Action.action.in_([MemberAction.certificate, MemberAction.upgrade]))
+                       )
         csv = []
         head = ['id', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
-                'state', 'post_code', 'country', 'address']
+                'state', 'post_code', 'country', 'address', 'cert_date', 'upgrade']
         csv.append(head)
         for cert in certs:
+            upgrade = cert.member.member_type == MembershipType.intermediate and \
+                      cert.member.actions[0].action == MemberAction.upgrade
             row = [
                 cert.member.dt_number(),
                 cert.member.member_type.name,
@@ -32,22 +37,25 @@ class Extracts:
                 cert.member.address.state,
                 cert.member.address.post_code,
                 cert.member.address.country_for_mail(),
-                cert.member.address.full()
+                cert.member.address.full(),
+                encode_date_formal(datetime.date.today(), cert=True),
+                yes_no(upgrade)
             ]
             csv.append(row)
         return csv
 
     @staticmethod
     def extract_cards():
-        cards = select(Action, (Action.status == ActionStatus.open, Action.action == MemberAction.card))
+        # renewal cards
+        all = select(Action, (Action.status == ActionStatus.open, Action.action == MemberAction.card))
         csv = []
-        head = ['id', 'status', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
-                'state', 'post_code', 'country', 'since']
+        head = ['id', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
+                'state', 'post_code', 'country', 'recent_new']
         csv.append(head)
-        for card in cards:
+        for card in all:
             row = [
                 card.member.dt_number(),
-                card.member.status.name,
+                card.member.member_type.name,
                 card.member.full_name(),
                 card.member.address.line_1,
                 card.member.address.line_2,
@@ -57,19 +65,21 @@ class Extracts:
                 card.member.address.state,
                 card.member.address.post_code,
                 card.member.address.country_for_mail(),
-                card.member.start_date.year
+                yes_no(card.member.start_date >= datetime.date(datetime.date.today().year, 2, 1))
             ]
             csv.append(row)
         return csv
 
     @staticmethod
     def extract_cards_all():
-        # annual replacement cards
+        # annual replacement cards for printers
+        end_date = datetime.date(datetime.date.today().year, 8, 1)
         members = select(Member, (Member.status.in_(MemberStatus.all_active()),))
         csv = []
         head = ['id', 'name', 'since']
         csv.append(head)
         for member in members:
+            member = Extracts.handle_upgrade(member, end_date, 'extract_cards')
             if member.status == MemberStatus.founder:
                 extra = ' (founder)'
             elif member.status == MemberStatus.life:
@@ -96,7 +106,7 @@ class Extracts:
                 'latest_action']
         csv.append(head)
         for member in members:
-            # member, update = Extracts.handle_upgrade(member, end_date)
+            member = Extracts.handle_upgrade(member, end_date, 'extract_renewals')
             latest_action = first_or_default(member.actions, None)
             if latest_action:
                 latest_action = latest_action.action.name if latest_action.status == ActionStatus.open else None
@@ -127,14 +137,10 @@ class Extracts:
                 latest_action
             ]
             csv.append(row)
-            # if update:
-            #     add_object(member.actions[0])
-            #     save_member(member)
         return csv
 
     @staticmethod
-    def handle_upgrade(member, end_date):
-        update = False
+    def handle_upgrade(member, end_date, action_text):
         age = member.age(end_date)
         if member.member_type == MembershipType.junior and age >= 16:
             member.member_type = MembershipType.intermediate
@@ -142,19 +148,17 @@ class Extracts:
                 date=end_date,
                 action=MemberAction.upgrade,
                 status=ActionStatus.open,
-                comment='Automatic upgrade from Junior on extract_renewals'
+                comment='Automatic upgrade from Junior on ' + action_text
             ))
-            update = True
         elif member.member_type == MembershipType.intermediate and age >= 21:
             member.member_type = MembershipType.standard
             member.actions.insert(0, Action(
                 date=end_date,
                 action=MemberAction.upgrade,
                 status=ActionStatus.open,
-                comment='Automatic upgrade from Young Adult on extract_renewals'
+                comment='Automatic upgrade from Young Adult on ' + action_text
             ))
-            update = True
-        return member, update
+        return member
 
     @staticmethod
     def extract_juniors():
@@ -180,6 +184,44 @@ class Extracts:
                 member.dues()
             ]
             csv.append(row)
+        return csv
+
+    @staticmethod
+    def extract_junior_birthdays():
+        month = datetime.date.today().month + 1
+        juniors = select(Member, (
+            Member.member_type == MembershipType.junior,
+            Member.status.in_(MemberStatus.all_active()),
+            Member.birth_date_month == month
+        )
+                         )
+        csv = []
+        head = ['id', 'first_name', 'last_name', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3',
+                'city', 'county', 'state', 'post_code', 'country', 'email', 'home_phone', 'mobile_phone', 'birth_date',
+                'age']
+        csv.append(head)
+        for member in juniors:
+            if member.age() < 15:
+                row = [
+                    member.dt_number(),
+                    member.first_name,
+                    member.last_name,
+                    member.full_name(),
+                    member.address.line_1,
+                    member.address.line_2,
+                    member.address.line_3,
+                    member.address.city,
+                    member.address.county,
+                    member.address.state,
+                    member.address.post_code,
+                    member.address.country_for_mail(),
+                    member.email,
+                    member.home_phone,
+                    member.mobile_phone,
+                    fmt_date(member.birth_date),
+                    member.age()
+                ]
+                csv.append(row)
         return csv
 
     @staticmethod
@@ -212,6 +254,24 @@ class Extracts:
                 member.address.state,
                 member.address.post_code,
                 member.address.country_for_mail()
+            ]
+            csv.append(row)
+        return csv
+
+    @staticmethod
+    def extract_email():
+        members = select(Member, (Member.comms == CommsType.email,
+                                  Member.status.in_(MemberStatus.active())))
+        csv = []
+        head = ['id', 'type', 'first_name', 'last_name', 'email']
+        csv.append(head)
+        for member in members:
+            row = [
+                member.dt_number(),
+                member.member_type.name,
+                member.first_name,
+                member.last_name,
+                member.email
             ]
             csv.append(row)
         return csv

@@ -33,7 +33,7 @@ class CommentItemForm(FlaskForm):
 class MemberDetailsForm(FlaskForm):
     full_name = StringField(label='Full Name')
 
-    member_id = HiddenField(label='Member Id')
+    member_number = HiddenField(label='Member Number')
     number = StringField(label='Id')
     status = MySelectField(label='Status', choices=MemberStatus.choices(), coerce=MemberStatus.coerce)
     type = MySelectField(label='Type', choices=MembershipType.choices(), coerce=MembershipType.coerce)
@@ -73,14 +73,15 @@ class MemberDetailsForm(FlaskForm):
     jd_email = StringField(label='JD Email ', validators=[Optional(), Email("Invalid email address")])
     jd_gift = MySelectField(label='JD Gift', choices=JuniorGift.choices(blank=True), coerce=JuniorGift.coerce)
 
-    def populate_member(self, member_id):
-        new_member = member_id == 0
+    def populate_member(self, member_number):
+        new_member = member_number == 0
         if new_member:
             member = get_new_member()
         else:
-            member = get_member(member_id)
+            member = get_member(member_number)
         address = member.address
 
+        self.member_number.data = member.number
         self.number.data = member.dt_number()
         self.status.data = member.status.value
         self.type.data = member.member_type.value
@@ -146,7 +147,7 @@ class MemberDetailsForm(FlaskForm):
 
     def validate(self):
         result = True
-        new_member = self.member_id.data == 0
+        new_member = self.member_number.data == 0
         if not super(MemberDetailsForm, self).validate():
             return False
         if new_member:
@@ -157,7 +158,7 @@ class MemberDetailsForm(FlaskForm):
                 result = False
         return result
 
-    def save_member(self, member_id):
+    def save_member(self, member_number):
         member = {
             'title': self.title.data,
             'first_name': self.first_name.data,
@@ -208,5 +209,5 @@ class MemberDetailsForm(FlaskForm):
             if comment['comment']:
                 member['comments'].append(comment)
 
-        save_member_details(member_id, member)
+        save_member_details(member_number, member)
         return True

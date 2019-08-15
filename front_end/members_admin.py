@@ -26,17 +26,17 @@ class MaintainMembers:
         return render_template('member_list.html', form=form, render_link=render_link)
 
     @staticmethod
-    def edit_member(member_id):
+    def edit_member(member_number):
         form = MemberDetailsForm()
-        form.member_id.data = member_id
+        form.member_number.data = member_number
         if form.validate_on_submit():
             if form.submit.data:
-                if form.save_member(member_id):
+                if form.save_member(member_number):
                     flash('member saved', 'success')
                     return redirect(url_for('members'))
         elif form.errors:
             flash_errors(form)
         if not form.is_submitted():
-            form.populate_member(member_id)
+            form.populate_member(member_number)
         return render_template('member_details.html', form=form, render_link=render_link)
 

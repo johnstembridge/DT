@@ -3,7 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator
+from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, extract
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
     CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus
@@ -68,6 +69,7 @@ class Address(Base):
              [self.line_1,
               self.line_2,
               self.line_3,
+              self.city,
               self.county,
               self.state,
               self.post_code,
@@ -161,9 +163,17 @@ class Member(Base):
     actions = relationship('Action', order_by='desc(Action.date)', back_populates='member')
     junior = relationship('Junior', uselist=False, back_populates='member')
 
+    @hybrid_property
+    def birth_date_month(self):
+        return self.birth_date.month
+
+    @birth_date_month.expression
+    def birth_date_month(cls):
+        return extract('month', cls.birth_date)
+
     def dt_number(self):
         member_type = 'JD' if self.member_type == MembershipType.junior else 'DT'
-        return '{}0-{:05d}'.format(member_type, self.id or 0)
+        return '{}0-{:05d}'.format(member_type, self.number or 0)
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
@@ -184,7 +194,7 @@ class Member(Base):
         return None
 
     def is_founder(self):
-        return self.id <= 1889
+        return self.number <= 1889
 
     def age(self, as_of=None, default=None):
         if self.birth_date:
