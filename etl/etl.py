@@ -178,7 +178,7 @@ def actions_etl(rec):
         )
         actions.append(action)
 
-    elif card in ['print' 'resend', 'replacement']:
+    elif card in ['print', 'resend', 'replacement']:
         action = Action(
             date=date.today(),
             action=MemberAction.card,
