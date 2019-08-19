@@ -8,8 +8,8 @@ db = SQLAlchemy(app)
 
 from views.home import *
 from views.members import *
-from views.payments import *
-from views.reports import *
+#from views.payments import *
+#from views.reports import *
 from views.extracts import *
 from views.help import *
 from views.testing import *

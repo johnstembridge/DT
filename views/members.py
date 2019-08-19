@@ -33,3 +33,10 @@ def add_member():
     return None
 
 
+@app.route('/members_area', methods=['GET', 'POST'])
+@login_required
+@role_required('user')
+def members_area():
+    return None
+
+

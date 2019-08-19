@@ -1,0 +1,82 @@
+{% extends "bootstrap/base.html" %}
+{% block head %}
+    {{super()}}
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/dt_admin.css') }}">
+    <style>@media print{a[href]:after{content:none}}</style>
+{% endblock %}
+{% block title %}Dons Trust Membership Admin{% endblock %}
+
+{% block navbar %}
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{{ url_for('index') }}" style="margin: -15px -15px;">
+                <img src="{{ url_for('static', filename='images/Dons Trust Logo.png') }}" style="display: inline-block;" />
+                <span style="display: inline-block;">DT admin</span>
+            </a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Members<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('members') }}">List Members</a></li>
+                    <li><a href="{{ url_for('edit_member', member_number=0) }}">Add New Member</a></li>
+                    <li><a href="{{ url_for('edit_member', member_number=0) }}">Edit Member Details</a></li>
+                </ul>
+            <li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Extracts<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('extracts_certs') }}">Certificates</a></li>
+                    <li><a href="{{ url_for('extracts_cards') }}">Cards - renewal</a></li>
+                    <li><a href="{{ url_for('extracts_cards_all') }}">Cards - all</a></li>
+                    <li><a href="{{ url_for('extracts_renewals') }}">Renewal notices</a></li>
+                    <li><a href="{{ url_for('extracts_juniors') }}">Juniors</a></li>
+                    <li><a href="{{ url_for('extracts_debits') }}">Debits</a></li>
+                    <li><a href="{{ url_for('extracts_email') }}">Email</a></li>
+                    <li><a href="{{ url_for('extracts_select') }}">Select members</a></li>
+                </ul>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('show_help', subject='members') }}">Members</a></li>
+                    <li><a href="{{ url_for('show_help', subject='reports') }}">Reports</a></li>
+                </ul>
+            </li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Test<b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ url_for('test_email') }}">Email</a></li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    <!-- Categories: success (green), info (blue), warning (yellow), danger (red) -->
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+                aria-hidden="true">&times;</span></button>
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    {% block page_content %}{% endblock %}
+</div>
+{% endblock %}
+
+{% macro render_field(field) %}
+{{ field(**kwargs)|safe }}
+{% if field.errors %}
+{% for error in field.errors %}
+<span style="color: red;">{{ error }}</span>
+{% endfor %}
+{% endif %}
+{% endmacro %}

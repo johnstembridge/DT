@@ -243,6 +243,10 @@ def get_user(id=None, user_name=None):
         return db_session.query(User).filter(User.user_name == user_name).first()
 
 
+def get_user_by_api_key(api_key):
+    return db_session.query(User).query.filter_by(api_key=api_key).first()
+
+
 def save_user(user):
     if not user.id:
         db_session.add(user)
