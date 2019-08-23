@@ -60,6 +60,20 @@ class Address(Base):
     country = Column(String(25))
     members = relationship('Member', back_populates='address')
 
+
+    def to_dict(self):
+        data = {
+            'line_1': self.line_1,
+            'line_2': self.line_2,
+            'line_3': self.line_3,
+            'city': self.city,
+            'county': self.county,
+            'state': self.state,
+            'post_code': self.post_code,
+            'country': self.country
+        }
+        return data
+
     def country_for_mail(self):
         return self.country if self.country not in ['UK', 'United Kingdom'] else ''
 
@@ -163,6 +177,23 @@ class Member(Base):
     actions = relationship('Action', order_by='desc(Action.date)', back_populates='member')
     junior = relationship('Junior', uselist=False, back_populates='member')
 
+    def to_dict(self):
+        data = {
+            'number': self.dt_number(),
+            'sex': self.sex.to_dict(),
+            'birth_date': self.birth_date,
+            'title': self.title,
+            'first_name': self.first_name,
+            'last_name': self.last_name,
+            'address': self.address.to_dict(),
+            'email': self.email,
+            'home_phone': self.home_phone,
+            'mobile_phone': self.mobile_phone,
+            'comms': self.comms.to_dict(),
+            'external_access': self.external_access.to_dict(),
+        }
+        return data
+
     @hybrid_property
     def birth_date_month(self):
         return self.birth_date.month
@@ -259,6 +290,7 @@ class User(Base, UserMixin):
     password = Column(String(100), nullable=False)
     roles = relationship('Role', back_populates='user')
     member = relationship('Member', back_populates='user')
+    api_key = Column(String(256), nullable=True)
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -273,6 +305,7 @@ class User(Base, UserMixin):
             app.config['SECRET_KEY'],
             algorithm='HS256').decode('utf-8')
         return token, strftime('%a, %d %b %Y %H:%M:%S +0000', localtime(exp))
+
 
     @staticmethod
     def verify_reset_password_token(app, token):

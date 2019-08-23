@@ -21,6 +21,9 @@ class FormEnum(Enum):
         else:
             return int(item)
 
+    def to_dict(self):
+        return self.name
+
     def __str__(self):
         return str(self.value)
 

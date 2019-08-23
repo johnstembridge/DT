@@ -36,7 +36,7 @@ def get_member_by_email(email):
 
 def get_member(member_number):
     member = db_session.query(Member).filter_by(number=member_number).first()
-    if member.member_type == MembershipType.junior and not member.junior:
+    if member and member.member_type == MembershipType.junior and not member.junior:
         member.junior = Junior()
     return member
 
@@ -244,6 +244,9 @@ def get_user(id=None, user_name=None):
 
 
 def get_user_by_api_key(api_key):
+    if ':' in api_key:
+        user_name, password = api_key.split(':')
+        return get_user(user_name=user_name)
     return db_session.query(User).query.filter_by(api_key=api_key).first()
 
 

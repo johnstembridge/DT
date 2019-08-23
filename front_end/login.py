@@ -21,9 +21,9 @@ class LoginForm(FlaskForm):
         pass
 
 
-def user_login(role, next_page, app=None):
+def user_login(next_page, app=None):
     if current_user.is_authenticated:
-        return redirect(qualify_url(role, next_page))
+        return redirect(next_page)
     form = LoginForm()
     if form.is_submitted():
         if form.validate_on_submit():
@@ -31,14 +31,11 @@ def user_login(role, next_page, app=None):
             if user is None or not user.check_password(form.password.data):
                 flash('Invalid username or password', 'danger')
                 return render_template('login.html', title='Sign In', form=form)
-            # if wags_app not in [role.role.name for role in user.roles]:
-            #     flash('Sorry, you do not have {} access'.format(wags_app))
-            #     return redirect(qualify_url(wags_app))
             login_user(user, remember=form.remember_me.data)
             if not next_page:
-                next_page = qualify_url(role)
+                next_page = 'index'
             else:
-                next_page = qualify_url(role, next_page)
+                next_page = next_page
             return redirect(next_page)
     else:
         form.populate()
@@ -49,7 +46,7 @@ def user_login(role, next_page, app=None):
 def validate_username(self, username):
     user = get_user(user_name=username.data)
     if user is not None:
-        if user.member.contact.email != self.email.data:
+        if user.member.email != self.email.data:
             raise ValidationError('Please use a different username.')
 
 
@@ -62,10 +59,10 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Register')
 
 
-def user_register(role, new=True):
+def user_register(new=True):
     # Register user (new is True) or reset login
     if new and current_user.is_authenticated:
-        return redirect(qualify_url(role))
+        return redirect(qualify_url('index'))
     form = RegistrationForm()
     form_title = 'Register' if new else 'Reset login details'
     if not new and not form.is_submitted():
@@ -85,24 +82,21 @@ def user_register(role, new=True):
                     user = member.user # get_user(member.user.id)
                     user.user_name = form.username.data
                 user.set_password(form.password.data)
-                role = Role(role=UserRole.admin) if role == 'admin' else Role(role=UserRole.user)
-                if role.role.value not in [r.role.value for r in user.roles]:
-                    user.roles.append(role)
                 save_user(user)
                 if new:
-                    flash('Congratulations, you are now a registered {}!'.format(role.role.name), 'success')
+                    flash('Congratulations, you are now a registered user!', 'success')
                     return redirect(url_for('index'))
                 else:
-                    flash('Login details reset to {}'.format(role.role.name), 'success')
+                    flash('Login details reset', 'success')
                     return redirect(url_for('index'))
             else:
                 flash('Cannot find your membership - please give your Dons Trust contact email address')
     return render_template('register.html', title=form_title, form=form)
 
 
-def user_logout(role):
+def user_logout():
     logout_user()
-    return redirect(qualify_url(role))
+    return redirect(qualify_url('index'))
 
 
 class ResetPasswordRequestForm(FlaskForm):
@@ -129,7 +123,7 @@ def user_reset_password_request(role, app):
 def send_password_reset_email(user, app):
     token, expires = user.get_reset_password_token(app)
     send_mail(to=user.member.contact.email,
-              sender='admin@wags.org',
+              sender='membership@thedonstrust.org',
               subject='[Dons Trust] Reset Your Password',
               message=render_template('user/reset_password.txt',
                                       url_for_app=url_for_app,

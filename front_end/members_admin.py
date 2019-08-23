@@ -39,4 +39,3 @@ class MaintainMembers:
         if not form.is_submitted():
             form.populate_member(member_number)
         return render_template('member_details.html', form=form, render_link=render_link)
-
