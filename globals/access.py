@@ -1,14 +1,13 @@
-from flask import request
+from flask import request, abort, redirect
 from flask_login import LoginManager
+from flask_login.utils import login_url
 from front_end import login
 from main import app
-from globals import config
 from back_end.interface import get_user, get_user_by_api_key
 import base64
 
 login_manager = LoginManager(app)
 login_manager.login_view = 'user_login'
-#login_manager.login_message = 'You must be a Dons Trust member to access this page'
 
 
 @login_manager.user_loader
@@ -18,7 +17,6 @@ def load_user(id):
 
 @login_manager.request_loader
 def load_user_from_request(request):
-
     # first, try to login using the api_key url arg
     api_key = request.args.get('api_key')
     if api_key:
@@ -56,3 +54,13 @@ def user_logout():
 @app.route('/register', methods=['GET', 'POST'])
 def user_register():
     return login.user_register()
+
+
+@login_manager.unauthorized_handler
+def unauthorized():
+    api = request.headers.get('Authorization')
+    if api:
+        abort(401)
+    else:
+        redirect_url = login_url(login_manager.login_view, next_url=request.url)
+        return redirect(redirect_url)

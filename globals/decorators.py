@@ -11,8 +11,7 @@ def role_required(*role):
         def wrapped(*args, **kwargs):
             if current_user:
                 if role[0] not in [user_role.role.name for user_role in current_user.roles]:
-                    # flash('Sorry, you do not have {} access'.format(role[0]))
-                    abort(401)
+                    abort(401, description='Sorry, you do not have {} access'.format(role[0]))
             return f(*args, **kwargs)
         return wrapped
     return wrapper

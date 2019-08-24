@@ -180,6 +180,8 @@ class Member(Base):
     def to_dict(self):
         data = {
             'number': self.dt_number(),
+            'status': self.status.to_dict(),
+            'type': self.member_type.to_dict(),
             'sex': self.sex.to_dict(),
             'birth_date': self.birth_date,
             'title': self.title,
