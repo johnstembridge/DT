@@ -189,8 +189,8 @@ class Member(Base):
             'email': self.email,
             'home_phone': self.home_phone,
             'mobile_phone': self.mobile_phone,
-            'comms': self.comms.to_dict(),
-            'external_access': self.external_access.to_dict(),
+            'comms': (self.comms or PaymentMethod.na).to_dict(),
+            'external_access': (self.external_access or ExternalAccess.none).to_dict(),
         }
         return data
 
