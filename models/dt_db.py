@@ -7,8 +7,8 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus
-
+    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus, Enum
+from back_end.data_utilities import fmt_date, parse_date
 import datetime
 from time import time, localtime, strftime
 
@@ -60,19 +60,20 @@ class Address(Base):
     country = Column(String(25))
     members = relationship('Member', back_populates='address')
 
+    dict_fields=['line_1', 'line_2', 'line_3', 'city', 'county', 'state', 'post_code', 'country']
 
     def to_dict(self):
-        data = {
-            'line_1': self.line_1,
-            'line_2': self.line_2,
-            'line_3': self.line_3,
-            'city': self.city,
-            'county': self.county,
-            'state': self.state,
-            'post_code': self.post_code,
-            'country': self.country
-        }
+        data = {}
+        for field in self.dict_fields:
+            value = getattr(self, field)
+            data[field] = value
         return data
+
+    def from_dict(self, data):
+        for field in self.dict_fields:
+            if field in data:
+                value = data[field]
+                setattr(self, field, value)
 
     def country_for_mail(self):
         return self.country if self.country not in ['UK', 'United Kingdom'] else ''
@@ -177,30 +178,41 @@ class Member(Base):
     actions = relationship('Action', order_by='desc(Action.date)', back_populates='member')
     junior = relationship('Junior', uselist=False, back_populates='member')
 
+    dict_fields = ['number', 'start_date','end_date', 'status', 'member_type', 'sex', 'birth_date', 'title', 'first_name',
+                   'last_name', 'address', 'email', 'home_phone', 'mobile_phone', 'comms', 'external_access']
+
     def to_dict(self):
-        data = {
-            'number': self.dt_number(),
-            'status': self.status.to_dict(),
-            'type': self.member_type.to_dict(),
-            'sex': self.sex.to_dict(),
-            'birth_date': self.birth_date,
-            'title': self.title,
-            'first_name': self.first_name,
-            'last_name': self.last_name,
-            'address': self.address.to_dict(),
-            'email': self.email,
-            'home_phone': self.home_phone,
-            'mobile_phone': self.mobile_phone,
-            'comms': (self.comms or PaymentMethod.na).to_dict(),
-            'external_access': (self.external_access or ExternalAccess.none).to_dict(),
-        }
+        data = {}
+        for field in self.dict_fields:
+            value = getattr(self, field)
+            if 'date' in field:
+                value = fmt_date(value)
+            elif isinstance(value, Enum):
+                value = value.to_dict()
+            elif field == 'address':
+                value = value.to_dict()
+            data[field] = value
         return data
+
+    def from_dict(self, data):
+        for field in self.dict_fields:
+            if field in data:
+                if 'date' in field:
+                    setattr(self, field, parse_date(data[field], reverse=True))
+                elif field == 'address':
+                    self.address.from_dict(data[field])
+                else:
+                    if isinstance(getattr(self, field), Enum):
+                        field_type = type(getattr(self, field))
+                        value = field_type.from_name(data[field])
+                    else:
+                        value = data[field]
+                    setattr(self, field, value)
 
     @hybrid_property
     def birth_date_month(self):
         return self.birth_date.month
 
-    @birth_date_month.expression
     def birth_date_month(cls):
         return extract('month', cls.birth_date)
 

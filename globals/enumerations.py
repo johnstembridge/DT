@@ -21,6 +21,10 @@ class FormEnum(Enum):
         else:
             return int(item)
 
+    @classmethod
+    def from_name(cls, name):
+        return [c for c in cls if c.name == name][0]
+
     def to_dict(self):
         return self.name
 
