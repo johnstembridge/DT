@@ -4,7 +4,7 @@ from sqlalchemy import text, create_engine
 from sqlalchemy.orm import sessionmaker
 
 from globals.enumerations import ActionStatus, MemberAction, MemberStatus
-from models.dt_db import Base, Member, Address, Action, Comment, Payment, EnumType
+from models.dt_db import Base, Member, User, Address, Action, Comment, Payment, EnumType
 from globals import config
 
 
@@ -19,6 +19,10 @@ class TestDb(unittest.TestCase):
 
     def test_member(self):
         member = self.session.query(Member).get(34)
+        pass
+
+    def test_user(self):
+        self.session.query(User).filter(User.user_name == 'johns').first()
         pass
 
     def test_payment(self):

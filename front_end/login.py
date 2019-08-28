@@ -8,6 +8,7 @@ from globals.config import url_for_app, qualify_url
 from globals.email import send_mail
 from models.dt_db import User
 from back_end.interface import get_member_by_email, get_user, save_user
+from back_end.users import register_user
 
 
 class LoginForm(FlaskForm):
@@ -70,26 +71,15 @@ def user_register(new=True):
         form.email.render_kw = {'readonly': True}
     else:
         if form.validate_on_submit():
-            member = get_member_by_email(form.email.data)
-            if member:
-                if not member.is_active():
-                    flash('Sorry, you are not a current member', 'danger')
-                    return redirect(url_for('index'))
-                if not member.user:
-                    user = User(user_name=form.username.data, member_id=member.id)
-                else:
-                    user = member.user # get_user(member.user.id)
-                    user.user_name = form.username.data
-                user.set_password(form.password.data)
-                save_user(user)
+            ok, message, message_type = register_user(form.email.data, form.username.data, form.password.data)
+            if ok:
                 if new:
-                    flash('Congratulations, you are now a registered user!', 'success')
-                    return redirect(url_for('index'))
+                    flash(message, message_type)
                 else:
                     flash('Login details reset', 'success')
-                    return redirect(url_for('index'))
             else:
-                flash('Cannot find your membership - please give your Dons Trust contact email address')
+                flash(message, message_type)
+            return redirect(url_for('index'))
     return render_template('register.html', title=form_title, form=form)
 
 

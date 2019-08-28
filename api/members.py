@@ -17,7 +17,6 @@ class MaintainMembers:
         else:
             return  # html??
 
-
     @staticmethod
     def api_update_member(member_number, payload):
         new_member = member_number == 0

@@ -202,7 +202,7 @@ class Member(Base):
                 elif field == 'address':
                     self.address.from_dict(data[field])
                 else:
-                    if isinstance(getattr(self, field), Enum):
+                    if data[field] and isinstance(getattr(Member, field).property.columns[0].type, EnumType):
                         field_type = type(getattr(self, field))
                         value = field_type.from_name(data[field])
                     else:
