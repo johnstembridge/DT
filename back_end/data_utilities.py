@@ -3,6 +3,7 @@ import datetime
 import time
 import math
 import re
+from email.utils import parseaddr
 
 
 # region dates
@@ -123,39 +124,7 @@ def current_year():
 
 # endregion
 
-
-def normalise_name(all_names, name):
-    i = lookup(all_names, name, case_sensitive=False)
-    if i == -1:
-        return name.title(), i
-    else:
-        return all_names[i], i
-
-
-def sort_name_list(names):
-    fl = [v.split(' ', 2) for v in names]
-    fl.sort(key=lambda tup: (tup[1], tup[0]))
-    return [n[0] + ' ' + n[1] for n in fl]
-
-
-def lookup(item_list, items, index_origin=0, case_sensitive=None):
-    res = []
-    lower = case_sensitive is False
-    if lower:
-        item_list = [item.lower() for item in item_list]
-    for item in force_list(items):
-        if lower:
-            item = item.lower()
-        if item in item_list:
-            i = index_origin + item_list.index(item)
-        else:
-            i = -1
-        res.append(i)
-    if type(items) is not list:
-        res = res[0]
-    return res
-
-
+# region lists
 def unique(item_list):
     res = []
     for item in item_list:
@@ -192,6 +161,61 @@ def force_list(x):
     return x
 
 
+def gen_to_list(gen):
+    # force evaluation of a generator
+    return [x for x in gen]
+
+
+def first_or_default(list, default):
+    if len(list) > 0:
+        return list[0]
+    else:
+        return default
+
+
+def list_from_dict(dict, keys):
+    return [dict.get(item, None) for item in keys]
+
+# endregion
+
+
+def is_valid_email(email):
+    res = parseaddr(email)
+    return len(res[1]) > 0
+
+
+def normalise_name(all_names, name):
+    i = lookup(all_names, name, case_sensitive=False)
+    if i == -1:
+        return name.title(), i
+    else:
+        return all_names[i], i
+
+
+def sort_name_list(names):
+    fl = [v.split(' ', 2) for v in names]
+    fl.sort(key=lambda tup: (tup[1], tup[0]))
+    return [n[0] + ' ' + n[1] for n in fl]
+
+
+def lookup(item_list, items, index_origin=0, case_sensitive=None):
+    res = []
+    lower = case_sensitive is False
+    if lower:
+        item_list = [item.lower() for item in item_list]
+    for item in force_list(items):
+        if lower:
+            item = item.lower()
+        if item in item_list:
+            i = index_origin + item_list.index(item)
+        else:
+            i = -1
+        res.append(i)
+    if type(items) is not list:
+        res = res[0]
+    return res
+
+
 def force_lower(x):
     if type(x) is list:
         return [y.lower() for y in x]
@@ -224,13 +248,6 @@ def fmt_curr(num):
     else:
         res = ''
     return res
-
-
-def first_or_default(list, default):
-    if len(list) > 0:
-        return list[0]
-    else:
-        return default
 
 
 def is_num(s):
@@ -274,11 +291,6 @@ def mean(values):
     if type(first_or_default(values, 0)) == str:
         values = [float(v) for v in values]
     return sum(values) / max(len(values), 1)
-
-
-def gen_to_list(gen):
-    # force evaluation of a generator
-    return [x for x in gen]
 
 
 def html_escape(text):

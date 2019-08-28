@@ -1,9 +1,14 @@
 from flask import Flask
+from flask_wtf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
+from flask_httpauth import HTTPBasicAuth
+
 from globals.app_setup import init_app
 
 app = Flask(__name__)
+csrf_protect = CSRFProtect(app)
 init_app(app)
+auth = HTTPBasicAuth()
 db = SQLAlchemy(app)
 
 from views.home import *

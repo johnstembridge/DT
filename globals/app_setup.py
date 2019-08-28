@@ -1,5 +1,4 @@
 from flask_bootstrap import Bootstrap
-from flask_wtf import CSRFProtect
 from flask_sendmail import Mail
 
 from globals import logging, config
@@ -13,6 +12,5 @@ def init_app(app):
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     Bootstrap(app)
-    CSRFProtect(app)
     logging.log_init(app)
     mail.init_app(app)
