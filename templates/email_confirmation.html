@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<div class="page-header">
+    <h2>{{ form.title.data }}</h2>
+</div>
+{% for line in form.message.data %}
+    <p>{{ line }}</p>
+{% endfor %}
+{% endblock %}

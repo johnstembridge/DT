@@ -24,6 +24,14 @@ from api.endpoints import *
 from api.helpers import wants_json_response, api_error_response
 
 
+@app.errorhandler(400)
+def bad_request(e):
+    app.logger.error(e)
+    if wants_json_response():
+        return api_error_response(400, e.description)
+    return unauthorised(e)
+
+
 @app.errorhandler(401)
 def not_found(e):
     app.logger.error(e)

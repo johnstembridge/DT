@@ -3,6 +3,7 @@ from models.dt_db import User
 from back_end.interface import get_member_by_email, get_user, save_user
 from back_end.data_utilities import is_valid_email
 
+
 def register_user(email, user_name, password):
     ok = False
     message = None

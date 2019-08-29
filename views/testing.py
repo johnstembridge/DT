@@ -13,18 +13,18 @@ from main import app
 @role_required('admin')
 def test_email():
     subject = 'Test email'
-    sender = 'test@wags.org'
-    message = ['test message £100']
+    sender = 'membership@thedonstrust.org'
+    message = ['test message']
     to = 'john.stembridge@gmail.com'
     #use_sendmail(to=to, sender=sender, cc=None, subject=subject, message=message)
     send_mail(to=to,
               sender=sender,
               cc=[],
-              subject='WAGS: ' + subject,
+              subject='Dons Trust Membership: ' + subject,
               message=message)
     form = SendEmailConfirmationForm()
     form.populate(subject, message)
-    return render_template('user/event_booking_confirmation.html', form=form)
+    return render_template('email_confirmation.html', form=form)
 
 
 class SendEmailConfirmationForm(FlaskForm):

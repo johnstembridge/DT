@@ -320,7 +320,6 @@ class User(Base, UserMixin):
             algorithm='HS256').decode('utf-8')
         return token, strftime('%a, %d %b %Y %H:%M:%S +0000', localtime(exp))
 
-
     @staticmethod
     def verify_reset_password_token(app, token):
         try:
