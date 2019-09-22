@@ -179,6 +179,10 @@ def list_from_dict(dict, keys):
 # endregion
 
 
+def get_digits(text):
+    return ''.join(list(filter(str.isdigit, text)))
+
+
 def is_valid_email(email):
     res = parseaddr(email)
     return len(res[1]) > 0

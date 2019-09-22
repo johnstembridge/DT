@@ -75,8 +75,9 @@ class MemberAction(FormEnum):
     certificate = 1
     card = 2
     upgrade = 3  # junior to intermediate, intermediate to standard, standard to life, etc: see comment
-    resend = 4
-    gift = 5
+    send = 4
+    resend = 5
+    gift = 6
 
 
 class ActionStatus(FormEnum):

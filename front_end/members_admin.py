@@ -17,6 +17,15 @@ class MaintainMembers:
         return render_template('member_list.html', form=form, render_link=render_link)
 
     @staticmethod
+    def bulk_update():
+        form = MemberListForm()
+        if form.is_submitted():
+            pass
+        form.populate_member_list()
+
+        return render_template('member_list.html', form=form, render_link=render_link)
+
+    @staticmethod
     def list_members():
         form = MemberListForm()
         if form.is_submitted():

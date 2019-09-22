@@ -213,9 +213,6 @@ class Member(Base):
     def birth_date_month(self):
         return self.birth_date.month
 
-    def birth_date_month(cls):
-        return extract('month', cls.birth_date)
-
     def dt_number(self):
         member_type = 'JD' if self.member_type == MembershipType.junior else 'DT'
         return '{}0-{:05d}'.format(member_type, self.number or 0)
@@ -310,7 +307,9 @@ class User(Base, UserMixin):
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password, password)
+        if self.password:
+            return check_password_hash(self.password, password)
+        return True
 
     def get_reset_password_token(self, app, expires_in=600):
         exp = time() + expires_in
@@ -324,8 +323,10 @@ class User(Base, UserMixin):
     def verify_reset_password_token(app, token):
         try:
             id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['reset_password']
-        except:
-            return
+        except jwt.ExpiredSignatureError:
+            return 'Signature expired. Please log in again.'
+        except jwt.InvalidTokenError:
+            return 'Invalid token. Please log in again.'
         return User.query.get(id)
 
     def __repr__(self):

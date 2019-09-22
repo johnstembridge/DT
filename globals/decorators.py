@@ -1,18 +1,20 @@
 from functools import wraps
 from threading import Thread
 
-from flask import abort, flash
+from flask import abort
 from flask_login import current_user
 
 
-def role_required(*role):
+def role_required(*roles):
     def wrapper(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
             if current_user:
-                if role[0] not in [user_role.role.name for user_role in current_user.roles]:
-                    abort(401, description='Sorry, you do not have {} access'.format(role[0]))
-            return f(*args, **kwargs)
+                current_user_roles = [user_role.role.name for user_role in current_user.roles]
+                for role in roles:
+                    if role in current_user_roles:
+                        return f(*args, **kwargs)
+                abort(401, description='Sorry, you do not have access')
         return wrapped
     return wrapper
 

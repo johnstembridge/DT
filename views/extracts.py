@@ -55,6 +55,13 @@ def extracts_email():
     return return_csv_file(Extracts.extract_email(), 'email.csv')
 
 
+@app.route('/extracts/comms', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_comms():
+    return return_csv_file(Extracts.extract_comms(), 'comms.csv')
+
+
 @app.route('/extracts/select', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')

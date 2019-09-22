@@ -12,7 +12,14 @@ def members():
     return MaintainMembers.list_members()
 
 
-@app.route('/members/<int:member_number>/details', methods=['GET', 'POST'])
+@app.route('/members/bulk', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def bulk_update():
+    return MaintainMembers.bulk_update()
+
+
+@app.route('/members/<int:member_number>', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
 def edit_member(member_number):
@@ -26,7 +33,7 @@ def find_members():
     return MaintainMembers.find_members()
 
 
-@app.route('/members_add', methods=['GET', 'POST'])
+@app.route('/members', methods=['PUT'])
 @login_required
 @role_required('admin')
 def add_member():

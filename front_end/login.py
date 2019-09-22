@@ -9,6 +9,7 @@ from globals.email import send_mail
 from models.dt_db import User
 from back_end.interface import get_member_by_email, get_user, save_user
 from back_end.users import register_user
+from back_end.data_utilities import get_digits
 
 
 class LoginForm(FlaskForm):
@@ -51,6 +52,7 @@ def validate_username(self, username):
 
 
 class RegistrationForm(FlaskForm):
+    member_number = StringField('Member number', validators=[DataRequired()])
     username = StringField('Username', validators=[DataRequired(), validate_username])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -66,20 +68,23 @@ def user_register(new=True):
     form = RegistrationForm()
     form_title = 'Register' if new else 'Reset login details'
     if not new and not form.is_submitted():
+        form.member_number.data = current_user.member.dt_number()
         form.username.data = current_user.user_name
         form.email.data = current_user.member.contact.email
         form.email.render_kw = {'readonly': True}
     else:
         if form.validate_on_submit():
-            ok, message, message_type = register_user(form.email.data, form.username.data, form.password.data)
+            number = int(get_digits(form.member_number.data))
+            ok, id, message, message_type = register_user(number, form.email.data, form.username.data, form.password.data)
             if ok:
                 if new:
                     flash(message, message_type)
                 else:
                     flash('Login details reset', 'success')
+                    return redirect(url_for('user_register'))
             else:
                 flash(message, message_type)
-            return redirect(url_for('index'))
+                return redirect(url_for('user_login'))
     return render_template('register.html', title=form_title, form=form)
 
 

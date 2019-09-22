@@ -52,7 +52,11 @@ class Extracts:
         head = ['id', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
                 'state', 'post_code', 'country', 'recent_new']
         csv.append(head)
+        count = 0
         for card in all:
+            count += 1
+            if count % 100 == 0:
+                print('Processing ' + card.member.dt_number())
             row = [
                 card.member.dt_number(),
                 card.member.member_type.name,
@@ -191,8 +195,7 @@ class Extracts:
         month = datetime.date.today().month + 1
         juniors = select(Member, (
             Member.member_type == MembershipType.junior,
-            Member.status.in_(MemberStatus.all_active()),
-            Member.birth_date_month == month
+            Member.status.in_(MemberStatus.all_active())
         )
                          )
         csv = []
@@ -201,7 +204,7 @@ class Extracts:
                 'age']
         csv.append(head)
         for member in juniors:
-            if member.age() < 15:
+            if member.age() < 15 and member.birth_date.month == month:
                 row = [
                     member.dt_number(),
                     member.first_name,
@@ -232,9 +235,7 @@ class Extracts:
                                   Member.status.in_(MemberStatus.active())))
         csv = []
         head = ['id', 'type', 'first_name', 'last_name', 'amount', 'email', 'home_phone', 'mobile_phone',
-                'address_line_1',
-                'address_line_2',
-                'address_line_3', 'city', 'county', 'state', 'post_code', 'country']
+                'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county', 'state', 'post_code', 'country']
         csv.append(head)
         for member in members:
             row = [
@@ -272,6 +273,33 @@ class Extracts:
                 member.first_name,
                 member.last_name,
                 member.email
+            ]
+            csv.append(row)
+        return csv
+
+    @staticmethod
+    def extract_comms():
+        members = select(Member, (Member.status.in_(MemberStatus.all_active()),))
+        csv = []
+        head = ['id', 'type', 'first_name', 'last_name', 'use_email', 'email',
+                'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county', 'state', 'post_code', 'country']
+        csv.append(head)
+        for member in members:
+            row = [
+                member.dt_number(),
+                member.member_type.name,
+                member.first_name,
+                member.last_name,
+                member.use_email(),
+                member.email,
+                member.address.line_1,
+                member.address.line_2,
+                member.address.line_3,
+                member.address.city,
+                member.address.county,
+                member.address.state,
+                member.address.post_code,
+                member.address.country_for_mail()
             ]
             csv.append(row)
         return csv

@@ -187,6 +187,15 @@ def actions_etl(rec):
         )
         actions.append(action)
 
+    elif 'send' in card:
+        action = Action(
+            date=date.today(),
+            action=MemberAction.send,
+            status=ActionStatus.open,
+            comment='from import: {}'.format(card)
+        )
+        actions.append(action)
+
     elif 'upgrade' in card:
         action = Action(
             date=date.today(),
@@ -252,11 +261,12 @@ def comment_etl(rec):
     objects = []
     for rec in recs:
         if rec['Comment'] == 'dd payment made':
-            date = parse_date(rec['Date'], sep='/', reverse=True)
+            agedate = date(2019, 8, 1)
+            paydate = parse_date(rec['Date'], sep='/', reverse=True)
             payment = Payment(
                 member_id=member_id,
-                date=date,
-                amount=db_session.query(Member).filter_by(id=member_id).first().dues(date),
+                date=paydate,
+                amount=db_session.query(Member).filter_by(id=member_id).first().dues(agedate),
                 type=PaymentType.dues,
                 method=PaymentMethod.dd,
                 comment=None
