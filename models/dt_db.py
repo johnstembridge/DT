@@ -227,6 +227,9 @@ class Member(Base):
             title = self.title.name + ' '
         return title + self.first_name + ' ' + self.last_name
 
+    def is_adult(self):
+        return self.member_type in MembershipType.adult()
+
     def is_active(self):
         return self.status in MemberStatus.all_active()
 
@@ -302,6 +305,14 @@ class User(Base, UserMixin):
     roles = relationship('Role', back_populates='user')
     member = relationship('Member', back_populates='user')
     api_key = Column(String(256), nullable=True)
+
+    def to_dict(self):
+        data = {}
+        data['id'] = self.id
+        data['user_name'] = self.user_name
+        data['member_number'] = self.member.dt_number()
+        data['roles'] = roles = [role.role.name for role in self.roles]
+        return data
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

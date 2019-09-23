@@ -14,6 +14,7 @@ class ExtractForm(FlaskForm):
         ('Start', 'start_date'),
         ('End', 'end_date'),
         ('Birth', 'birth_date'),
+        ('Age', 'age()'),
         ('Email', 'email'),
         ('Home Phone', 'home_phone'),
         ('Mobile Phone', 'mobile_phone'),

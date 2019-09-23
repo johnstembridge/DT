@@ -70,6 +70,10 @@ class MembershipType(FormEnum):
     def volatile_concessions():
         return [MembershipType.job_seeker, MembershipType.student, MembershipType.incapacity, MembershipType.other_concession]
 
+    @staticmethod
+    def adult():
+        return [m for m in MembershipType if m != MembershipType.junior]
+
 
 class MemberAction(FormEnum):
     certificate = 1

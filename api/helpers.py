@@ -21,3 +21,9 @@ def user_ok_to_view_member(current_user, member_number):
     if UserRole.admin in [user_role.role for user_role in current_user.roles]:
         return True
     return current_user.member_id == member_number
+
+
+def id_is_current_user(current_user, id):
+    if UserRole.admin in [user_role.role for user_role in current_user.roles]:
+        return True
+    return current_user.id == id

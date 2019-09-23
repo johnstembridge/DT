@@ -12,7 +12,7 @@ class QueryForm(FlaskForm):
     number = MyStringField(label='number', db_map='Member.number')
     status = MySelectField(label='status', choices=MemberStatus.choices(extra=[(99, '<lapsed (active)')], blank=True),
                            coerce=MemberStatus.coerce, db_map='Member.status')
-    member_type = MySelectField(label='member type', choices=MembershipType.choices(blank=True),
+    member_type = MySelectField(label='member type', choices=MembershipType.choices(extra=[(99, '!=junior (adult)')], blank=True),
                                 coerce=MembershipType.coerce, db_map='Member.member_type')
     start_date = MyStringField(label='start date', db_map='Member.start_date')
     end_date = MyStringField('end date', db_map='Member.end_date')

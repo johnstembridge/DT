@@ -262,7 +262,7 @@ class Extracts:
     @staticmethod
     def extract_email():
         members = select(Member, (Member.comms == CommsType.email,
-                                  Member.status.in_(MemberStatus.active())))
+                                  Member.status.in_(MemberStatus.all_active())))
         csv = []
         head = ['id', 'type', 'first_name', 'last_name', 'email']
         csv.append(head)
