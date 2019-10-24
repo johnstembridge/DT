@@ -1,0 +1,9 @@
+Dear {{ member.full_name() }},
+
+Thank you for registering with Dons Trust membership.
+
+Please follow the link below to activate your access.
+{{ full_url_for('api_activate_user', key=token) }}
+Alternatively, you can paste the link into your browser's address bar
+
+The link will expire {{ expires }}

@@ -79,6 +79,35 @@ def select_fields_to_query(select_fields, default_table):
     return query_clauses
 
 
+def select_fields_to_update(select_fields, default_table):
+    updates = {}
+    for field in select_fields:
+        if field.data:
+            field_name = field.db_map
+            if field.type == 'MySelectField':
+                if field.data in [c[0].value for c in field.choices if not isinstance(c[0], int)]:
+                    value = field.data
+                else:
+                    value = [c[1] for c in field.choices if c[0] == field.data][0]
+                    if '(' in value:
+                        value = value[:value.find('(')-1]
+                    value = first_or_default([v[0] for v in field.choices if v[1] == value], None)
+            else:
+                value = field.data
+            func = None
+            # if isinstance(value, (int, float)) or len(value) > 0:
+            #     if '.' in field_name:
+            #         a = field_name.split('.')
+            #         if len(a) == 2:
+            #             table, column = a
+            #         if len(a) == 3:
+            #             table, column, func = a
+            #     else:
+            #         table, column = default_table, field_name
+            updates[field_name] = value
+    return updates
+
+
 def split_condition_and_value(value):
     if len(value) > 0 and value[0] in [c[0] for c in ['!=', '=', '>', '>=', '<', '<=', '?']]:
         c = 1

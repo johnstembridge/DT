@@ -214,8 +214,8 @@ class Member(Base):
         return self.birth_date.month
 
     def dt_number(self):
-        member_type = 'JD' if self.member_type == MembershipType.junior else 'DT'
-        return '{}0-{:05d}'.format(member_type, self.number or 0)
+        member_prefix = 'JD' if self.member_type == MembershipType.junior else 'DT'
+        return '{}0-{:05d}'.format(member_prefix, self.number or 0)
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
@@ -322,23 +322,23 @@ class User(Base, UserMixin):
             return check_password_hash(self.password, password)
         return True
 
-    def get_reset_password_token(self, app, expires_in=600):
+    def get_token(self, app, expires_in=600):
         exp = time() + expires_in
         token = jwt.encode(
-            {'reset_password': self.id, 'exp': exp},
+            {'activate': self.id, 'exp': exp},
             app.config['SECRET_KEY'],
             algorithm='HS256').decode('utf-8')
         return token, strftime('%a, %d %b %Y %H:%M:%S +0000', localtime(exp))
 
     @staticmethod
-    def verify_reset_password_token(app, token):
+    def verify_token(app, token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['reset_password']
+            id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['activate']
         except jwt.ExpiredSignatureError:
-            return 'Signature expired. Please log in again.'
+            return False, 'Signature expired. Please try again.'
         except jwt.InvalidTokenError:
-            return 'Invalid token. Please log in again.'
-        return User.query.get(id)
+            return False, 'Invalid token. Please try again.'
+        return True, id
 
     def __repr__(self):
         return '<User {}>'.format(self.user_name)

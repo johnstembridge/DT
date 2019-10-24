@@ -37,6 +37,8 @@ class ExtractForm(FlaskForm):
         self.total.data = page.total
         self.current_page.data = page_number
         self.total_pages.data = page.pages
+        self.extract_url = url_for('extracts_bulk_update', query_clauses=clauses)
+        self.bulk_update_url = url_for('extracts_bulk_update', query_clauses=clauses)
         self.first_url = url_for('extracts_show', page=1, query_clauses=clauses)
         self.next_url = url_for('extracts_show', page=page_number + 1, query_clauses=clauses) if page.has_next else None
         self.prev_url = url_for('extracts_show', page=page_number - 1, query_clauses=clauses) if page.has_prev else None

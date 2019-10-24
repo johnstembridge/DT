@@ -129,7 +129,6 @@ class UserRole(FormEnum):
     admin = 2
 
 
-
 class Sex(FormEnum):
     male = 1
     female = 2

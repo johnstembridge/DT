@@ -3,7 +3,7 @@
 
 {% block page_content %}
 <div class="page-header">
-    <h2>Select data to extract</h2>
+    <h2>{{ title }}</h2>
 </div>
 
 <form method="POST">
@@ -22,16 +22,24 @@
         </tr>
         <tr>
             <td>{{ form.start_date.label }}</td>
-            <td>{{ form.start_date }}</td>
+            <td>{{ form.start_date(size=12, title='select by start date (dd/mm/yyyy)') }}</td>
 
             <td>{{ form.end_date.label }}</td>
-            <td>{{ form.end_date }}</td>
+            <td>{{ form.end_date(size=12, title='select by end date (dd/mm/yyyy)') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.country.label }}</td>
+            <td>{{ form.country }} </td>
+
+            <td>{{ form.post_code.label }}</td>
+            <td>{{ form.post_code(size=8) }} </td>
         </tr>
         <tr>
             <td>{{ form.birth_month.label }}</td>
             <td>{{ form.birth_month }} </td>
+
             <td>{{ form.age.label }}</td>
-            <td>{{ form.age }} </td>
+            <td>{{ form.age(size=6) }} </td>
         </tr>
         <tr>
             <td>{{ form.payment_method.label }}</td>
@@ -46,6 +54,20 @@
 
             <td>{{ form.action_status.label }}</td>
             <td>{{ form.action_status(title='Select by action status') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.action_date.label }}</td>
+            <td>{{ form.action_date(size=12, title='Select by action date (dd/mm/yyyy)') }}</td>
+
+            <td>{{ form.action_comment.label }}</td>
+            <td>{{ form.action_comment(title='Select by action comment') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.comment_date.label }}</td>
+            <td>{{ form.comment_date(size=12, title='Select by general comment date (dd/mm/yyyy)') }}</td>
+
+            <td>{{ form.comment.label }}</td>
+            <td>{{ form.comment(title='Select by general comment') }}</td>
         </tr>
     </table>
 

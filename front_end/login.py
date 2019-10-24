@@ -4,7 +4,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
-from globals.config import url_for_app, qualify_url
+from globals.config import full_url
 from globals.email import send_mail
 from models.dt_db import User
 from back_end.interface import get_member_by_email, get_user, save_user
@@ -64,7 +64,7 @@ class RegistrationForm(FlaskForm):
 def user_register(new=True):
     # Register user (new is True) or reset login
     if new and current_user.is_authenticated:
-        return redirect(qualify_url('index'))
+        return redirect(full_url('index'))
     form = RegistrationForm()
     form_title = 'Register' if new else 'Reset login details'
     if not new and not form.is_submitted():
@@ -75,7 +75,7 @@ def user_register(new=True):
     else:
         if form.validate_on_submit():
             number = int(get_digits(form.member_number.data))
-            ok, id, message, message_type = register_user(number, form.email.data, form.username.data, form.password.data)
+            ok, id, message, message_type = register_user(number, form.username.data, form.password.data, form.email.data)
             if ok:
                 if new:
                     flash(message, message_type)
@@ -90,7 +90,7 @@ def user_register(new=True):
 
 def user_logout():
     logout_user()
-    return redirect(qualify_url('index'))
+    return redirect(full_url('index'))
 
 
 class ResetPasswordRequestForm(FlaskForm):
@@ -100,7 +100,7 @@ class ResetPasswordRequestForm(FlaskForm):
 
 def user_reset_password_request(role, app):
     if current_user.is_authenticated:
-        return redirect(url_for_app( 'index'))
+        return redirect(full_url('index'))
     form = ResetPasswordRequestForm()
     if form.validate_on_submit():
         user = get_member_by_email(form.email.data).user
@@ -110,17 +110,17 @@ def user_reset_password_request(role, app):
             flash(message, 'success')
         else:
             flash('Email not recognised', 'danger')
-        return redirect(url_for_app(role, 'user_login'))
+        return redirect(full_url('user_login'))
     return render_template('user/reset_password_request.html', title='Reset Password', form=form)
 
 
 def send_password_reset_email(user, app):
-    token, expires = user.get_reset_password_token(app)
+    token, expires = user.get_token(app)
     send_mail(to=user.member.contact.email,
               sender='membership@thedonstrust.org',
               subject='[Dons Trust] Reset Your Password',
               message=render_template('user/reset_password.txt',
-                                      url_for_app=url_for_app,
+                                      full_url=full_url,
                                       user=user,
                                       token=token,
                                       expires=expires)
@@ -136,14 +136,14 @@ class ResetPasswordForm(FlaskForm):
 
 def user_reset_password(role, app, token):
     if current_user.is_authenticated:
-        return redirect(url_for_app(role, 'index'))
+        return redirect(full_url(role, 'index'))
     user = User.verify_reset_password_token(app, token)
     if not user:
-        return redirect(url_for_app(role, 'index'))
+        return redirect(full_url(role, 'index'))
     form = ResetPasswordForm()
     if form.validate_on_submit():
         user.set_password(form.password.data)
         save_user(user)
         flash('Your password has been reset', 'success')
-        return redirect(url_for_app(role, 'user_login'))
+        return redirect(full_url(role, 'user_login'))
     return render_template('user/reset_password.html', form=form)

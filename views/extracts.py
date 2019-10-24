@@ -74,3 +74,19 @@ def extracts_select():
 @role_required('admin')
 def extracts_show():
     return Extracts.extract_show()
+
+
+@app.route('/extracts/bulk_update', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_bulk_update():
+    return Extracts.bulk_update()
+
+
+@app.route('/extracts/selected', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_extract_selected():
+    return return_csv_file(Extracts.extract_comms(), 'comms.csv')
+
+

@@ -8,6 +8,7 @@
     {{ form.hidden_tag() }}
     <h4 class="left">{{ form.total.data }} results found</h4>
     <h5 class="right">
+        <a class='btn' href="{{ form.bulk_update_url }}">Bulk update ...</a>
         <a href="{{ form.first_url }}"><span class="glyphicon">&#xe069;</span></a>
         {% if form.prev_url %}
             <a href="{{ form.prev_url }}"><span class="glyphicon">&#xe251;</span></a>
@@ -22,6 +23,7 @@
         <table width="100%" class="scroll, table">
             <thead>
             <tr>
+                <th>Details</th>
                 {% for field in fields %}
                     <th>{{ field[0] }}</th>
                 {% endfor %}
@@ -30,6 +32,13 @@
             <tbody>
             {% for row in data %}
                 <tr>
+                    <td align="center">
+                        {{ render_link(
+                            url=url_for('edit_member', member_number=get_attr(row, 'number')),
+                            image=url_for('static', filename='images/right-arrow.png'),
+                            text='View/Edit member details'
+                        )|safe }}
+                    </td>
                 {% for field in fields %}
                     <td>{{ get_attr(row, field[1]) }}</td>
                 {% endfor %}

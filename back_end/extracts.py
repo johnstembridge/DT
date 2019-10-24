@@ -314,7 +314,11 @@ class Extracts:
         elif form.errors:
             flash_errors(form)
 
-        return render_template('query.html', form=form, render_link=render_link)
+        return render_template('query.html', form=form, render_link=render_link, title='Select data to extract')
+
+    @staticmethod
+    def extract_selected():
+        pass # ToDo
 
     @staticmethod
     def extract_show():
@@ -323,4 +327,20 @@ class Extracts:
         form = ExtractForm()
         query = get_members_for_query(query_clauses)
         fields, page = form.populate_result(clauses=url_pickle_dump(query_clauses), query=query, page_number=page)
-        return render_template('extract.html', form=form, data=page.items, fields=fields, get_attr=get_attr)
+        return render_template('extract.html', form=form, render_link=render_link, data=page.items, fields=fields, get_attr=get_attr)
+
+    @staticmethod
+    def bulk_update():
+        form = QueryForm()
+        if form.validate_on_submit():
+            if form.submit.data:
+                query_clauses = url_pickle_load(request.args.get('query_clauses'))
+                query = get_members_for_query(query_clauses)
+                updates = form.get_updates()
+                # ToDo: update here
+                # flash updated
+                return ##redirect(url_for('extracts_bulk_update', query_clauses=query_clauses))
+        elif form.errors:
+            flash_errors(form)
+
+        return render_template('query.html', form=form, render_link=render_link, title='Bulk update')

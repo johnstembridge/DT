@@ -31,19 +31,19 @@ class TestEtl(unittest.TestCase):
         self.test_comment_etl_db()
 
     def test_member_etl_db(self):
-        in_file = 'D:\donstrust\exports\members.txt'
+        in_file = r'D:\donstrust\exports\members.txt'
         process_etl_db(in_file, member_etl)
 
     def test_payment_etl_db(self):
-        in_file = 'D:\donstrust\exports\payments.txt'
+        in_file = r'D:\donstrust\exports\payments.txt'
         process_etl_db(in_file, payment_etl)
 
     def test_donation_etl_db(self):
-        in_file = 'D:\donstrust\exports\donations.txt'
+        in_file = r'D:\donstrust\exports\donations.txt'
         process_etl_db(in_file, donation_etl)
 
     def test_comment_etl_db(self):
-        in_file = 'D:\donstrust\exports\comments.txt'
+        in_file = r'D:\donstrust\exports\comments.txt'
         process_etl_db(in_file, comment_etl)
 
     def test_parse_comments(self):

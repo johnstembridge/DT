@@ -1,43 +1,68 @@
+from flask import render_template, current_app
 from globals.email import send_mail
 from globals.enumerations import UserRole
+from globals.config import full_url_for
 from models.dt_db import User, Role
 from back_end.interface import get_member, get_user, save_user
-from back_end.data_utilities import is_valid_email
 
 
-def register_user(member_number, email, user_name, password, role=UserRole.user):
+def register_user(member_number, user_name, password, email=None, role=UserRole.user, two_phase=False, activate_url=None):
     user_id = 0
-    if is_valid_email(email):
-        if user_name and password:
-            member = get_member(member_number)
-            if member:
-                if not member.is_active():
-                    ok, message, message_type = False, 'Sorry, you are not a current member', 'warning'
-                elif member.email.lower() != email.lower():
-                    ok, message, message_type = False, 'Please give your Dons Trust contact email address', 'warning'
+    if user_name and password:
+        member = get_member(member_number)
+        if member:
+            if not member.is_active():
+                ok, message, message_type = False, 'Sorry, you are not a current member', 'warning'
+            elif email and member.email.lower() != email.lower():
+                ok, message, message_type = False, 'Please give your Dons Trust contact email address', 'warning'
+            else:
+                user = get_user(user_name=user_name)
+                if user and user.member_id != member.id:
+                    ok, message, message_type = False, 'User name already in use', 'warning'
                 else:
-                    user = get_user(user_name=user_name)
-                    if user and user.member_id != member.id:
-                        ok, message, message_type = False, 'User name already in use', 'warning'
+                    if not member.user:
+                        user = User(user_name=user_name, member_id=member.id)
+                    if not user.check_password(password):
+                        ok, message, message_type = True, 'Password updated', 'success'
                     else:
-                        if not member.user:
-                            user = User(user_name=user_name, member_id=member.id)
-                        if not user.check_password(password):
-                            ok, message, message_type = True, 'Password updated', 'success'
+                        if two_phase:
+                            token, expires = user.get_token(current_app)
+                            send_mail(
+                                to=member.email,
+                                sender='admin@thedonstrust.org',
+                                cc=None,
+                                subject='Dons Trust Members - registration',
+                                message=render_template('activate.txt',
+                                                          full_url_for=full_url_for,
+                                                          member=member,
+                                                          token=token,
+                                                          expires=expires)
+                            )
+                            ok, message, message_type = True, 'Activation email sent to {}'.format(member.email), 'success'
                         else:
                             ok, message, message_type = True, 'You are now a registered user', 'success'
-                        user.set_password(password)
-                        if not user.roles:
-                            user.roles = [Role(role=role)]
-                        save_user(user)
-                        user_id = user.id
-            else:
-                ok, message, message_type = False, 'Cannot find your membership', 'warning'
+                    user.set_password(password)
+                    if not user.roles:
+                        user.roles = [Role(role=role)]
+                    else:
+                        if not role in [role.role for role in user.roles]:
+                            user.roles += [Role(role=role)]
+                    save_user(user)
+                    user_id = user.id
         else:
-            ok, message, message_type = False, 'Missing user name/password', 'warning'
+            ok, message, message_type = False, 'Cannot find your membership', 'warning'
     else:
-        ok, message, message_type = False, 'Invalid email address', 'warning'
+        ok, message, message_type = False, 'Missing user name/password', 'warning'
     return ok, user_id, message, message_type
+
+
+def activate_user(key):
+    ok, user_id = User.verify_token(current_app, key)
+    if ok:
+        id, message, message_type = user_id, 'Account successfully activated, login', 'success'
+    else:
+        id, message, message_type = None, user_id, 'warning'
+    return ok, id, message, message_type
 
 
 def change_user_password(user_id, new_password):

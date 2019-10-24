@@ -4,7 +4,7 @@ from flask import send_file
 import io, csv
 
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
-    Sex, CommsType, JuniorGift, ExternalAccess
+    Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior
 from back_end.data_utilities import first_or_default, unique, pop_next
@@ -124,7 +124,7 @@ def save_member_details(member_number, details):
     else:
         member = get_new_member()
 
-    member.title = details['title'] if details['title'] > 0 else None
+    member.title = Title(details['title']) if details['title'] > 0 else None
     member.first_name = details['first_name']
     member.last_name = details['last_name']
     member.sex = Sex(details['sex'])
@@ -142,7 +142,7 @@ def save_member_details(member_number, details):
     member.mobile_phone = details['mobile_phone']
     member.email = details['email']
     member.comms = CommsType(details['comms'])
-    member.comms_status = CommsType(details['comms_status'])
+    member.comms_status = CommsStatus(details['comms_status'])
 
     member.address.line_1 = details['line_1']
     member.address.line_2 = details['line_2']
@@ -232,6 +232,7 @@ def save_member_details(member_number, details):
 
 def next_member_number():
     return db_session.query(func.max(Member.number)).scalar() + 1
+
 
 # endregion
 
