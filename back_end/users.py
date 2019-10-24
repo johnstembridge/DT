@@ -30,7 +30,7 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
                             send_mail(
                                 to=member.email,
                                 sender='admin@thedonstrust.org',
-                                cc=None,
+                                cc=[],
                                 subject='Dons Trust Members - registration',
                                 message=render_template('activate.txt',
                                                           full_url_for=full_url_for,
