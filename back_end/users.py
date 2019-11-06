@@ -13,8 +13,6 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
         if member:
             if not member.is_active():
                 ok, message, message_type = False, 'Sorry, you are not a current member', 'warning'
-            elif email and member.email.lower() != email.lower():
-                ok, message, message_type = False, 'Please give your Dons Trust contact email address', 'warning'
             else:
                 user = get_user(user_name=user_name)
                 if user and user.member_id != member.id:
@@ -57,7 +55,7 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
 
 
 def activate_user(key):
-    ok, user_id = User.verify_token(current_app, key)
+    ok, user_id = User.validate_token(current_app, key)
     if ok:
         id, message, message_type = user_id, 'Account successfully activated, login', 'success'
     else:

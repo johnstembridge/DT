@@ -32,9 +32,9 @@ class CommentItemForm(FlaskForm):
 
 class MemberDetailsForm(FlaskForm):
     full_name = StringField(label='Full Name')
-
+    return_url = HiddenField(label='Return URL')
     member_number = HiddenField(label='Member Number')
-    number = StringField(label='Id')
+    dt_number = StringField(label='Id')
     status = MySelectField(label='Status', choices=MemberStatus.choices(), coerce=MemberStatus.coerce)
     type = MySelectField(label='Type', choices=MembershipType.choices(), coerce=MembershipType.coerce)
     start_date = DateField(label='Start')
@@ -73,16 +73,16 @@ class MemberDetailsForm(FlaskForm):
     jd_email = StringField(label='JD Email ', validators=[Optional(), Email("Invalid email address")])
     jd_gift = MySelectField(label='JD Gift', choices=JuniorGift.choices(blank=True), coerce=JuniorGift.coerce)
 
-    def populate_member(self, member_number):
+    def populate_member(self, member_number, return_url):
+        self.return_url.data = return_url
         new_member = member_number == 0
         if new_member:
             member = get_new_member()
         else:
             member = get_member(member_number)
         address = member.address
-
-        self.member_number.data = member.number
-        self.number.data = member.dt_number()
+        self.member_number = member_number
+        self.dt_number.data = member.dt_number()
         self.status.data = member.status.value
         self.type.data = member.member_type.value
         self.start_date.data = member.start_date
@@ -209,5 +209,4 @@ class MemberDetailsForm(FlaskForm):
             if comment['comment']:
                 member['comments'].append(comment)
 
-        save_member_details(member_number, member)
-        return True
+        return save_member_details(member_number, member)

@@ -19,9 +19,8 @@
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">Members<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                    <li><a href="{{ url_for('members') }}">List Members</a></li>
+                    <li><a href="{{ url_for('members') }}">Find/Edit Members</a></li>
                     <li><a href="{{ url_for('edit_member', member_number=0) }}">Add New Member</a></li>
-                    <li><a href="{{ url_for('edit_member', member_number=0) }}">Edit Member Details</a></li>
                     <li><a href="{{ url_for('bulk_update') }}">Bulk Update</a></li>
                 </ul>
             <li>

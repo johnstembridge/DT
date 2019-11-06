@@ -4,6 +4,7 @@
 {% block page_content %}
 <form method="POST">
     {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
     <table width="100%" class="table">
         <thead>
         <tr>
@@ -15,9 +16,9 @@
             <th>{{ form.sel_last_name(size=12, title='Select by last name. Enter any partial match') }}</th>
             <th>{{ form.sel_status(title='Select by membership status') }}</th>
             <th>{{ form.sel_member_type(title='Select by membership type') }}</th>
-            <th>{{ form.sel_email(size=15, title='Select by email address. Enter any partial match') }}</th>
+            <th>{{ form.sel_email(size=20, title='Select by email address. Enter any partial match') }}</th>
             <th>{{ form.sel_post_code(size=6, title='Select by post code. Enter any partial match') }}</th>
-            <th>{{ form.sel_country(size=6, title='Select by country. Enter any partial match') }}</th>
+            <th>{{ form.sel_country(size=10, title='Select by country. Enter any partial match') }}</th>
             <th>{{ form.sel_start_date(size=6) }}</th>
             <th>{{ form.sel_end_date(size=6) }}</th>
         </tr>

@@ -5,7 +5,7 @@ from front_end.query import QueryForm
 from front_end.extract_form import ExtractForm
 from back_end.interface import select, get_attr, get_members_for_query
 from back_end.data_utilities import fmt_date, yes_no, first_or_default, encode_date_formal
-from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod, CommsType
+from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod, CommsType, CommsStatus
 from models.dt_db import Action, Member, Junior
 import datetime
 
@@ -50,7 +50,7 @@ class Extracts:
         all = select(Action, (Action.status == ActionStatus.open, Action.action == MemberAction.card))
         csv = []
         head = ['id', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
-                'state', 'post_code', 'country', 'recent_new']
+                'state', 'post_code', 'country', 'recent_new', 'bounced_email']
         csv.append(head)
         count = 0
         for card in all:
@@ -69,7 +69,8 @@ class Extracts:
                 card.member.address.state,
                 card.member.address.post_code,
                 card.member.address.country_for_mail(),
-                yes_no(card.member.start_date >= datetime.date(datetime.date.today().year, 2, 1))
+                yes_no(card.member.start_date >= datetime.date(datetime.date.today().year, 2, 1)),
+                yes_no(card.member.comms_status == CommsStatus.email_fail)
             ]
             csv.append(row)
         return csv

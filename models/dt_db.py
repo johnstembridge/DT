@@ -3,13 +3,13 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, extract
+from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
     CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus, Enum
 from back_end.data_utilities import fmt_date, parse_date
-import datetime
+from datetime import datetime, timedelta
 from time import time, localtime, strftime
 
 Base = declarative_base()
@@ -244,7 +244,7 @@ class Member(Base):
     def age(self, as_of=None, default=None):
         if self.birth_date:
             if not as_of:
-                as_of = datetime.date.today()
+                as_of = datetime.today().date()
             years = as_of.year - self.birth_date.year
             if as_of.month < self.birth_date.month or (
                     as_of.month == self.birth_date.month and as_of.day < self.birth_date.day):
@@ -304,7 +304,8 @@ class User(Base, UserMixin):
     password = Column(String(100), nullable=False)
     roles = relationship('Role', back_populates='user')
     member = relationship('Member', back_populates='user')
-    api_key = Column(String(256), nullable=True)
+    token = Column(String(256), nullable=True, index=True, unique=True)
+    expires = Column(DateTime, nullable=True)
 
     def to_dict(self):
         data = {}
@@ -322,23 +323,53 @@ class User(Base, UserMixin):
             return check_password_hash(self.password, password)
         return True
 
-    def get_token(self, app, expires_in=600):
-        exp = time() + expires_in
-        token = jwt.encode(
-            {'activate': self.id, 'exp': exp},
-            app.config['SECRET_KEY'],
-            algorithm='HS256').decode('utf-8')
-        return token, strftime('%a, %d %b %Y %H:%M:%S +0000', localtime(exp))
+    def get_token(self, app, expires_in=3600):
+        exp = None
+        if self.token:
+            exp = User.decode_token(self.token, app)['exp']
+            #exp = jwt.decode(self.token, app.config['SECRET_KEY'], algorithms=['HS256'])['exp']
+        if exp and exp < time() + 60:
+            exp = time() + expires_in
+            self.token = User.encode_token(self.id, exp, app)
+            # self.token = jwt.encode(
+            #     {'sub': self.id, 'exp': exp},
+            #     app.config['SECRET_KEY'],
+            #     algorithm='HS256'
+            # ).decode('utf-8')
+        return self.token, strftime('%a, %d %b %Y %H:%M:%S +0000', localtime(exp))
+
+    def revoke_token(self, app):
+        self.token = User.encode_token(self.id, time() - 1, app)
 
     @staticmethod
-    def verify_token(app, token):
+    def check_token(app, token):
+        user = User.query.filter_by(token=token).first()
+        if user is None or User.decode_token(token, app)['sub'] < time():
+            return None
+        return user
+
+    @staticmethod
+    def validate_token(app, token):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['activate']
+            id = User.decode_token(token, app)['sub']
+            #id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['sub']
         except jwt.ExpiredSignatureError:
             return False, 'Signature expired. Please try again.'
         except jwt.InvalidTokenError:
             return False, 'Invalid token. Please try again.'
         return True, id
+
+    @staticmethod
+    def encode_token(id, exp, app):
+        return jwt.encode(
+            {'sub': id, 'exp': exp},
+            app.config['SECRET_KEY'],
+            algorithm='HS256'
+        ).decode('utf-8')
+
+    @staticmethod
+    def decode_token(token, app):
+        return jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
     def __repr__(self):
         return '<User {}>'.format(self.user_name)

@@ -74,8 +74,8 @@ def get_members_by_name(name):
 
 
 def get_members_for_query(query_clauses, default_table='Member', limit=None):
-    tables = unique([globals()[t[0]] for t in [[default_table]] + query_clauses])
     clauses = []
+    tables = unique([globals()[t[0]] for t in [[default_table]] + query_clauses])
     for field in query_clauses:
         table, column, value, condition, func = field
         type, values = field_type(table, column)
@@ -228,7 +228,7 @@ def save_member_details(member_number, details):
         db_session.add(member)
 
     db_session.commit()
-
+    return member
 
 def next_member_number():
     return db_session.query(func.max(Member.number)).scalar() + 1

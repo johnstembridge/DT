@@ -79,6 +79,20 @@ def select_fields_to_query(select_fields, default_table):
     return query_clauses
 
 
+def query_to_select_fields(select_fields, query_clauses):
+    fields = {f.name: f for f in select_fields}
+    for clause in query_clauses:
+        table, column, value, condition, func = clause
+        if condition == '=':
+            condition = ''
+        field = fields['sel_' + column]
+        if field.type == 'MySelectField':
+            choice = condition + [f[1] for f in field.choices if f[0] == value][0]
+            field.data = [f[0] for f in field.choices if f[1].startswith(choice)][0]
+        else:
+            field.data = condition + value
+
+
 def select_fields_to_update(select_fields, default_table):
     updates = {}
     for field in select_fields:

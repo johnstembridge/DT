@@ -106,6 +106,14 @@ status_etl = {
 
 
 def type_etl(member, old_status, old_concession_type):
+    concession_type_map = {
+        'Senior': MembershipType.senior,
+        'Senior+Donation': MembershipType.senior,
+        'Incapacity': MembershipType.incapacity,
+        'Job Seeker': MembershipType.job_seeker,
+        'Student': MembershipType.student,
+        'Young Adult': MembershipType.intermediate
+    }
     if member.is_active():
         type = {
             'LIF': MembershipType.standard,
@@ -119,14 +127,7 @@ def type_etl(member, old_status, old_concession_type):
             'H': MembershipType.honorary
         }[old_status]
         if type == MembershipType.standard and old_concession_type != '':
-            type = {
-                'Senior': MembershipType.senior,
-                'Senior+Donation': MembershipType.senior,
-                'Incapacity': MembershipType.incapacity,
-                'Job Seeker': MembershipType.job_seeker,
-                'Student': MembershipType.student,
-                'Young Adult': MembershipType.intermediate
-            }[old_concession_type]
+            type = concession_type_map[old_concession_type]
     else:
         age = member.age()
         if age < 16:
@@ -137,6 +138,8 @@ def type_etl(member, old_status, old_concession_type):
             type = MembershipType.senior
         else:
             type = MembershipType.standard
+        if type == MembershipType.standard and old_concession_type != '':
+            type = concession_type_map[old_concession_type]
     return type
 
 

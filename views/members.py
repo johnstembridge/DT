@@ -1,3 +1,4 @@
+from flask import request
 from flask_login import login_required, current_user
 
 from globals.decorators import role_required
@@ -9,7 +10,10 @@ from front_end.members_admin import MaintainMembers
 @login_required
 @role_required('admin')
 def members():
-    return MaintainMembers.list_members()
+    if request.method == 'POST':
+        return MaintainMembers.find_members()
+    else:
+        return MaintainMembers.list_members()
 
 
 @app.route('/members/bulk', methods=['GET', 'POST'])
@@ -24,13 +28,6 @@ def bulk_update():
 @role_required('admin')
 def edit_member(member_number):
     return MaintainMembers.edit_member(member_number)
-
-
-@app.route('/members_find', methods=['GET', 'POST'])
-@login_required
-@role_required('admin')
-def find_members():
-    return MaintainMembers.find_members()
 
 
 @app.route('/members', methods=['PUT'])
