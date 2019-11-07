@@ -5,6 +5,22 @@
 <form method="POST">
     {{ form.csrf_token }}
     {{ form.hidden_tag() }}
+    <h4 class="left">{{ form.total.data }} results found</h4>
+    <h5 class="right">
+        {% if form.first_url %}
+            <a href="{{ form.first_url }}"><span class="glyphicon">&#xe069;</span></a>
+        {% endif %}
+        {% if form.prev_url %}
+            <a href="{{ form.prev_url }}"><span class="glyphicon">&#xe251;</span></a>
+        {% endif %}
+         page {{ form.current_page.data }} of {{ form.total_pages.data }}
+        {% if form.next_url %}
+            <a href="{{ form.next_url }}"><span class="glyphicon">&#xe250;</span></a>
+        {% endif %}
+        {% if form.last_url %}
+            <a href="{{ form.last_url }}"><span class="glyphicon">&#xe077;</span></a>
+        {% endif %}
+    </h5>
     <table width="100%" class="table">
         <thead>
         <tr>

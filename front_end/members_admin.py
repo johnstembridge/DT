@@ -23,8 +23,9 @@ class MaintainMembers:
             query_clauses = url_pickle_load(request.args.get('query_clauses'))
         else:
             query_clauses = None
+        page = request.args.get('page', 1, int)
         form = MemberListForm()
-        form.populate_member_list(query_clauses)
+        form.populate_member_list(query_clauses, url_pickle_dump(query_clauses), page)
         return render_template('member_list.html', form=form, render_link=render_link)
 
     @staticmethod

@@ -1,5 +1,6 @@
+from flask import url_for
 from flask_wtf import FlaskForm
-from wtforms import StringField, FieldList, FormField, HiddenField
+from wtforms import StringField, IntegerField, FieldList, FormField, HiddenField
 
 from back_end.data_utilities import fmt_date
 from back_end.interface import get_members_for_query
@@ -37,17 +38,34 @@ class MemberListForm(FlaskForm):
     sel_start_date = MyStringField(label='Start date', db_map='Member.start_date')  # DateField(validators=[Optional()])
     sel_end_date = MyStringField('End date', db_map='Member.end_date')  # DateField(validators=[Optional()])
     member_list = FieldList(FormField(MemberItemForm))
+    total = StringField(label='Total_Found')
+    current_page = IntegerField(label='Current_Page')
+    total_pages = IntegerField(label='Total_Pages')
+    first_url = StringField(label='first page')
+    last_url = StringField(label='last page')
+    next_url = StringField(label='next page')
+    prev_url = StringField(label='previous page')
 
     def all_sels(self):
         return [self.sel_number, self.sel_status, self.sel_member_type, self.sel_first_name, self.sel_last_name,
                 self.sel_email, self.sel_post_code, self.sel_country, self.sel_start_date, self.sel_end_date]
 
-    def populate_member_list(self, query_clauses):
+    def populate_member_list(self, query_clauses, clauses, page_number=1):
         if not query_clauses:
+            self.total.data = self.total_pages.data = self.current_page.data = 0
+            self.first_url = self.next_url = self.prev_url = self.last_url = None
             return
         query_to_select_fields(self.all_sels(), query_clauses)
-        q = get_members_for_query(query_clauses, limit=20)
-        for member in q:  # get_all_members(select) :
+        query = get_members_for_query(query_clauses)
+        page = query.paginate(page=page_number, per_page=15)
+        self.total.data = page.total
+        self.current_page.data = page_number
+        self.total_pages.data = page.pages
+        self.first_url = url_for('members', page=1, query_clauses=clauses)
+        self.next_url = url_for('members', page=page_number + 1, query_clauses=clauses) if page.has_next else None
+        self.prev_url = url_for('members', page=page_number - 1, query_clauses=clauses) if page.has_prev else None
+        self.last_url = url_for('members', page=page.pages, query_clauses=clauses)
+        for member in page.items:  # get_all_members(select) :
             item_form = MemberItemForm()
             item_form.member_number = member.number
             item_form.number = member.dt_number()
