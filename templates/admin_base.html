@@ -25,19 +25,26 @@
                 </ul>
             <li>
             <li class="dropdown">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#">Extracts<b class="caret"></b></a>
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Extracts<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                    <li><a href="{{ url_for('extracts_certs') }}">Certificates</a></li>
-                    <li><a href="{{ url_for('extracts_cards') }}">Cards - renewal</a></li>
-                    <li><a href="{{ url_for('extracts_cards_all') }}">Cards - all</a></li>
-                    <li><a href="{{ url_for('extracts_renewals') }}">Renewal notices</a></li>
-                    <li><a href="{{ url_for('extracts_juniors') }}">Juniors</a></li>
-                    <li><a href="{{ url_for('extracts_debits') }}">Debits</a></li>
-                    <li><a href="{{ url_for('extracts_email') }}">Email</a></li>
-                    <li><a href="{{ url_for('extracts_comms') }}">Comms</a></li>
-                    <li><a href="{{ url_for('extracts_select') }}">Select members</a></li>
+                    <li class="dropdown-submenu">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="nav-label">Standard</span></a>
+                        <ul class="dropdown-menu">
+                            <li><a tabindex="-1" href="#">Standard Extracts</a></li>
+                            <li class="divider"></li>
+                            <li><a href="{{ url_for('extracts_certs') }}">Certificates</a></li>
+                            <li><a href="{{ url_for('extracts_cards') }}">Cards - renewal</a></li>
+                            <li><a href="{{ url_for('extracts_cards_all') }}">Cards - all</a></li>
+                            <li><a href="{{ url_for('extracts_renewals') }}">Renewal notices</a></li>
+                            <li><a href="{{ url_for('extracts_juniors') }}">Juniors</a></li>
+                            <li><a href="{{ url_for('extracts_debits') }}">Debits</a></li>
+                            <li><a href="{{ url_for('extracts_email') }}">Email</a></li>
+                            <li><a href="{{ url_for('extracts_comms') }}">Comms</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{{ url_for('extracts_select') }}">Custom</a></li>
                 </ul>
-            <li class="dropdown">
+           <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li><a href="{{ url_for('show_help', subject='members') }}">Members</a></li>
