@@ -6,7 +6,7 @@
 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/dt_admin.css') }}">
     {{ form.csrf_token }}
     {{ form.hidden_tag() }}
-    <h4 class="left">{{ form.total.data }} results found</h4>
+    <h4 class="left">{{ form.total.data }} {{ 'result' if form.total.data == 1 else 'results' }} found</h4>
     <h5 class="right">
         <a class='btn' href="{{ form.bulk_update_url }}">Bulk update ...</a>
         <a href="{{ form.first_url }}"><span class="glyphicon">&#xe069;</span></a>

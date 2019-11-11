@@ -174,5 +174,7 @@ class Title(FormEnum):
 
 class JuniorGift(FormEnum):
     none = 0
-    BaseballCap = 1
-    MiniFootball = 2
+    LunchBox = 1
+    BuildingBricks = 2
+    BaseballCap = 3
+    MiniFootball = 4

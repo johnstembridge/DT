@@ -2,9 +2,9 @@ import csv
 import re
 from datetime import date
 
-from models.dt_db import Member, Address, Payment, Comment, Action
+from models.dt_db import Member, Address, Payment, Comment, Action, Junior
 from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType, \
-    CommsStatus, MemberAction, ActionStatus, ExternalAccess
+    CommsStatus, MemberAction, ActionStatus, ExternalAccess, JuniorGift
 from back_end.file_access import delete_file, file_delimiter
 from back_end.data_utilities import parse_date, valid_date, force_list
 from main import db
@@ -66,6 +66,11 @@ def member_etl(rec):
         actions=actions_etl(rec)
     )
     member.member_type = type_etl(member, rec['Status Code'], rec['Concession Type'])
+    if member.member_type == MembershipType.junior:
+        member.junior = Junior(
+            email=rec['Junior email'],
+            gift=junior_gift_etl[rec['Junior Gift']]
+        )
     # member = handle_upgrade(member, date(2019, 8, 1))
     return member
 
@@ -102,6 +107,14 @@ status_etl = {
     'X': MemberStatus.cancelled,
     'R': MemberStatus.cancelled,
     'D': MemberStatus.deceased
+}
+
+junior_gift_etl = {
+    '': JuniorGift.none,
+    'Lunchbox': JuniorGift.LunchBox,
+    'Building bricks': JuniorGift.BuildingBricks,
+    'Baseball cap': JuniorGift.BaseballCap,
+    'Mini football': JuniorGift.MiniFootball
 }
 
 

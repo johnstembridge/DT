@@ -155,7 +155,7 @@ def save_member_details(member_number, details):
 
     if member.member_type == MembershipType.junior:
         member.junior.email = details['jd_mail']
-        member.junior.gift = JuniorGift(details['jd_gift'])
+        member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] else None
 
     payments = []
     for payment in details['payments']:
