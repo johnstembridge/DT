@@ -96,7 +96,6 @@ class PaymentType(FormEnum):
 
 
 class PaymentMethod(FormEnum):
-    na = 0
     cc = 1
     dd = 2
     chq = 3
@@ -132,7 +131,6 @@ class UserRole(FormEnum):
 class Sex(FormEnum):
     male = 1
     female = 2
-    unknown = 3
 
 
 class Dues(FormEnum):
@@ -173,7 +171,6 @@ class Title(FormEnum):
 
 
 class JuniorGift(FormEnum):
-    none = 0
     LunchBox = 1
     BuildingBricks = 2
     BaseballCap = 3

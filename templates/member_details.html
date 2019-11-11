@@ -23,7 +23,7 @@
             <td>{{ form.end_date.label }}</td>
             <td>{{ form.end_date }}</td>
             <td>{{ form.birth_date.label }}</td>
-            <td>{{ form.birth_date }}{%if form.age.data %} ({{ form.age.data }}){% endif %}</td>
+            <td>{{ form.birth_date }}{%if form.age.data != None %} ({{ form.age.data }}){% endif %}</td>
         </tr>
     </table>
     <table width="30%">

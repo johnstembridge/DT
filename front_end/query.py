@@ -12,7 +12,8 @@ class QueryForm(FlaskForm):
     number = MyStringField(label='number', db_map='Member.number')
     status = MySelectField(label='status', choices=MemberStatus.choices(extra=[(99, '<lapsed (active)')], blank=True),
                            coerce=MemberStatus.coerce, db_map='Member.status')
-    member_type = MySelectField(label='member type', choices=MembershipType.choices(extra=[(99, '!=junior (adult)')], blank=True),
+    member_type = MySelectField(label='member type',
+                                choices=MembershipType.choices(extra=[(99, '!=junior (adult)')], blank=True),
                                 coerce=MembershipType.coerce, db_map='Member.member_type')
     start_date = MyStringField(label='start date', db_map='Member.start_date')
     end_date = MyStringField('end date', db_map='Member.end_date')
@@ -42,11 +43,11 @@ class QueryForm(FlaskForm):
     submit = SubmitField(label='Submit')
 
     def query_fields(self):
-        return[self.number, self.status, self.member_type, self.start_date, self.end_date,
-                    self.payment_method, self.comms, self.birth_month, self.age,
-                    self.current_action, self.action_status, self.action_comment,
-                    self.comment_date, self.comment,
-                    self.first_name, self.last_name, self.email, self.post_code, self.country]
+        return [self.number, self.status, self.member_type, self.start_date, self.end_date,
+                self.payment_method, self.comms, self.birth_month, self.age,
+                self.current_action, self.action_status, self.action_comment,
+                self.comment_date, self.comment,
+                self.first_name, self.last_name, self.email, self.post_code, self.country]
 
     def find_members(self):
         query_clauses = select_fields_to_query(self.query_fields(), 'Member')

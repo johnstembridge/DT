@@ -41,13 +41,13 @@ class MemberDetailsForm(FlaskForm):
     end_date = DateField(label='End')
     birth_date = DateField(label='Birth', validators=[Optional()])
     age = HiddenField(label='Age')
-    payment_method = MySelectField(label='Current payment method', choices=PaymentMethod.choices(), coerce=PaymentMethod.coerce)
+    payment_method = MySelectField(label='Current payment method', choices=PaymentMethod.choices(blank=True), coerce=PaymentMethod.coerce)
     external_access = MySelectField(label='External access', choices=ExternalAccess.choices(), coerce=ExternalAccess.coerce)
 
     title = MySelectField(label='Title', choices=Title.choices(blank=True), coerce=Title.coerce)
     first_name = StringField(label='First', validators=[InputRequired()])
     last_name = StringField(label='Last', validators=[InputRequired()])
-    sex = MySelectField(label='Sex', choices=Sex.choices(), coerce=int)
+    sex = MySelectField(label='Sex', choices=Sex.choices(blank=True), coerce=int)
 
     line1 = StringField(label='Address line 1')
     line2 = StringField(label='Address line 2')
@@ -88,16 +88,16 @@ class MemberDetailsForm(FlaskForm):
         self.start_date.data = member.start_date
         self.end_date.data = member.end_date
         self.birth_date.data = member.birth_date
-        self.age.data = member.age()
+        self.age.data = str(member.age()) if member.age() is not None else None
 
-        self.payment_method.data = (member.last_payment_method or PaymentMethod.na).value
+        self.payment_method.data = member.last_payment_method.value if member.last_payment_method else ''
         self.external_access.data = (member.external_access or ExternalAccess.none).value
 
         self.full_name.data = member.full_name()
         self.title.data = member.title.value if member.title else ''
         self.first_name.data = member.first_name
         self.last_name.data = member.last_name
-        self.sex.data = (member.sex or Sex.unknown).value
+        self.sex.data = member.sex.value if member.sex else ''
 
         self.line1.data = address.line_1
         self.line2.data = address.line_2
@@ -141,7 +141,7 @@ class MemberDetailsForm(FlaskForm):
 
         if new_member or member.member_type == MembershipType.junior:
             self.jd_email.data = member.junior.email or ''
-            self.jd_gift.data = (member.junior.gift or JuniorGift.none).value
+            self.jd_gift.data = member.junior.gift.value if member.junior.gift else ''
         else:
             self.jd_email = self.jd_gift = None
 

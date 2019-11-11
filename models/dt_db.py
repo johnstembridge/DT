@@ -153,7 +153,7 @@ class Member(Base):
     __tablename__ = 'members'
     id = Column(Integer, primary_key=True)
     number = Column(Integer)
-    sex = Column(EnumType(Sex), nullable=True, default=Sex.unknown)
+    sex = Column(EnumType(Sex), nullable=True)
     title = Column(EnumType(Title), nullable=True)
     first_name = Column(String(25), nullable=False)
     last_name = Column(String(25), nullable=False)
@@ -241,7 +241,7 @@ class Member(Base):
     def is_founder(self):
         return self.number <= 1889
 
-    def age(self, as_of=None, default=None):
+    def age(self, as_of=None, default=False):
         if self.birth_date:
             if not as_of:
                 as_of = datetime.today().date()
@@ -252,8 +252,8 @@ class Member(Base):
             return years
         else:
             # defaults
-            if default:
-                return default
+            if not default:
+                return None
             elif self.member_type:
                 if self.member_type == MembershipType.junior:
                     return 10

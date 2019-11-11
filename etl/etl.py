@@ -45,7 +45,7 @@ def process_etl_db(file_in, etl_fn):
 def member_etl(rec):
     member = Member(
         number=int(rec['Member ID'][2:]),  # drop "0-"
-        sex=Sex.male if rec['Sex'] == 'M' else Sex.female if rec['Sex'] == 'F' else Sex.unknown,
+        sex=Sex.male if rec['Sex'] == 'M' else Sex.female if rec['Sex'] == 'F' else None,
         title=Title[rec['Prefix']] if rec['Prefix'] != '' else None,
         first_name=rec['First Name'],
         last_name=rec['Last Name'],
@@ -69,7 +69,7 @@ def member_etl(rec):
     if member.member_type == MembershipType.junior:
         member.junior = Junior(
             email=rec['Junior email'],
-            gift=junior_gift_etl[rec['Junior Gift']]
+            gift=junior_gift_etl[rec['Junior Gift']] if rec['Junior Gift'] != '' else None
         )
     # member = handle_upgrade(member, date(2019, 8, 1))
     return member
@@ -110,7 +110,6 @@ status_etl = {
 }
 
 junior_gift_etl = {
-    '': JuniorGift.none,
     'Lunchbox': JuniorGift.LunchBox,
     'Building bricks': JuniorGift.BuildingBricks,
     'Baseball cap': JuniorGift.BaseballCap,

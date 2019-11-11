@@ -48,7 +48,7 @@ def get_new_member():
     member.last_name = 'member'
     member.status = MemberStatus.current
     member.member_type = MembershipType.standard
-    member.sex = Sex.unknown
+    member.sex = None
     member.start_date = datetime.date.today()
     member.end_date = datetime.date(year=2020, month=8, day=1)
     member.comms = CommsType.email
@@ -127,7 +127,7 @@ def save_member_details(member_number, details):
     member.title = Title(details['title']) if details['title'] > 0 else None
     member.first_name = details['first_name']
     member.last_name = details['last_name']
-    member.sex = Sex(details['sex'])
+    member.sex = Sex(details['sex']) if details['sex'] > 0 else None
 
     member.member_type = MembershipType(details['member_type'])
     member.status = MemberStatus(details['status'])
@@ -155,7 +155,7 @@ def save_member_details(member_number, details):
 
     if member.member_type == MembershipType.junior:
         member.junior.email = details['jd_mail']
-        member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] else None
+        member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] > 0 else None
 
     payments = []
     for payment in details['payments']:
@@ -295,7 +295,7 @@ def get_attr(obj, attr):
         res = getattr(obj, attr)
     if res and tail:
         res = get_attr(res, tail)
-    return res
+    return res if res is not None else ''
 
 
 def class_name_to_table_name(name):
