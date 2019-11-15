@@ -1,10 +1,11 @@
 from flask_login import login_required
 
 from globals.decorators import role_required
+from globals.enumerations import Months
 from main import app
 from back_end.extracts import Extracts
 from back_end.interface import return_csv_file
-
+import datetime
 
 @app.route('/extracts/certs', methods=['GET', 'POST'])
 @login_required
@@ -38,7 +39,24 @@ def extracts_renewals():
 @login_required
 @role_required('admin')
 def extracts_juniors():
-    return return_csv_file(Extracts.extract_junior_birthdays(), 'juniors.csv')
+    return return_csv_file(Extracts.extract_juniors(), 'juniors.csv')
+
+
+@app.route('/extracts/junior_birthdays', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_junior_birthdays():
+    return extracts_junior_birthdays_for_month()
+
+
+@app.route('/extracts/junior_birthdays/<int:month>', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_junior_birthdays_for_month(month=None):
+    if not month:
+        month = datetime.date.today().month + 1
+    month_name = [m for m in Months if m.value ==12][0].name
+    return return_csv_file(Extracts.extract_junior_birthdays(month), 'junior birthdays {}.csv'.format(month_name))
 
 
 @app.route('/extracts/debits', methods=['GET', 'POST'])

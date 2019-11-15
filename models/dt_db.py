@@ -9,7 +9,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
     CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus, Enum
 from back_end.data_utilities import fmt_date, parse_date
-from datetime import datetime, timedelta
+from datetime import datetime
 from time import time, localtime, strftime
 
 Base = declarative_base()
@@ -237,6 +237,20 @@ class Member(Base):
         if self.birth_date:
             return self.birth_date.month
         return None
+
+    def next_birthday(self, as_of=None):
+        if not as_of:
+            as_of = datetime.today().date()
+        birth_date = self.birth_date
+        leap = birth_date.month == 2 and birth_date.day == 29
+        if leap:
+            birth_date = birth_date.replace(day=28)
+        next_birthday = birth_date.replace(year=as_of.year)
+        if next_birthday < as_of:
+            next_birthday = next_birthday.replace(year=as_of.year + 1)
+        if leap and next_birthday.year % 4 == 0:
+            next_birthday = next_birthday.replace(day = 29)
+        return next_birthday
 
     def is_founder(self):
         return self.number <= 1889

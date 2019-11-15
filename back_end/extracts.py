@@ -5,7 +5,8 @@ from front_end.query import QueryForm
 from front_end.extract_form import ExtractForm
 from back_end.interface import select, get_attr, get_members_for_query
 from back_end.data_utilities import fmt_date, yes_no, first_or_default, encode_date_formal
-from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod, CommsType, CommsStatus
+from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod, CommsType, \
+    CommsStatus
 from models.dt_db import Action, Member, Junior
 import datetime
 
@@ -192,20 +193,23 @@ class Extracts:
         return csv
 
     @staticmethod
-    def extract_junior_birthdays():
-        month = datetime.date.today().month + 1
+    def extract_junior_birthdays(month=None):
+        today = datetime.date.today()
+        if not month:
+            month = today.month % 12 + 1  # next month
         juniors = select(Member, (
             Member.member_type == MembershipType.junior,
             Member.status.in_(MemberStatus.all_active())
-        )
-                         )
+        ))
         csv = []
         head = ['id', 'first_name', 'last_name', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3',
                 'city', 'county', 'state', 'post_code', 'country', 'email', 'home_phone', 'mobile_phone', 'birth_date',
-                'age']
+                'age_next_birthday']
         csv.append(head)
         for member in juniors:
-            if member.age() < 15 and member.birth_date.month == month:
+            next_birthday = member.next_birthday(as_of=today)
+            age = member.age(next_birthday)
+            if member.birth_date.month == month and age <= 16:
                 row = [
                     member.dt_number(),
                     member.first_name,
@@ -223,7 +227,7 @@ class Extracts:
                     member.home_phone,
                     member.mobile_phone,
                     fmt_date(member.birth_date),
-                    member.age()
+                    age
                 ]
                 csv.append(row)
         return csv
@@ -319,7 +323,7 @@ class Extracts:
 
     @staticmethod
     def extract_selected():
-        pass # ToDo
+        pass  # ToDo
 
     @staticmethod
     def extract_show():
@@ -328,7 +332,8 @@ class Extracts:
         form = ExtractForm()
         query = get_members_for_query(query_clauses)
         fields, page = form.populate_result(clauses=url_pickle_dump(query_clauses), query=query, page_number=page)
-        return render_template('extract.html', form=form, render_link=render_link, data=page.items, fields=fields, get_attr=get_attr)
+        return render_template('extract.html', form=form, render_link=render_link, data=page.items, fields=fields,
+                               get_attr=get_attr)
 
     @staticmethod
     def bulk_update():
@@ -340,7 +345,7 @@ class Extracts:
                 updates = form.get_updates()
                 # ToDo: update here
                 # flash updated
-                return ##redirect(url_for('extracts_bulk_update', query_clauses=query_clauses))
+                return  ##redirect(url_for('extracts_bulk_update', query_clauses=query_clauses))
         elif form.errors:
             flash_errors(form)
 

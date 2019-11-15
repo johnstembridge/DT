@@ -32,23 +32,6 @@ def flash_errors(form):
             ), 'danger')
 
 
-def set_select_field(field, choices=None, extra_items=None, default_selection=None, db_map=None):
-    if choices:
-        if len(choices) > 0 and isinstance(choices[0], tuple):
-                items = choices
-        else:
-            items = [(c, c) for c in choices]
-        if extra_items:
-            field.choices = extra_items + items
-        else:
-            field.choices = items
-    if default_selection:
-        field.default = default_selection
-        field.data = default_selection
-    if db_map:
-        field.db_map = db_map
-
-
 def select_fields_to_query(select_fields, default_table):
     query_clauses = []
     for field in select_fields:
