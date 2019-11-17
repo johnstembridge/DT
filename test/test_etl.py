@@ -1,6 +1,7 @@
 import unittest
 
-from etl.etl import process_etl_file, process_etl_db, member_etl, payment_etl, donation_etl, comment_etl
+from etl.etl import process_etl_file, process_etl_db, member_etl, payment_etl, donation_etl, comment_etl, country_etl, \
+    county_etl, state_etl
 
 
 class TestEtl(unittest.TestCase):
@@ -25,10 +26,25 @@ class TestEtl(unittest.TestCase):
         process_etl_file(in_file, out_file, payment_etl)
 
     def test_etl_db(self):
+        self.test_country_etl_db()
+        self.test_county_etl_db()
+        self.test_state_etl_db()
         self.test_member_etl_db()
         self.test_payment_etl_db()
         self.test_donation_etl_db()
         self.test_comment_etl_db()
+
+    def test_country_etl_db(self):
+        in_file = r'D:\donstrust\exports\countries.txt'
+        process_etl_db(in_file, country_etl)
+
+    def test_country_etl_db(self):
+        in_file = r'D:\donstrust\exports\counties.txt'
+        process_etl_db(in_file, county_etl)
+
+    def test_state_etl_db(self):
+        in_file = r'D:\donstrust\exports\states.txt'
+        process_etl_db(in_file, state_etl)
 
     def test_member_etl_db(self):
         in_file = r'D:\donstrust\exports\members.txt'
@@ -48,9 +64,9 @@ class TestEtl(unittest.TestCase):
 
     def test_parse_comments(self):
         comment = '13/08/2018: dd payment made'
-        #comment = '22/06/2006: address change 05/10/2008: address change 13/02/2011: address change 18/08/2018: dd failed 20/08/2018: dd started again'
-        #comment = 'Returned as moved to new (unknown address)'
-        #comment = '"responded to final email Hi Do not want to renew.Regards"" Stephen Allen 31/07/2006: sent in renewal form! 04/09/2011: requested supporting eveidence for concession rate 11/09/2011: replied saying he is now employed and will send another £15"""'
+        # comment = '22/06/2006: address change 05/10/2008: address change 13/02/2011: address change 18/08/2018: dd failed 20/08/2018: dd started again'
+        # comment = 'Returned as moved to new (unknown address)'
+        # comment = '"responded to final email Hi Do not want to renew.Regards"" Stephen Allen 31/07/2006: sent in renewal form! 04/09/2011: requested supporting eveidence for concession rate 11/09/2011: replied saying he is now employed and will send another £15"""'
         comment = '13/08/2018: dd payment made  12/09/2018: deceased Felix Stride-Darnley'
         comment_etl({'Member ID': '0-00368', 'Comments': comment})
-        #parse_comments(comment)
+        # parse_comments(comment)

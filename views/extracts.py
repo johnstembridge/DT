@@ -4,8 +4,10 @@ from globals.decorators import role_required
 from globals.enumerations import Months
 from main import app
 from back_end.extracts import Extracts
+from back_end.query import Query
 from back_end.interface import return_csv_file
 import datetime
+
 
 @app.route('/extracts/certs', methods=['GET', 'POST'])
 @login_required
@@ -84,21 +86,21 @@ def extracts_comms():
 @login_required
 @role_required('admin')
 def extracts_select():
-    return Extracts.extract_select()
+    return Query.select(title='Select data to extract')
 
 
 @app.route('/extracts/show', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
 def extracts_show():
-    return Extracts.extract_show()
+    return Query.show_found()
 
 
 @app.route('/extracts/bulk_update', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
 def extracts_bulk_update():
-    return Extracts.bulk_update()
+    return Query.bulk_update()
 
 
 @app.route('/extracts/selected', methods=['GET', 'POST'])

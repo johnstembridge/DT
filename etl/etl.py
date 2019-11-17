@@ -2,7 +2,7 @@ import csv
 import re
 from datetime import date
 
-from models.dt_db import Member, Address, Payment, Comment, Action, Junior
+from models.dt_db import Member, Address, Payment, Comment, Action, Junior, Country, County, State
 from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType, \
     CommsStatus, MemberAction, ActionStatus, ExternalAccess, JuniorGift
 from back_end.file_access import delete_file, file_delimiter
@@ -37,9 +37,33 @@ def process_etl_db(file_in, etl_fn):
         for row in reader:
             count += 1
             if count % 100 == 0:
-                print('Processing ' + row['Member ID'])
+                if 'Member ID' in row.keys():
+                    print('Processing ' + row['Member ID'])
             obj = etl_fn(row)
             save_object(obj)
+
+
+def country_etl(rec):
+    country = Country(
+        code=rec['code'],
+        name=rec['name'],
+    )
+    return country
+
+
+def county_etl(rec):
+    county = County(
+        name=rec['name'],
+    )
+    return county
+
+
+def state_etl(rec):
+    state = State(
+        code=rec['code'],
+        name=rec['name'],
+    )
+    return state
 
 
 def member_etl(rec):
@@ -141,7 +165,7 @@ def type_etl(member, old_status, old_concession_type):
         if type == MembershipType.standard and old_concession_type != '':
             type = concession_type_map[old_concession_type]
     else:
-        age = member.age()
+        age = member.age(default=True)
         if age < 16:
             type = MembershipType.junior
         elif age < 21:
@@ -281,7 +305,7 @@ def comment_etl(rec):
             payment = Payment(
                 member_id=member_id,
                 date=paydate,
-                amount=db_session.query(Member).filter_by(id=member_id).first().dues(agedate),
+                amount=db_session.query(Member).filter_by(id=member_id).first().dues(agedate, default=True),
                 type=PaymentType.dues,
                 method=PaymentMethod.dd,
                 comment=None

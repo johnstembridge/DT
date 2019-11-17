@@ -2,9 +2,8 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block page_content %}
-<div class="page-header">
-    <h2>{{ title }}</h2>
-</div>
+
+<h2>{{ title }}</h2>
 
 <form method="POST">
     {{ form.csrf_token }}

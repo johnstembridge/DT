@@ -278,10 +278,10 @@ class Member(Base):
             else:
                 return 25
 
-    def dues(self, as_of=None):
+    def dues(self, as_of=None, default=True):
         if not as_of:
             as_of = self.end_date
-        age = self.age(as_of)
+        age = self.age(as_of, default)
         if age < 16:
             if self.start_date.year == self.end_date.year and as_of < self.end_date:
                 return Dues.junior_new.value
@@ -397,3 +397,32 @@ class Role(Base):
 
     def __repr__(self):
         return '<Role {}>'.format(self.role.name)
+
+
+class Country(Base):
+    __tablename__ = 'countries'
+    id = Column(Integer, primary_key=True)
+    code = Column(String(5), nullable=False)
+    name = Column(String(50), nullable=False)
+
+    def __repr__(self):
+        return '<Country {}>'.format(self.code, self.name)
+
+
+class County(Base):
+    __tablename__ = 'counties'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(50), nullable=False)
+
+    def __repr__(self):
+        return '<County {}>'.format(self.name)
+
+
+class State(Base):
+    __tablename__ = 'states'
+    id = Column(Integer, primary_key=True)
+    code = Column(String(5), nullable=False)
+    name = Column(String(50), nullable=False)
+
+    def __repr__(self):
+        return '<State {}: {}>'.format(self.code, self.name)
