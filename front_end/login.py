@@ -84,7 +84,7 @@ def user_register(new=True):
                     return redirect(url_for('user_register'))
             else:
                 flash(message, message_type)
-                return redirect(url_for('user_login'))
+                return redirect(url_for('user_register'))
     return render_template('register.html', title=form_title, form=form)
 
 

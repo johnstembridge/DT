@@ -21,7 +21,7 @@ class Query:
         return render_template('query.html', form=form, render_link=render_link, title=title)
 
     @staticmethod
-    def extract_selected():
+    def extract_found():
         pass  # ToDo
 
     @staticmethod

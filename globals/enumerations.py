@@ -25,6 +25,10 @@ class FormEnum(Enum):
     def from_name(cls, name):
         return [c for c in cls if c.name == name][0]
 
+    @classmethod
+    def from_value(cls, value):
+        return [c for c in cls if c.value == value][0]
+
     def to_dict(self):
         return self.name
 
@@ -40,6 +44,7 @@ class MemberStatus(FormEnum):
     suspended = 5
     cancelled = 6
     deceased = 7
+    reserved = 98
 
     @staticmethod
     def active():
@@ -96,6 +101,7 @@ class PaymentType(FormEnum):
 
 
 class PaymentMethod(FormEnum):
+    none = 0
     cc = 1
     dd = 2
     chq = 3
@@ -124,8 +130,12 @@ class ExternalAccess(FormEnum):
 
 class UserRole(FormEnum):
     guest = 0
-    user = 1
-    admin = 2
+    member = 1
+    afcw = 2
+    extract = 3
+    dt = 4
+    admin = 5
+    super = 6
 
 
 class Sex(FormEnum):

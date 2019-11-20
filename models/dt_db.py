@@ -8,7 +8,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
     CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus, Enum
-from back_end.data_utilities import fmt_date, parse_date
+from back_end.data_utilities import fmt_date, parse_date, first_or_default
 from datetime import datetime
 from time import time, localtime, strftime
 
@@ -384,6 +384,10 @@ class User(Base, UserMixin):
     @staticmethod
     def decode_token(token, app):
         return jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
+
+    def has_access(self, required_role):
+        current_user_role = first_or_default(self.roles, UserRole.guest).role.value
+        return current_user_role >= required_role.value
 
     def __repr__(self):
         return '<User {}>'.format(self.user_name)

@@ -7,7 +7,7 @@ from main import app
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index')
 @login_required
-@role_required('admin')
+@role_required('afcw')
 def index():
-    return render_template('home.html')
+    return render_template('home.html') # , current_user=current_user, UserRole=UserRole)
 

@@ -3,6 +3,7 @@ from threading import Thread
 
 from flask import abort
 from flask_login import current_user
+from globals.enumerations import UserRole
 
 
 def role_required(*roles):
@@ -10,10 +11,9 @@ def role_required(*roles):
         @wraps(f)
         def wrapped(*args, **kwargs):
             if current_user:
-                current_user_roles = [user_role.role.name for user_role in current_user.roles]
-                for role in roles:
-                    if role in current_user_roles:
-                        return f(*args, **kwargs)
+                required_role = UserRole.from_value(min([UserRole.from_name(role).value for role in roles]))
+                if current_user.has_access(required_role):
+                    return f(*args, **kwargs)
                 abort(401, description='Sorry, you do not have access')
         return wrapped
     return wrapper

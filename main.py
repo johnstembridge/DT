@@ -8,6 +8,9 @@ from globals.app_setup import init_app
 app = Flask(__name__)
 csrf_protect = CSRFProtect(app)
 init_app(app)
+@app.context_processor
+def inject_UserRole_and_current_user():
+    return dict(current_user=current_user, UserRole=UserRole)  # available in all templates to restrict access
 #auth = HTTPBasicAuth()
 db = SQLAlchemy(app)
 

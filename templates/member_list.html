@@ -39,7 +39,11 @@
             <th>{{ form.sel_end_date(size=6) }}</th>
         </tr>
         <tr>
-            <th class="text-center">edit</th>
+            {% if current_user.has_access(UserRole.admin) %}
+                <th class="text-center">edit</th>
+            {% else %}
+                <th/>
+            {% endif %}
             <th>number</th>
             <th>first</th>
             <th>last</th>
@@ -55,13 +59,17 @@
         <tbody>
         {% for item in form.member_list %}
         <tr>
-            <td align="center">
-                {{ render_link(
-                    url=url_for('edit_member', member_number=item.member_number.data),
-                    image=url_for('static', filename='images/right-arrow.png'),
-                    text='View/Edit member details'
-                )|safe }}
-            </td>
+            {% if current_user.has_access(UserRole.admin) %}
+                <td align="center">
+                    {{ render_link(
+                        url=url_for('edit_member', member_number=item.member_number.data),
+                        image=url_for('static', filename='images/right-arrow.png'),
+                        text='View/Edit member details'
+                    )|safe }}
+                </td>
+            {% else %}
+                <td/>
+            {% endif %}
             <td>{{ item.number.data }}</td>
             <td>{{ item.first_name.data }}</td>
             <td>{{ item.last_name.data }}</td>

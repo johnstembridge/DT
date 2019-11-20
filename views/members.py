@@ -1,5 +1,5 @@
 from flask import request
-from flask_login import login_required, current_user
+from flask_login import login_required
 
 from globals.decorators import role_required
 from main import app
@@ -8,7 +8,7 @@ from front_end.members_admin import MaintainMembers
 
 @app.route('/members', methods=['GET', 'POST'])
 @login_required
-@role_required('admin')
+@role_required('afcw')
 def members():
     if request.method == 'POST':
         return MaintainMembers.find_members()
@@ -30,16 +30,9 @@ def edit_member(member_number):
     return MaintainMembers.edit_member(member_number)
 
 
-@app.route('/members', methods=['PUT'])
-@login_required
-@role_required('admin')
-def add_member():
-    return None
-
-
 @app.route('/members_area', methods=['GET', 'POST'])
 @login_required
-@role_required('user')
+@role_required('member')
 def members_area():
     return None
 

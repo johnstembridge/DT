@@ -38,7 +38,7 @@ class TestEtl(unittest.TestCase):
         in_file = r'D:\donstrust\exports\countries.txt'
         process_etl_db(in_file, country_etl)
 
-    def test_country_etl_db(self):
+    def test_county_etl_db(self):
         in_file = r'D:\donstrust\exports\counties.txt'
         process_etl_db(in_file, county_etl)
 
