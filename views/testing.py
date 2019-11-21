@@ -1,16 +1,42 @@
-from flask import render_template
+from flask import render_template, request
 from flask_login import login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from globals.decorators import role_required
 from globals.email import send_mail, use_sendmail
-from main import app
+from main import app, db
+from back_end.interface import get_user
+
+
+@app.route('/test/password', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def test_password():
+    username = request.args.get('username')
+    user = get_user(user_name=username)
+    password = request.args.get('password')
+    check = user.check_password(password)
+    form = CheckPasswordForm()
+    form.populate(username, password, check)
+    return render_template('check_password.html', form=form)
+
+
+class CheckPasswordForm(FlaskForm):
+    username = StringField(label='username')
+    password = StringField(label='password')
+    check = StringField(label='check')
+
+    def populate(self, username, password, check):
+        self.username.data = username
+        self.password.data = password
+        self.check.data = check
 
 
 @app.route('/test/email', methods=['GET', 'POST'])
 @login_required
-@role_required('admin')
+@role_required('super')
 def test_email():
     subject = 'Test email'
     sender = 'membership@thedonstrust.org'
