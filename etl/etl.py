@@ -2,9 +2,9 @@ import csv
 import re
 from datetime import date
 
-from models.dt_db import Member, Address, Payment, Comment, Action, Junior, Country, County, State
+from models.dt_db import Member, Address, Payment, Comment, Action, Junior, Country, County, State, User, Role
 from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType, \
-    CommsStatus, MemberAction, ActionStatus, ExternalAccess, JuniorGift
+    CommsStatus, MemberAction, ActionStatus, ExternalAccess, JuniorGift, UserRole
 from back_end.file_access import delete_file, file_delimiter
 from back_end.data_utilities import parse_date, valid_date, force_list
 from main import db
@@ -25,7 +25,7 @@ def process_etl_file(file_in, file_out, etl_fn):
                                         quoting=csv.QUOTE_MINIMAL)
                 writer.writeheader()
             out = etl_fn(row)
-            writer.writerow(out)
+            writer.writerow(out.to_dict())
     out_file.close()
 
 
@@ -41,6 +41,18 @@ def process_etl_db(file_in, etl_fn):
                     print('Processing ' + row['Member ID'])
             obj = etl_fn(row)
             save_object(obj)
+
+
+def user_etl(rec):
+    if rec == 'header':
+        return ['member_id', 'user_name', 'password']
+    user = User(
+        member_id=get_member_id(rec['member_number']),
+        user_name=rec['user_name']
+    )
+    user.set_password(rec['password'])
+    user.role = Role(role=UserRole.from_name(rec['role']))
+    return user
 
 
 def country_etl(rec):
@@ -129,7 +141,7 @@ status_etl = {
     'SUS': MemberStatus.suspended,
     'N': MemberStatus.cancelled,
     'X': MemberStatus.cancelled,
-    'R': MemberStatus.cancelled,
+    'R': MemberStatus.reserved,
     'D': MemberStatus.deceased
 }
 

@@ -1,7 +1,7 @@
 import unittest
 
 from etl.etl import process_etl_file, process_etl_db, member_etl, payment_etl, donation_etl, comment_etl, country_etl, \
-    county_etl, state_etl
+    county_etl, state_etl, user_etl
 
 
 class TestEtl(unittest.TestCase):
@@ -25,6 +25,11 @@ class TestEtl(unittest.TestCase):
         out_file = 'payments_out.txt'
         process_etl_file(in_file, out_file, payment_etl)
 
+    def test_user_etl_file(self):
+        in_file = r'D:\donstrust\exports\users.txt'
+        out_file = 'users_out.txt'
+        process_etl_file(in_file, out_file, user_etl)
+
     def test_etl_db(self):
         self.test_country_etl_db()
         self.test_county_etl_db()
@@ -33,6 +38,11 @@ class TestEtl(unittest.TestCase):
         self.test_payment_etl_db()
         self.test_donation_etl_db()
         self.test_comment_etl_db()
+        self.test_user_etl_db()
+
+    def test_user_etl_db(self):
+        in_file = r'D:\donstrust\exports\users.txt'
+        process_etl_db(in_file, user_etl)
 
     def test_country_etl_db(self):
         in_file = r'D:\donstrust\exports\countries.txt'

@@ -178,6 +178,7 @@ class Member(Base):
     actions = relationship('Action', order_by='desc(Action.date)', back_populates='member')
     junior = relationship('Junior', uselist=False, back_populates='member')
 
+    # region Member extras
     dict_fields = ['number', 'start_date','end_date', 'status', 'member_type', 'sex', 'birth_date', 'title', 'first_name',
                    'last_name', 'address', 'email', 'home_phone', 'mobile_phone', 'comms', 'external_access']
 
@@ -305,6 +306,7 @@ class Member(Base):
 
     def volatile_concession(self):
         return self.member_type in MembershipType.volatile_concessions()
+    # endregion
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())
@@ -316,17 +318,19 @@ class User(Base, UserMixin):
     member_id = Column(Integer, ForeignKey('members.id'), nullable=False)
     user_name = Column(String(25), nullable=False)
     password = Column(String(100), nullable=False)
-    roles = relationship('Role', back_populates='user')
+    role = relationship('Role', uselist=False, back_populates='user')
     member = relationship('Member', back_populates='user')
     token = Column(String(256), nullable=True, index=True, unique=True)
     expires = Column(DateTime, nullable=True)
 
+    # region User extras
     def to_dict(self):
-        data = {}
-        data['id'] = self.id
-        data['user_name'] = self.user_name
-        data['member_number'] = self.member.dt_number()
-        data['roles'] = roles = [role.role.name for role in self.roles]
+        data = {
+            'id': self.id,
+            'user_name': self.user_name,
+            'member_number': self.member.dt_number(),
+            'role': self.role.name
+        }
         return data
 
     def set_password(self, password):
@@ -386,8 +390,9 @@ class User(Base, UserMixin):
         return jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
     def has_access(self, required_role):
-        current_user_role = first_or_default(self.roles, UserRole.guest).role.value
+        current_user_role = self.role.value
         return current_user_role >= required_role.value
+    # endregion
 
     def __repr__(self):
         return '<User {}>'.format(self.user_name)
@@ -397,7 +402,7 @@ class Role(Base):
     __tablename__ = 'roles'
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False, primary_key=True)
     role = Column(EnumType(UserRole), nullable=False, primary_key=True)
-    user = relationship('User', back_populates='roles')
+    user = relationship('User', back_populates='role')
 
     def __repr__(self):
         return '<Role {}>'.format(self.role.name)

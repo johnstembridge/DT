@@ -23,6 +23,9 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
                     else:
                         if not member.user:
                             user = User(user_name=user_name, member_id=member.id)
+                        else:
+                            user = member.user
+                            user.user_name = user_name
                         if not user.check_password(password):
                             ok, message, message_type = True, 'Password updated', 'success'
                         else:
@@ -43,11 +46,11 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
                             else:
                                 ok, message, message_type = True, 'You are now a registered user', 'success'
                         user.set_password(password)
-                        if not user.roles:
-                            user.roles = [Role(role=role)]
-                        else:
-                            if not role in [role.role for role in user.roles]:
-                                user.roles += [Role(role=role)]
+                        if not user.role:
+                            user.role = [Role(role=role)]
+                        # else:
+                        #     if not role in [role.role for role in user.roles]:
+                        #         user.roles += [Role(role=role)]
                         save_user(user)
                         user_id = user.id
         else:
