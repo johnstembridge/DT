@@ -390,7 +390,7 @@ class User(Base, UserMixin):
         return jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
     def has_access(self, required_role):
-        current_user_role = self.role.value
+        current_user_role = self.role.role.value
         return current_user_role >= required_role.value
     # endregion
 
