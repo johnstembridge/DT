@@ -2,11 +2,10 @@ from flask import render_template, request
 from flask_login import login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from werkzeug.security import generate_password_hash, check_password_hash
 
 from globals.decorators import role_required
-from globals.email import send_mail, use_sendmail
-from main import app, db
+from globals.email import send_mail
+from main import app
 from back_end.interface import get_user
 
 
