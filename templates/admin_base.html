@@ -21,7 +21,7 @@
                 <ul class="dropdown-menu">
                     {% if current_user.has_access(UserRole.admin) %}
                         <li><a href="{{ url_for('members') }}">Find/Edit Members</a></li>
-                        <li><a href="{{ url_for('edit_member', member_number=0) }}">Add New Member</a></li>
+                        <li><a href="{{ url_for('edit_or_view_member', member_number=0) }}">Add New Member</a></li>
                         <li><a href="{{ url_for('bulk_update') }}">Bulk Update</a></li>
                     {% else %}
                         <li><a href="{{ url_for('members') }}">Find Members</a></li>

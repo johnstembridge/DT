@@ -179,7 +179,10 @@
         </tbody>
     </table>
     </div>
+    {% if current_user.has_access(UserRole.admin) %}
+        <p><br>{{ form.submit(class="btn btn-primary") }}</p>
+    {% endif %}
 
-    <p><br>{{ form.submit(class="btn btn-primary") }}</p>
+
 </form>
 {% endblock %}

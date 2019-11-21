@@ -37,7 +37,7 @@ class MaintainMembers:
         return render_template('member_list.html', form=form, render_link=render_link)
 
     @staticmethod
-    def edit_member(member_number):
+    def edit_or_view_member(member_number):
         form = MemberDetailsForm()
         if form.validate_on_submit():
             if form.submit.data:
