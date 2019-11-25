@@ -81,11 +81,9 @@ def coerce_fmt_date(x):
     return x
 
 
-def fmt_date(date, fmt=None):
+def fmt_date(date, fmt='%d/%m/%Y'):
     if not date:
         return ''
-    if not fmt:
-        fmt = '%d/%m/%Y'
     return date.strftime(fmt)
 
 

@@ -3,11 +3,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime
+from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime, Enum
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus, Enum
+    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus#, Enum
 from back_end.data_utilities import fmt_date, parse_date, first_or_default
 from datetime import datetime
 from time import time, localtime, strftime
@@ -318,7 +318,7 @@ class User(Base, UserMixin):
     member_id = Column(Integer, ForeignKey('members.id'), nullable=False)
     user_name = Column(String(25), nullable=False)
     password = Column(String(100), nullable=False)
-    role = relationship('Role', uselist=False, back_populates='user')
+    role = Column(Enum(UserRole), nullable=False)
     member = relationship('Member', back_populates='user')
     token = Column(String(256), nullable=True, index=True, unique=True)
     expires = Column(DateTime, nullable=True)
@@ -390,22 +390,12 @@ class User(Base, UserMixin):
         return jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
 
     def has_access(self, required_role):
-        current_user_role = self.role.role.value
-        return current_user_role >= required_role.value
+        current_user_role = self.role.level
+        return current_user_role >= required_role.level
     # endregion
 
     def __repr__(self):
         return '<User {}>'.format(self.user_name)
-
-
-class Role(Base):
-    __tablename__ = 'roles'
-    user_id = Column(Integer, ForeignKey('users.id'), nullable=False, primary_key=True)
-    role = Column(EnumType(UserRole), nullable=False, primary_key=True)
-    user = relationship('User', back_populates='role')
-
-    def __repr__(self):
-        return '<Role {}>'.format(self.role.name)
 
 
 class Country(Base):

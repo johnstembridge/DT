@@ -4,7 +4,8 @@ from wtforms import StringField, IntegerField, FieldList, FormField, HiddenField
 
 from back_end.data_utilities import fmt_date
 from back_end.interface import get_members_for_query
-from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, query_to_select_fields
+from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, query_to_select_fields, \
+    status_choices
 from globals.enumerations import MemberStatus, MembershipType
 
 
@@ -24,9 +25,8 @@ class MemberItemForm(FlaskForm):
 
 class MemberListForm(FlaskForm):
     sel_number = MyStringField(label='Number', db_map='Member.number')
-    sel_status = MySelectField(label='Status',
-                               choices=MemberStatus.choices(extra=[(99, '<lapsed (active)')], blank=True),
-                               coerce=MemberStatus.coerce, db_map='Member.status')
+    sel_status = MySelectField(label='Status', choices=[], coerce=MemberStatus.coerce,
+                               db_map='Member.status')
     sel_member_type = MySelectField(label='Member type',
                                     choices=MembershipType.choices(extra=[(99, '!=junior (adult)')], blank=True),
                                     coerce=MembershipType.coerce, db_map='Member.member_type')
@@ -49,6 +49,10 @@ class MemberListForm(FlaskForm):
     def all_sels(self):
         return [self.sel_number, self.sel_status, self.sel_member_type, self.sel_first_name, self.sel_last_name,
                 self.sel_email, self.sel_post_code, self.sel_country, self.sel_start_date, self.sel_end_date]
+
+    def set_status_choices(self):
+        # reset membership status choices. Has to be done after form declaration.
+        self.sel_status.choices = status_choices()
 
     def populate_member_list(self, query_clauses, clauses, page_number=1):
         if not query_clauses:

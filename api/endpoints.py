@@ -36,7 +36,7 @@ def api_update_member(member_number):
 def api_register_user():
     #Register a new user
     params = list_from_dict(request.get_json() or {}, ['member_number', 'user_name', 'password'])
-    ok, id, message, message_type = register_user(*params + [None, UserRole.user, True, url_for('api_activate_user')])
+    ok, id, message, message_type = register_user(*params + [None, UserRole.member, True, url_for('api_activate_user')])
     return_code = 201 if ok else 401
     response = jsonify({'status': message_type, 'message': message})
     response.status_code = return_code

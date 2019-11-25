@@ -6,12 +6,12 @@ from flask_login import current_user
 from globals.enumerations import UserRole
 
 
-def role_required(*roles):
+def role_required(*role):
     def wrapper(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
             if current_user:
-                required_role = UserRole.from_value(min([UserRole.from_name(role).value for role in roles]))
+                required_role = UserRole.from_name(role[0])
                 if current_user.has_access(required_role):
                     return f(*args, **kwargs)
                 abort(401, description='Sorry, you do not have access')

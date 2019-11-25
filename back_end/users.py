@@ -2,7 +2,7 @@ from flask import render_template, current_app
 from globals.email import send_mail
 from globals.enumerations import UserRole
 from globals.config import full_url_for
-from models.dt_db import User, Role
+from models.dt_db import User
 from back_end.interface import get_member, get_user, save_user
 
 
@@ -47,7 +47,7 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
                                 ok, message, message_type = True, 'You are now a registered user', 'success'
                         user.set_password(password)
                         if not user.role:
-                            user.role = [Role(role=role)]
+                            user.role = role
                         # else:
                         #     if not role in [role.role for role in user.roles]:
                         #         user.roles += [Role(role=role)]

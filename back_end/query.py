@@ -11,6 +11,7 @@ class Query:
     @staticmethod
     def select(title):
         form = QueryForm()
+        form.set_status_choices()
         if form.validate_on_submit():
             if form.submit.data:
                 query_clauses = form.find_members()
@@ -37,6 +38,7 @@ class Query:
     @staticmethod
     def bulk_update():
         form = QueryForm()
+        form.set_status_choices()
         if form.validate_on_submit():
             if form.submit.data:
                 query_clauses = url_pickle_load(request.args.get('query_clauses'))

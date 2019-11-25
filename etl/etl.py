@@ -2,7 +2,7 @@ import csv
 import re
 from datetime import date
 
-from models.dt_db import Member, Address, Payment, Comment, Action, Junior, Country, County, State, User, Role
+from models.dt_db import Member, Address, Payment, Comment, Action, Junior, Country, County, State, User
 from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType, \
     CommsStatus, MemberAction, ActionStatus, ExternalAccess, JuniorGift, UserRole
 from back_end.file_access import delete_file, file_delimiter
@@ -51,7 +51,7 @@ def user_etl(rec):
         user_name=rec['user_name']
     )
     user.set_password(rec['password'])
-    user.role = Role(role=UserRole.from_name(rec['role']))
+    user.role = UserRole.from_name(rec['role'])
     return user
 
 

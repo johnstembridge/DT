@@ -10,6 +10,7 @@ class MaintainMembers:
     @staticmethod
     def find_members():
         form = MemberListForm()
+        form.set_status_choices()
         if form.validate_on_submit():
             query_clauses = form.find_members()
             return redirect(url_for('members', query_clauses=url_pickle_dump(query_clauses)))
@@ -25,6 +26,7 @@ class MaintainMembers:
             query_clauses = None
         page = request.args.get('page', 1, int)
         form = MemberListForm()
+        form.set_status_choices()
         form.populate_member_list(query_clauses, url_pickle_dump(query_clauses), page)
         return render_template('member_list.html', form=form, render_link=render_link)
 

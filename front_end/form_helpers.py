@@ -1,10 +1,13 @@
 from flask import flash, url_for, current_app
+from flask_login import current_user
 from wtforms import SelectField, StringField
 import os
 import pickle
 
-from back_end.data_utilities import force_list, first_or_default
+from back_end.data_utilities import force_list, first_or_default, fmt_date
 from globals import config
+from globals.enumerations import UserRole, MemberStatus
+from datetime import date
 
 
 class MyStringField(StringField):
@@ -30,6 +33,17 @@ def flash_errors(form):
                 getattr(form, field).name,
                 error
             ), 'danger')
+
+
+def status_choices():
+    # set choices for membership status according to access rights
+    if current_user.role == UserRole.super:
+        return MemberStatus.choices(extra=[(99, '<lapsed (active)')], blank=True)
+    choices = MemberStatus.choices(blank=True)
+    access = current_user.role.access
+    limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
+    choices = [c for c in choices if c[0] <= limit]
+    return choices
 
 
 def select_fields_to_query(select_fields, default_table):
@@ -59,6 +73,22 @@ def select_fields_to_query(select_fields, default_table):
                 else:
                     table, column = default_table, field_name
                 query_clauses.append((table, column, value, condition, func))
+    query_clauses = limit_status_by_access(query_clauses)
+    return query_clauses
+
+
+def limit_status_by_access(query_clauses):
+    if current_user.role != UserRole.super:
+        # limit inclusion of lapsed members according to current user's access rights
+        access = current_user.role.access
+        limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
+        sel_status = [c for c in query_clauses if c[0] == 'Member' and c[1] == 'status']
+        if not sel_status:
+            query_clauses.append(('Member', 'status', limit, '<=', None))
+        if 'lapsed 1yr+' not in access:
+            today = date.today()
+            last_lapse_date = date(year=(today.year - 1 if today.month >= 8 else 2), month=8, day=1)
+            query_clauses.append(('Member', 'end_date', fmt_date(last_lapse_date), '>=', None))
     return query_clauses
 
 
@@ -71,7 +101,7 @@ def query_to_select_fields(select_fields, query_clauses):
         field = fields['sel_' + column]
         if field.type == 'MySelectField':
             choice = condition + [f[1] for f in field.choices if f[0] == value][0]
-            field.data = [f[0] for f in field.choices if f[1].startswith(choice)][0]
+            field.data = first_or_default([f[0] for f in field.choices if f[1].startswith(choice)], '')
         else:
             field.data = condition + value
 

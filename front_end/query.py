@@ -2,7 +2,8 @@ from flask_wtf import FlaskForm
 from wtforms import SubmitField, HiddenField
 import calendar
 
-from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, select_fields_to_update
+from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, select_fields_to_update, \
+    status_choices
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, CommsType, MemberAction, ActionStatus
 
 
@@ -10,8 +11,7 @@ class QueryForm(FlaskForm):
     months = [(m, calendar.month_name[m]) for m in range(1, 13)]
 
     number = MyStringField(label='number', db_map='Member.number')
-    status = MySelectField(label='status', choices=MemberStatus.choices(extra=[(99, '<lapsed (active)')], blank=True),
-                           coerce=MemberStatus.coerce, db_map='Member.status')
+    status = MySelectField(label='status', choices=[], coerce=MemberStatus.coerce, db_map='Member.status')
     member_type = MySelectField(label='member type',
                                 choices=MembershipType.choices(extra=[(99, '!=junior (adult)')], blank=True),
                                 coerce=MembershipType.coerce, db_map='Member.member_type')
@@ -48,6 +48,10 @@ class QueryForm(FlaskForm):
                 self.current_action, self.action_status, self.action_comment,
                 self.comment_date, self.comment,
                 self.first_name, self.last_name, self.email, self.post_code, self.country]
+
+    def set_status_choices(self):
+        # reset membership status choices. Has to be done after form declaration.
+        self.status.choices = status_choices()
 
     def find_members(self):
         query_clauses = select_fields_to_query(self.query_fields(), 'Member')

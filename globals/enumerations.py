@@ -55,6 +55,11 @@ class MemberStatus(FormEnum):
         return [MemberStatus.life, MemberStatus.founder, MemberStatus.current]
 
 
+    @staticmethod
+    def all_including_lapsed():
+        return [MemberStatus.life, MemberStatus.founder, MemberStatus.current, MemberStatus.lapsed]
+
+
 class MembershipType(FormEnum):
     standard = 1
     intermediate = 2
@@ -101,7 +106,6 @@ class PaymentType(FormEnum):
 
 
 class PaymentMethod(FormEnum):
-    none = 0
     cc = 1
     dd = 2
     chq = 3
@@ -129,13 +133,17 @@ class ExternalAccess(FormEnum):
 
 
 class UserRole(FormEnum):
-    guest = 0
-    member = 1
-    afcw = 2
-    extract = 3
-    dt = 4
-    admin = 5
-    super = 6
+    member = (1, 'own')
+    afcw = (2, 'current')
+    extract = (3, 'current')
+    dt_board = (4, 'lapsed 1yr')
+    jd_admin = (5, 'lapsed 1yr')
+    admin = (5, 'lapsed 1yr+')
+    super = (6, 'all')
+
+    def __init__(self, level, access):
+        self.level = level
+        self.access = access
 
 
 class Sex(FormEnum):
