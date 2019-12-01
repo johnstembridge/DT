@@ -3,7 +3,7 @@ from wtforms import SubmitField, HiddenField
 import calendar
 
 from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, select_fields_to_update, \
-    status_choices
+    status_choices, validate_date_format
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, CommsType, MemberAction, ActionStatus
 
 
@@ -15,8 +15,8 @@ class QueryForm(FlaskForm):
     member_type = MySelectField(label='member type',
                                 choices=MembershipType.choices(extra=[(99, '!=junior (adult)')], blank=True),
                                 coerce=MembershipType.coerce, db_map='Member.member_type')
-    start_date = MyStringField(label='start date', db_map='Member.start_date')
-    end_date = MyStringField('end date', db_map='Member.end_date')
+    start_date = MyStringField(label='start date', db_map='Member.start_date', validators=[validate_date_format])
+    end_date = MyStringField('end date', db_map='Member.end_date', validators=[validate_date_format])
     post_code = MyStringField(label='post code', db_map='Address.post_code')
     country = MyStringField(label='country', db_map='Address.country')
     payment_method = MySelectField(label='payment method', choices=PaymentMethod.choices(blank=True),
@@ -30,9 +30,9 @@ class QueryForm(FlaskForm):
                                    coerce=MemberAction.coerce, db_map='Action.action')
     action_status = MySelectField(label='action status', choices=ActionStatus.choices(blank=True),
                                   coerce=ActionStatus.coerce, db_map='Action.status')
-    action_date = MyStringField(label='action date', db_map='Action.date')
+    action_date = MyStringField(label='action date', db_map='Action.date', validators=[validate_date_format])
     action_comment = MyStringField(label='action comment', db_map='Action.comment')
-    comment_date = MyStringField(label='comment date', db_map='Comment.date')
+    comment_date = MyStringField(label='comment date', db_map='Comment.date', validators=[validate_date_format])
     comment = MyStringField(label='comment', db_map='Comment.comment')
 
     first_name = MyStringField(label='first name', db_map='Member.first_name')

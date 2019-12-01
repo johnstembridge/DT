@@ -1,13 +1,13 @@
 from flask import flash, url_for, current_app
 from flask_login import current_user
-from wtforms import SelectField, StringField
+from wtforms import SelectField, StringField, ValidationError
+from datetime import date, datetime
 import os
 import pickle
 
 from back_end.data_utilities import force_list, first_or_default, fmt_date
 from globals import config
 from globals.enumerations import UserRole, MemberStatus
-from datetime import date
 
 
 class MyStringField(StringField):
@@ -133,6 +133,16 @@ def select_fields_to_update(select_fields, default_table):
             #         table, column = default_table, field_name
             updates[field_name] = value
     return updates
+
+
+def validate_date_format(form, field):
+    if field.data:
+        try:
+            date = split_condition_and_value(field.data)[1]
+            datetime.strptime(date, '%d/%m/%Y').date()
+        except:
+            field.message = 'Date must be in format dd/mm/yyyy'
+            raise ValidationError('Date must be in format dd/mm/yyyy')
 
 
 def split_condition_and_value(value):

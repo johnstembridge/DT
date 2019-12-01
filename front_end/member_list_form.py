@@ -5,7 +5,7 @@ from wtforms import StringField, IntegerField, FieldList, FormField, HiddenField
 from back_end.data_utilities import fmt_date
 from back_end.interface import get_members_for_query
 from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, query_to_select_fields, \
-    status_choices
+    status_choices, validate_date_format
 from globals.enumerations import MemberStatus, MembershipType
 
 
@@ -35,8 +35,8 @@ class MemberListForm(FlaskForm):
     sel_email = MyStringField(label='Email', db_map='Member.email')
     sel_post_code = MyStringField(label='Post code', db_map='Address.post_code')
     sel_country = MyStringField(label='Country', db_map='Address.country')
-    sel_start_date = MyStringField(label='Start date', db_map='Member.start_date')  # DateField(validators=[Optional()])
-    sel_end_date = MyStringField('End date', db_map='Member.end_date')  # DateField(validators=[Optional()])
+    sel_start_date = MyStringField(label='Start date', db_map='Member.start_date', validators=[validate_date_format])
+    sel_end_date = MyStringField('End date', db_map='Member.end_date', validators=[validate_date_format])
     member_list = FieldList(FormField(MemberItemForm))
     total = StringField(label='Total_Found')
     current_page = IntegerField(label='Current_Page')
@@ -54,10 +54,12 @@ class MemberListForm(FlaskForm):
         # reset membership status choices. Has to be done after form declaration.
         self.sel_status.choices = status_choices()
 
+    def set_initial_counts(self):
+        self.total.data = self.total_pages.data = self.current_page.data = 0
+        self.first_url = self.next_url = self.prev_url = self.last_url = None
+
     def populate_member_list(self, query_clauses, clauses, page_number=1):
         if not query_clauses:
-            self.total.data = self.total_pages.data = self.current_page.data = 0
-            self.first_url = self.next_url = self.prev_url = self.last_url = None
             return
         query_to_select_fields(self.all_sels(), query_clauses)
         query = get_members_for_query(query_clauses)
