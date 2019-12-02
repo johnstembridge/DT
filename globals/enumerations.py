@@ -136,8 +136,8 @@ class UserRole(FormEnum):
     member = (1, 'own')
     afcw = (2, 'current')
     extract = (3, 'current')
-    dt_board = (4, 'lapsed 1yr')
-    jd_admin = (5, 'lapsed 1yr')
+    jd_admin = (4, 'lapsed 1yr')
+    dt_board = (5, 'lapsed 1yr')
     admin = (5, 'lapsed 1yr+')
     super = (6, 'all')
 

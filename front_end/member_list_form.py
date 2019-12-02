@@ -28,7 +28,7 @@ class MemberListForm(FlaskForm):
     sel_status = MySelectField(label='Status', choices=[], coerce=MemberStatus.coerce,
                                db_map='Member.status')
     sel_member_type = MySelectField(label='Member type',
-                                    choices=MembershipType.choices(extra=[(99, '!=junior (adult)')], blank=True),
+                                    choices=MembershipType.choices(extra=[(99, 'adult (!=junior)')], blank=True),
                                     coerce=MembershipType.coerce, db_map='Member.member_type')
     sel_first_name = MyStringField(label='First name', db_map='Member.first_name')
     sel_last_name = MyStringField(label='Last name', db_map='Member.last_name')

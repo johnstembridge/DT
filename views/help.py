@@ -14,6 +14,6 @@ def list_help():
 
 @app.route('/help/<subject>', methods=['GET', 'POST'])
 @login_required
-@role_required('admin')
+@role_required('afcw')
 def show_help(subject):
     return DTHelp.show_help(subject)

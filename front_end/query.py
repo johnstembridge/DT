@@ -13,7 +13,7 @@ class QueryForm(FlaskForm):
     number = MyStringField(label='number', db_map='Member.number')
     status = MySelectField(label='status', choices=[], coerce=MemberStatus.coerce, db_map='Member.status')
     member_type = MySelectField(label='member type',
-                                choices=MembershipType.choices(extra=[(99, '!=junior (adult)')], blank=True),
+                                choices=MembershipType.choices(extra=[(99, 'adult (!=junior)')], blank=True),
                                 coerce=MembershipType.coerce, db_map='Member.member_type')
     start_date = MyStringField(label='start date', db_map='Member.start_date', validators=[validate_date_format])
     end_date = MyStringField('end date', db_map='Member.end_date', validators=[validate_date_format])
@@ -50,7 +50,6 @@ class QueryForm(FlaskForm):
                 self.first_name, self.last_name, self.email, self.post_code, self.country]
 
     def set_status_choices(self):
-        # reset membership status choices. Has to be done after form declaration.
         self.status.choices = status_choices()
 
     def find_members(self):

@@ -5,20 +5,20 @@ from datetime import date, datetime
 import os
 import pickle
 
-from back_end.data_utilities import force_list, first_or_default, fmt_date
+from back_end.data_utilities import force_list, first_or_default, last_or_default, fmt_date, remove
 from globals import config
 from globals.enumerations import UserRole, MemberStatus
 
 
 class MyStringField(StringField):
     def __init__(self, *args, db_map=None, **kwargs):
-        super().__init__(*args, **kwargs)       # Initialize the super class
+        super().__init__(*args, **kwargs)  # Initialize the super class
         self.db_map = db_map
 
 
 class MySelectField(SelectField):
     def __init__(self, *args, db_map=None, **kwargs):
-        super().__init__(*args, **kwargs)       # Initialize the super class
+        super().__init__(*args, **kwargs)  # Initialize the super class
         self.db_map = db_map
 
     def pre_validate(self, form):
@@ -37,12 +37,15 @@ def flash_errors(form):
 
 def status_choices():
     # set choices for membership status according to access rights
-    if current_user.role == UserRole.super:
-        return MemberStatus.choices(extra=[(99, '<lapsed (active)')], blank=True)
-    choices = MemberStatus.choices(blank=True)
+    if current_user.role.value >= UserRole.dt_board.value:
+        #return MemberStatus.choices(extra=[(99, 'all active (<lapsed)')], blank=True)
+        choices = MemberStatus.choices(extra=[(99, 'all active (<lapsed)')], blank=True)
+    else:
+        choices = MemberStatus.choices(blank=True)
     access = current_user.role.access
-    limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
-    choices = [c for c in choices if c[0] <= limit]
+    if access != 'all':
+        limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
+        choices = [c for c in choices if c[0] <= limit or c[0] == 99]
     return choices
 
 
@@ -56,8 +59,6 @@ def select_fields_to_query(select_fields, default_table):
                 else:
                     v = [c[1] for c in field.choices if c[0] == field.data][0]
                     condition, value = split_condition_and_value(v)
-                    if '(' in value:
-                        value = value[:value.find('(')-1]
                     value = first_or_default([v[0] for v in field.choices if v[1] == value], None)
             else:
                 condition, value = split_condition_and_value(field.data)
@@ -100,8 +101,10 @@ def query_to_select_fields(select_fields, query_clauses):
             condition = ''
         field = fields['sel_' + column]
         if field.type == 'MySelectField':
-            choice = condition + [f[1] for f in field.choices if f[0] == value][0]
-            field.data = first_or_default([f[0] for f in field.choices if f[1].startswith(choice)], '')
+            choice = [f[1] for f in field.choices if f[0] == value][0]
+            if condition != '':
+                choice = '(' + condition + choice + ')'
+            field.data = last_or_default([f[0] for f in field.choices if choice in f[1]], '')
         else:
             field.data = condition + value
 
@@ -117,7 +120,7 @@ def select_fields_to_update(select_fields, default_table):
                 else:
                     value = [c[1] for c in field.choices if c[0] == field.data][0]
                     if '(' in value:
-                        value = value[:value.find('(')-1]
+                        value = value[:value.find('(') - 1]
                     value = first_or_default([v[0] for v in field.choices if v[1] == value], None)
             else:
                 value = field.data
@@ -146,6 +149,8 @@ def validate_date_format(form, field):
 
 
 def split_condition_and_value(value):
+    if '(' in value:
+        value = remove(value[value.find('('):], '() ')
     if len(value) > 0 and value[0] in [c[0] for c in ['!=', '=', '>', '>=', '<', '<=', '?']]:
         c = 1
         if value[1] == '=':

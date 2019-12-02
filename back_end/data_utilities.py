@@ -171,6 +171,13 @@ def first_or_default(list, default):
         return default
 
 
+def last_or_default(list, default):
+    if len(list) > 0:
+        return list[-1]
+    else:
+        return default
+
+
 def list_from_dict(dict, keys):
     return [dict.get(item, None) for item in keys]
 
@@ -269,6 +276,10 @@ def to_bool(s):
     if type(s) is bool:
         return s
     return s == 'True'
+
+
+def remove(string, chars):
+    return ''.join([c for c in string if c not in chars])
 
 
 def dequote(string):
