@@ -70,6 +70,9 @@
         </tr>
     </table>
     <hr/>
+    {{ form.display_fields.label }}
+    {{ form.display_fields(class='grid') }}
+    <hr/>
     <p>{{ form.submit(class='btn btn-primary') }}</p>
 </form>
 {% endblock %}

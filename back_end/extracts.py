@@ -167,7 +167,7 @@ class Extracts:
                          (Member.member_type == MembershipType.junior, Member.status.in_(MemberStatus.all_active())))
         csv = []
         head = ['id', 'status', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
-                'state', 'post_code', 'country', 'amount']
+                'state', 'post_code', 'country', 'amount', 'first_name', 'last_name']
         csv.append(head)
         for member in juniors:
             row = [
@@ -182,7 +182,9 @@ class Extracts:
                 member.address.state,
                 member.address.post_code,
                 member.address.country_for_mail(),
-                member.dues()
+                member.dues(),
+                member.first_name(),
+                member.last_name()
             ]
             csv.append(row)
         return csv
@@ -197,9 +199,9 @@ class Extracts:
             Member.status.in_(MemberStatus.all_active())
         ))
         csv = []
-        head = ['id', 'first_name', 'last_name', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3',
+        head = ['id', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3',
                 'city', 'county', 'state', 'post_code', 'country', 'email', 'home_phone', 'mobile_phone', 'birth_date',
-                'age_next_birthday']
+                'age_next_birthday', 'first_name', 'last_name']
         csv.append(head)
         for member in juniors:
             next_birthday = member.next_birthday(as_of=today)
@@ -207,8 +209,6 @@ class Extracts:
             if member.birth_date.month == month and age <= 16:
                 row = [
                     member.dt_number(),
-                    member.first_name,
-                    member.last_name,
                     member.full_name(),
                     member.address.line_1,
                     member.address.line_2,
@@ -222,7 +222,9 @@ class Extracts:
                     member.home_phone,
                     member.mobile_phone,
                     fmt_date(member.birth_date),
-                    age
+                    age,
+                    member.first_name,
+                    member.last_name
                 ]
                 csv.append(row)
         return csv

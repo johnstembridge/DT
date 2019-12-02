@@ -138,8 +138,8 @@ class UserRole(FormEnum):
     extract = (3, 'current')
     jd_admin = (4, 'lapsed 1yr')
     dt_board = (5, 'lapsed 1yr')
-    admin = (5, 'lapsed 1yr+')
-    super = (6, 'all')
+    admin = (6, 'lapsed 1yr+')
+    super = (7, 'all')
 
     def __init__(self, level, access):
         self.level = level

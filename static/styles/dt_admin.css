@@ -70,3 +70,8 @@ table#help {
     text-align: center;
   }
 }
+
+.grid li {
+   display:inline-block;
+   width:25%;
+}

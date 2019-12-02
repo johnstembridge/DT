@@ -1,6 +1,7 @@
 from flask import flash, url_for, current_app
 from flask_login import current_user
-from wtforms import SelectField, StringField, ValidationError
+from wtforms import SelectField, StringField, ValidationError, SelectMultipleField
+from wtforms.widgets import ListWidget, CheckboxInput
 from datetime import date, datetime
 import os
 import pickle
@@ -224,3 +225,8 @@ def line_break(text, line_break_character=None):
     else:
         res = text.replace(line_break_character, br)
     return res
+
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()

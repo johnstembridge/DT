@@ -15,6 +15,7 @@ class Query:
         if form.validate_on_submit():
             if form.submit.data:
                 query_clauses = form.find_members()
+                display_fields = [c[1] for c in form.display_fields.choices if c[0] in form.display_fields.data]
                 return redirect(url_for('extracts_show', page=1, query_clauses=url_pickle_dump(query_clauses)))
         elif form.errors:
             flash_errors(form)
@@ -51,4 +52,3 @@ class Query:
             flash_errors(form)
 
         return render_template('query.html', form=form, render_link=render_link, title='Bulk update')
-
