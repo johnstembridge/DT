@@ -1,21 +1,14 @@
 from flask_wtf import FlaskForm
 from wtforms import SubmitField, HiddenField
-from front_end.form_helpers import MultiCheckboxField
 import calendar
 
 from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, select_fields_to_update, \
-    status_choices, validate_date_format
+    status_choices, validate_date_format, MultiCheckboxField, extract_fields_map
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, CommsType, MemberAction, ActionStatus
 
 
 class QueryForm(FlaskForm):
     months = [(m, calendar.month_name[m]) for m in range(1, 13)]
-    display_fields = [(i, j) for (i, j) in enumerate(['number', 'status', 'member_type', 'start_date', 'end_date',
-                                                      'payment_method', 'comms', 'birth_month', 'age',
-                                                      'current_action', 'action_status', 'action_comment',
-                                                      'comment_date', 'comment',
-                                                      'first_name', 'last_name', 'email', 'post_code', 'country'])]
-
     number = MyStringField(label='number', db_map='Member.number')
     status = MySelectField(label='status', choices=[], coerce=MemberStatus.coerce, db_map='Member.status')
     member_type = MySelectField(label='member type',
@@ -46,7 +39,8 @@ class QueryForm(FlaskForm):
     email = MyStringField(label='email', db_map='Member.email')
 
     query_clauses = HiddenField(label='query')
-    display_fields = MultiCheckboxField(label='fields to extract', choices=display_fields)
+    display_fields = MultiCheckboxField(label='fields to show',
+                                        choices=[(i, j) for (i, j) in enumerate(extract_fields_map)])
     submit = SubmitField(label='Submit')
 
     def query_fields(self):

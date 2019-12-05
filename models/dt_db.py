@@ -210,10 +210,6 @@ class Member(Base):
                         value = data[field]
                     setattr(self, field, value)
 
-    @hybrid_property
-    def birth_date_month(self):
-        return self.birth_date.month
-
     def dt_number(self):
         member_prefix = 'JD' if self.member_type == MembershipType.junior else 'DT'
         return '{}0-{:05d}'.format(member_prefix, self.number or 0)
@@ -234,6 +230,19 @@ class Member(Base):
     def is_active(self):
         return self.status in MemberStatus.all_active()
 
+    def is_upgrade(self):
+        return self.member_type == MembershipType.intermediate and \
+                  first_or_default(self.actions, MemberAction.other).action == MemberAction.upgrade
+
+    def is_recent_new(self):
+        return self.start_date >= datetime(datetime.today().year, 2, 1).date()
+
+    def is_founder(self):
+        return self.number <= 1889
+
+    def email_bounced(self):
+        return self.comms_status == CommsStatus.email_fail
+
     def birth_month(self):
         if self.birth_date:
             return self.birth_date.month
@@ -252,9 +261,6 @@ class Member(Base):
         if leap and next_birthday.year % 4 == 0:
             next_birthday = next_birthday.replace(day = 29)
         return next_birthday
-
-    def is_founder(self):
-        return self.number <= 1889
 
     def age(self, as_of=None, default=False):
         if self.birth_date:
@@ -306,7 +312,17 @@ class Member(Base):
 
     def volatile_concession(self):
         return self.member_type in MembershipType.volatile_concessions()
-    # endregion
+
+    def start_year_for_card(self):
+        if self.status == MemberStatus.founder:
+            extra = ' (founder)'
+        elif self.status == MemberStatus.life:
+            extra = ' (life member)'
+        else:
+            extra = ''
+        return str(self.start_date.year) + extra
+
+        # endregion
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())

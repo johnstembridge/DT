@@ -19,8 +19,6 @@ class Extracts:
                 'state', 'post_code', 'country', 'address', 'cert_date', 'upgrade']
         csv.append(head)
         for cert in certs:
-            upgrade = cert.member.member_type == MembershipType.intermediate and \
-                      cert.member.actions[0].action == MemberAction.upgrade
             row = [
                 cert.member.dt_number(),
                 cert.member.member_type.name,
@@ -35,7 +33,7 @@ class Extracts:
                 cert.member.address.country_for_mail(),
                 cert.member.address.full(),
                 encode_date_formal(datetime.date.today(), cert=True),
-                yes_no(upgrade)
+                yes_no(cert.is_upgrade())
             ]
             csv.append(row)
         return csv
@@ -65,7 +63,7 @@ class Extracts:
                 card.member.address.state,
                 card.member.address.post_code,
                 card.member.address.country_for_mail(),
-                yes_no(card.member.start_date >= datetime.date(datetime.date.today().year, 2, 1)),
+                yes_no(card.member.is_recent_new()),
                 yes_no(card.member.comms_status == CommsStatus.email_fail)
             ]
             csv.append(row)
@@ -81,16 +79,10 @@ class Extracts:
         csv.append(head)
         for member in members:
             member = Extracts.handle_upgrade(member, end_date, 'extract_cards')
-            if member.status == MemberStatus.founder:
-                extra = ' (founder)'
-            elif member.status == MemberStatus.life:
-                extra = ' (life member)'
-            else:
-                extra = ''
             row = [
                 member.dt_number(),
                 member.full_name(),
-                str(member.start_date.year) + extra
+                member.start_year_for_card()
             ]
             csv.append(row)
         return csv
@@ -125,7 +117,7 @@ class Extracts:
                 member.address.post_code,
                 member.address.country_for_mail(),
                 member.dues(),
-                (member.last_payment_method or PaymentMethod.na).name,
+                member.last_payment_method,
                 fmt_date(member.birth_date),
                 member.email,
                 yes_no(member.use_email()),

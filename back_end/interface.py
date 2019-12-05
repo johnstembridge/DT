@@ -7,7 +7,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior
-from back_end.data_utilities import first_or_default, unique, pop_next
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date
 from back_end.file_access import file_delimiter
 
 db_session = db.session
@@ -237,6 +237,7 @@ def next_member_number():
 # endregion
 
 
+# region Users
 def get_user(id=None, user_name=None):
     if id:
         return db_session.query(User).filter(User.id == id).first()
@@ -255,6 +256,7 @@ def save_user(user):
     if not user.id:
         db_session.add(user)
     db_session.commit()
+# endregion
 
 
 def get_new_action(new_member=False):
@@ -285,8 +287,9 @@ def get_new_address():
     return Address()
 
 
-def get_attr(obj, attr):
-    attr, tail = pop_next(attr, '.')
+def get_attr(obj, spec):
+    # extract data for attr spec from extract_fields_map
+    attr, tail = pop_next(spec, '.')
     if '()' in attr:  # function call
         res = getattr(obj, attr.replace('()', ''))()
     elif '[]' in attr:  # list - get first
@@ -294,7 +297,9 @@ def get_attr(obj, attr):
     else:  # property
         res = getattr(obj, attr)
     if res and tail:
-        res = get_attr(res, tail)
+        res = getattr(res, tail)
+    if res and 'date' in spec:
+        res = fmt_date(res)
     return res if res is not None else ''
 
 

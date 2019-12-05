@@ -8,7 +8,7 @@
     {{ form.hidden_tag() }}
     <h4 class="left">{{ form.total.data }} {{ 'result' if form.total.data == 1 else 'results' }} found</h4>
     <h5 class="right">
-        <a class='btn' href="{{ form.bulk_update_url }}">Bulk update ...</a>
+        <a class='button' href="{{ form.extract_url }}">Extract ...</a>
         <a href="{{ form.first_url }}"><span class="glyphicon">&#xe069;</span></a>
         {% if form.prev_url %}
             <a href="{{ form.prev_url }}"><span class="glyphicon">&#xe251;</span></a>
@@ -24,8 +24,8 @@
             <thead>
             <tr>
                 <th>Details</th>
-                {% for field in fields %}
-                    <th>{{ field[0] }}</th>
+                {% for field in fields.keys() %}
+                    <th>{{ field }}</th>
                 {% endfor %}
             </tr>
             </thead>
@@ -39,8 +39,8 @@
                             text=('Edit' if current_user.has_access(UserRole.admin) else 'View') + ' member details'
                         )|safe }}
                     </td>
-                {% for field in fields %}
-                    <td>{{ get_attr(row, field[1]) }}</td>
+                {% for field in fields.values() %}
+                    <td>{{ get_attr(row, field) }}</td>
                 {% endfor %}
                 </tr>
             {% endfor %}

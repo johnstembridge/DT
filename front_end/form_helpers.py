@@ -39,7 +39,6 @@ def flash_errors(form):
 def status_choices():
     # set choices for membership status according to access rights
     if current_user.role.value >= UserRole.dt_board.value:
-        #return MemberStatus.choices(extra=[(99, 'all active (<lapsed)')], blank=True)
         choices = MemberStatus.choices(extra=[(99, 'all active (<lapsed)')], blank=True)
     else:
         choices = MemberStatus.choices(blank=True)
@@ -48,6 +47,21 @@ def status_choices():
         limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
         choices = [c for c in choices if c[0] <= limit or c[0] == 99]
     return choices
+
+
+def limit_status_by_access(query_clauses):
+    if current_user.role != UserRole.super:
+        # limit inclusion of lapsed members according to current user's access rights
+        access = current_user.role.access
+        limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
+        sel_status = [c for c in query_clauses if c[0] == 'Member' and c[1] == 'status']
+        if not sel_status:
+            query_clauses.append(('Member', 'status', limit, '<=', None))
+        if 'lapsed 1yr+' not in access:
+            today = date.today()
+            last_lapse_date = date(year=(today.year - 1 if today.month >= 8 else 2), month=8, day=1)
+            query_clauses.append(('Member', 'end_date', fmt_date(last_lapse_date), '>=', None))
+    return query_clauses
 
 
 def select_fields_to_query(select_fields, default_table):
@@ -76,21 +90,6 @@ def select_fields_to_query(select_fields, default_table):
                     table, column = default_table, field_name
                 query_clauses.append((table, column, value, condition, func))
     query_clauses = limit_status_by_access(query_clauses)
-    return query_clauses
-
-
-def limit_status_by_access(query_clauses):
-    if current_user.role != UserRole.super:
-        # limit inclusion of lapsed members according to current user's access rights
-        access = current_user.role.access
-        limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
-        sel_status = [c for c in query_clauses if c[0] == 'Member' and c[1] == 'status']
-        if not sel_status:
-            query_clauses.append(('Member', 'status', limit, '<=', None))
-        if 'lapsed 1yr+' not in access:
-            today = date.today()
-            last_lapse_date = date(year=(today.year - 1 if today.month >= 8 else 2), month=8, day=1)
-            query_clauses.append(('Member', 'end_date', fmt_date(last_lapse_date), '>=', None))
     return query_clauses
 
 
@@ -137,6 +136,45 @@ def select_fields_to_update(select_fields, default_table):
             #         table, column = default_table, field_name
             updates[field_name] = value
     return updates
+
+
+extract_fields_map = {
+    'number': 'dt_number()',
+    'first name': 'first_name',
+    'last name': 'last_name',
+    'full name': 'full_name()',
+    'sex': 'sex.name',
+    'status': 'status.name',
+    'type': 'member_type.name',
+    'start': 'start_date',
+    'end': 'end_date',
+    'birth': 'birth_date',
+    'birth month': 'birth_month()',
+    'age': 'age()',
+    'email': 'email',
+    'home phone': 'home_phone',
+    'mobile phone': 'mobile_phone',
+    'comms': 'comms.name',
+    'payment method': 'last_payment_method.name',
+    'dues': 'dues()',
+    'full address': 'address.full()',
+    'address (line 1)': 'address.line_1',
+    'address (line 2)': 'address.line_2',
+    'address (line 3)': 'address.line_3',
+    'city': 'address.city',
+    'county': 'address.county',
+    'state': 'address.state',
+    'post code': 'address.post_code',
+    'country': 'address.country',
+    'country for post': 'address.country_for_mail()',
+    'action': 'actions[].action.name',
+    'action date': 'actions[].date',
+    'action status': 'actions[].status.name',
+    'upgrade': 'is_upgrade()',
+    'email bounced': 'email_bounced()',
+    'recent_new': 'is_recent_new()',
+    'card start year': 'start_year_for_card()'
+}
 
 
 def validate_date_format(form, field):

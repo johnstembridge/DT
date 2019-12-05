@@ -86,7 +86,7 @@ def extracts_comms():
 @login_required
 @role_required('extract')
 def extracts_select():
-    return Query.select(title='Select data to extract')
+    return Query.select(title='Select data')
 
 
 @app.route('/extracts/show', methods=['GET', 'POST'])
@@ -94,6 +94,13 @@ def extracts_select():
 @role_required('extract')
 def extracts_show():
     return Query.show_found()
+
+
+@app.route('/extracts/extract', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_extract():
+    return return_csv_file(Query.extract(), 'extract.csv')
 
 
 @app.route('/extracts/bulk_update', methods=['GET', 'POST'])

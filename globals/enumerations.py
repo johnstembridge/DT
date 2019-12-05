@@ -92,6 +92,7 @@ class MemberAction(FormEnum):
     send = 4
     resend = 5
     gift = 6
+    other = 7
 
 
 class ActionStatus(FormEnum):
