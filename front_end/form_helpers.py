@@ -5,6 +5,7 @@ from wtforms.widgets import ListWidget, CheckboxInput
 from datetime import date, datetime
 import os
 import pickle
+from collections import OrderedDict
 
 from back_end.data_utilities import force_list, first_or_default, last_or_default, fmt_date, remove
 from globals import config
@@ -138,43 +139,43 @@ def select_fields_to_update(select_fields, default_table):
     return updates
 
 
-extract_fields_map = {
-    'number': 'dt_number()',
-    'first name': 'first_name',
-    'last name': 'last_name',
-    'full name': 'full_name()',
-    'sex': 'sex.name',
-    'status': 'status.name',
-    'type': 'member_type.name',
-    'start': 'start_date',
-    'end': 'end_date',
-    'birth': 'birth_date',
-    'birth month': 'birth_month()',
-    'age': 'age()',
-    'email': 'email',
-    'home phone': 'home_phone',
-    'mobile phone': 'mobile_phone',
-    'comms': 'comms.name',
-    'payment method': 'last_payment_method.name',
-    'dues': 'dues()',
-    'full address': 'address.full()',
-    'address (line 1)': 'address.line_1',
-    'address (line 2)': 'address.line_2',
-    'address (line 3)': 'address.line_3',
-    'city': 'address.city',
-    'county': 'address.county',
-    'state': 'address.state',
-    'post code': 'address.post_code',
-    'country': 'address.country',
-    'country for post': 'address.country_for_mail()',
-    'action': 'actions[].action.name',
-    'action date': 'actions[].date',
-    'action status': 'actions[].status.name',
-    'upgrade': 'is_upgrade()',
-    'email bounced': 'email_bounced()',
-    'recent_new': 'is_recent_new()',
-    'card start year': 'start_year_for_card()'
-}
+extract_fields_map = OrderedDict([
+    ('number', 'dt_number()'),
+    ('first name', 'first_name'),
+    ('last name', 'last_name'),
+    ('full name', 'full_name()'),
+    ('sex', 'sex.name'),
+    ('status', 'status.name'),
+    ('type', 'member_type.name'),
+    ('start', 'start_date'),
+    ('end', 'end_date'),
+    ('birth', 'birth_date'),
+    ('birth month', 'birth_month()'),
+    ('age', 'age()'),
+    ('email', 'email'),
+    ('home phone', 'home_phone'),
+    ('mobile phone', 'mobile_phone'),
+    ('comms', 'comms.name'),
+    ('payment method', 'last_payment_method.name'),
+    ('dues', 'dues()'),
+    ('full address', 'address.full()'),
+    ('address (line 1)', 'address.line_1'),
+    ('address (line 2)', 'address.line_2'),
+    ('address (line 3)', 'address.line_3'),
+    ('city', 'address.city'),
+    ('county', 'address.county'),
+    ('state', 'address.state'),
+    ('post code', 'address.post_code'),
+    ('country', 'address.country'),
+    ('country for post', 'address.country_for_mail()'),
+    ('action', 'actions[].action.name'),
+    ('action date', 'actions[].date'),
+    ('action status', 'actions[].status.name'),
+    ('upgrade', 'is_upgrade()'),
+    ('email bounced', 'email_bounced()'),
+    ('recent_new', 'is_recent_new()'),
+    ('card start year', 'start_year_for_card()')
+])
 
 
 def validate_date_format(form, field):

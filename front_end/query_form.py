@@ -40,7 +40,7 @@ class QueryForm(FlaskForm):
 
     query_clauses = HiddenField(label='query')
     display_fields = MultiCheckboxField(label='fields to show',
-                                        choices=[(i, j) for (i, j) in enumerate(extract_fields_map)])
+                                        choices=list(enumerate(extract_fields_map)))
     submit = SubmitField(label='Submit')
 
     def query_fields(self):
