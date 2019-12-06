@@ -11,6 +11,7 @@ from globals.enumerations import MemberStatus, MembershipType
 
 class MemberItemForm(FlaskForm):
     member_number = HiddenField(label='id')
+    is_active = HiddenField(label='is_active')
     number = StringField(label='number')
     status = StringField(label='status')
     member_type = StringField(label='type')
@@ -76,6 +77,7 @@ class MemberListForm(FlaskForm):
             item_form.member_number = member.number
             item_form.number = member.dt_number()
             item_form.status = member.status.name
+            item_form.is_active = member.is_active()
             item_form.member_type = member.member_type.name
             item_form.first_name = member.first_name
             item_form.last_name = member.last_name

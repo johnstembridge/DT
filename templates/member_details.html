@@ -8,7 +8,7 @@
 <form method="POST">
     {{ form.csrf_token }}
     {{ form.hidden_tag() }}
-    <table width="60%">
+    <table>
         <tr>
             <td>{{ form.dt_number.label }}</td>
             <td>{{ form.dt_number.data }}</td>
@@ -26,17 +26,17 @@
             <td>{{ form.birth_date }}{%if form.age.data != None %} ({{ form.age.data }}){% endif %}</td>
         </tr>
     </table>
-    <table width="30%">
+    <table>
         <tr>&nbsp;</tr>
         <tr>
-            <td>{{ form.payment_method.label }}&nbsp;</td>
-            <td>{{ form.payment_method }}&nbsp;</td>
-            <td>{{ form.external_access.label }}&nbsp;</td>
-            <td>{{ form.external_access }}&nbsp;</td>
+            <td>{{ form.payment_method.label }}</td>
+            <td>{{ form.payment_method }}</td>
+            <td>{{ form.external_access.label }}</td>
+            <td>{{ form.external_access }}</td>
         </tr>
     </table>
     <hr/>
-    <table width="60%">
+    <table>
         <tr>
             <td>{{ form.title.label }} </td>
             <td>{{ form.title(size='1') }}</td>
@@ -49,7 +49,7 @@
         </tr>
     </table>
     <hr/>
-    <table width="60%">
+    <table>
         <tr>
             <td>{{ form.line1.label }}</td>
             <td colspan=5>{{ form.line1(size='60', required='required') }}</td>
@@ -76,6 +76,7 @@
         </tr>
         <tr>
             <td>{{ form.country.label }}</td>
+<!--            <td>{{ form.country(size='1') }}</td>-->
             <td>{{ form.country(size='20') }}</td>
         </tr>
         <tr>
@@ -93,18 +94,18 @@
     </table>
     <table>
         <tr>
-            <td>{{ form.email.label }}&nbsp;</td>
-            <td>{{ form.email(size='40') }}&nbsp;</td>
-            <td>{{ form.comms.label }}&nbsp;</td>
-            <td>{{ form.comms(required='required') }}&nbsp;</td>
-            <td>{{ form.comms_status.label }}&nbsp;</td>
+            <td>{{ form.email.label }}</td>
+            <td>{{ form.email(size='40') }}</td>
+            <td>{{ form.comms.label }}</td>
+            <td>{{ form.comms(required='required') }}</td>
+            <td>{{ form.comms_status.label }}</td>
             <td>{{ form.comms_status(required='required') }}</td>
         </tr>
         {% if form.jd_email %}
             <tr>
-                <td>{{ form.jd_email.label }}&nbsp;</td>
-                <td>{{ form.jd_email(size='40') }}&nbsp;</td>
-                <td>{{ form.jd_gift.label }}&nbsp;</td>
+                <td>{{ form.jd_email.label }}</td>
+                <td>{{ form.jd_email(size='40') }}</td>
+                <td>{{ form.jd_gift.label }}</td>
                 <td>{{ form.jd_gift }}</td>
                 <td></td>
                 <td></td>
@@ -114,7 +115,7 @@
     <hr/>
     <h4><a data-toggle="collapse" href="#payments" aria-expanded="false" aria-controls="payments">Payments</a></h4>
     <div class="collapse" id="payments">
-    <table width="60%">
+    <table>
         <thead>
         <tr>
             <th>date</th>
@@ -139,7 +140,7 @@
     <hr/>
     <h4><a data-toggle="collapse" href="#actions" aria-expanded="false" aria-controls="actions">Actions</a></h4>
     <div class="collapse" id="actions">
-    <table width="60%">
+    <table>
         <thead>
         <tr>
             <th>date</th>
@@ -163,7 +164,7 @@
     <hr/>
     <h4><a data-toggle="collapse" href="#comments" aria-expanded="false" aria-controls="comments">Comments</a></h4>
     <div class="collapse" id="comments">
-    <table width="60%">
+    <table>
         <thead>
         <tr>
             <th>date</th>

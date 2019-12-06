@@ -6,7 +6,7 @@ import io, csv
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
-from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior
+from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country
 from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date
 from back_end.file_access import file_delimiter
 
@@ -257,6 +257,10 @@ def save_user(user):
         db_session.add(user)
     db_session.commit()
 # endregion
+
+
+def get_countries():
+    return db_session.query(Country.code, Country.name).all()
 
 
 def get_new_action(new_member=False):

@@ -87,3 +87,5 @@ table#help {
   font-size: 12px;
   border-radius: 12px;
 }
+
+label { padding-left: 5px; padding-right: 5px; }

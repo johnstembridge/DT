@@ -4,7 +4,7 @@ from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
 
 from back_end.interface import get_new_member, get_member, save_member_details, get_new_comment, get_new_payment, \
-    get_members_by_name, get_new_action
+    get_members_by_name, get_new_action, get_countries
 from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
     ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess
@@ -57,6 +57,7 @@ class MemberDetailsForm(FlaskForm):
     post_code = StringField(label='Post Code')
     county = StringField(label='County')
     country = StringField(label='Country')
+    #country = MySelectField(label='Country', choices=get_countries())
 
     home_phone = StringField(label='Home Phone')
     mobile_phone = StringField(label='Mobile')

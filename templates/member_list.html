@@ -69,7 +69,10 @@
             <td>{{ item.number.data }}</td>
             <td>{{ item.first_name.data }}</td>
             <td>{{ item.last_name.data }}</td>
-            <td>{{ item.status.data }}</td>
+            <td>{% if item.is_active.data %}{{ item.status.data }}
+                {% else %}<font color=red>{{ item.status.data }}</font>
+                {% endif %}
+            </td>
             <td>{{ item.member_type.data }}</td>
             <td>{{ item.email.data }}</td>
             <td>{{ item.post_code.data }}</td>
