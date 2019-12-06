@@ -6,7 +6,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime, Enum
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus#, Enum
+    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus
 from back_end.data_utilities import fmt_date, parse_date, first_or_default
 from datetime import datetime
 from time import time, localtime, strftime
@@ -59,7 +59,7 @@ class Address(Base):
     country = Column(String(25))
     members = relationship('Member', back_populates='address')
 
-    dict_fields=['line_1', 'line_2', 'line_3', 'city', 'county', 'state', 'post_code', 'country']
+    dict_fields = ['line_1', 'line_2', 'line_3', 'city', 'county', 'state', 'post_code', 'country']
 
     def to_dict(self):
         data = {}
@@ -178,7 +178,8 @@ class Member(Base):
     junior = relationship('Junior', uselist=False, back_populates='member')
 
     # region Member extras
-    dict_fields = ['number', 'start_date','end_date', 'status', 'member_type', 'sex', 'birth_date', 'title', 'first_name',
+    dict_fields = ['number', 'start_date', 'end_date', 'status', 'member_type', 'sex', 'birth_date', 'title',
+                   'first_name',
                    'last_name', 'address', 'email', 'home_phone', 'mobile_phone', 'comms', 'external_access']
 
     def to_dict(self):
@@ -230,8 +231,8 @@ class Member(Base):
         return self.status in MemberStatus.all_active()
 
     def is_upgrade(self):
-        return self.member_type == MembershipType.intermediate and \
-                  first_or_default(self.actions, MemberAction.other).action == MemberAction.upgrade
+        return self.is_adult() and first_or_default(self.actions,
+                                                           MemberAction.other).action == MemberAction.upgrade
 
     def is_recent_new(self):
         return self.start_date >= datetime(datetime.today().year, 2, 1).date()
@@ -258,7 +259,7 @@ class Member(Base):
         if next_birthday < as_of:
             next_birthday = next_birthday.replace(year=as_of.year + 1)
         if leap and next_birthday.year % 4 == 0:
-            next_birthday = next_birthday.replace(day = 29)
+            next_birthday = next_birthday.replace(day=29)
         return next_birthday
 
     def age(self, as_of=None, default=False):
@@ -360,7 +361,7 @@ class User(Base, UserMixin):
         exp = None
         if self.token:
             exp = User.decode_token(self.token, app)['exp']
-            #exp = jwt.decode(self.token, app.config['SECRET_KEY'], algorithms=['HS256'])['exp']
+            # exp = jwt.decode(self.token, app.config['SECRET_KEY'], algorithms=['HS256'])['exp']
         if exp and exp < time() + 60:
             exp = time() + expires_in
             self.token = User.encode_token(self.id, exp, app)
@@ -385,7 +386,7 @@ class User(Base, UserMixin):
     def validate_token(app, token):
         try:
             id = User.decode_token(token, app)['sub']
-            #id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['sub']
+            # id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['sub']
         except jwt.ExpiredSignatureError:
             return False, 'Signature expired. Please try again.'
         except jwt.InvalidTokenError:
@@ -407,6 +408,7 @@ class User(Base, UserMixin):
     def has_access(self, required_role):
         current_user_role = self.role.level
         return current_user_role >= required_role.level
+
     # endregion
 
     def __repr__(self):

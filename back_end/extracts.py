@@ -15,27 +15,29 @@ class Extracts:
             Action.action.in_([MemberAction.certificate, MemberAction.upgrade]))
                        )
         csv = []
-        head = ['id', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
+        head = ['id', 'status', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
                 'state', 'post_code', 'country', 'address', 'cert_date', 'upgrade']
         csv.append(head)
         for cert in certs:
-            row = [
-                cert.member.dt_number(),
-                cert.member.member_type.name,
-                cert.member.full_name(),
-                cert.member.address.line_1,
-                cert.member.address.line_2,
-                cert.member.address.line_3,
-                cert.member.address.city,
-                cert.member.address.county,
-                cert.member.address.state,
-                cert.member.address.post_code,
-                cert.member.address.country_for_mail(),
-                cert.member.address.full(),
-                encode_date_formal(datetime.date.today(), cert=True),
-                yes_no(cert.is_upgrade())
-            ]
-            csv.append(row)
+            if not (cert.member.status == MemberStatus.life and cert.member.is_upgrade()):
+                row = [
+                    cert.member.dt_number(),
+                    cert.member.status.name,
+                    cert.member.member_type.name,
+                    cert.member.full_name(),
+                    cert.member.address.line_1,
+                    cert.member.address.line_2,
+                    cert.member.address.line_3,
+                    cert.member.address.city,
+                    cert.member.address.county,
+                    cert.member.address.state,
+                    cert.member.address.post_code,
+                    cert.member.address.country_for_mail(),
+                    cert.member.address.full(),
+                    encode_date_formal(datetime.date.today(), cert=True),
+                    yes_no(cert.member.is_upgrade())
+                ]
+                csv.append(row)
         return csv
 
     @staticmethod
