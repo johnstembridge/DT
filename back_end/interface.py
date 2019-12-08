@@ -7,7 +7,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country
-from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, encode_date_formal
 from back_end.file_access import file_delimiter
 
 db_session = db.session
