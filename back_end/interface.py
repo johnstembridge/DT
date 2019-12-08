@@ -101,6 +101,8 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
                 s = '{}.{} {} date("now", "-{} years")'.format(table, column, condition, value)
         else:
             s = '{}.{} {} {}'.format(table, column, condition, value)
+        if isinstance(value, list):
+            s = s.replace('[', '(').replace(']', ')')
         clauses.append(s)
     q = db_session.query(tables[0])
     for table in tables[1:]:
@@ -230,6 +232,7 @@ def save_member_details(member_number, details):
     db_session.commit()
     return member
 
+
 def next_member_number():
     return db_session.query(func.max(Member.number)).scalar() + 1
 
@@ -293,16 +296,20 @@ def get_new_address():
 
 def get_attr(obj, spec):
     # extract data for attr spec from extract_fields_map
+    if '=' == first_or_default(spec, ' '):
+        return eval(spec[1:])
     attr, tail = pop_next(spec, '.')
     if '()' in attr:  # function call
         res = getattr(obj, attr.replace('()', ''))()
+    elif tail and '()' in tail:  # function call
+        res = getattr(obj, attr)
     elif '[]' in attr:  # list - get first
         res = first_or_default(getattr(obj, attr.replace('[]', '')), None)
     else:  # property
         res = getattr(obj, attr)
     if res and tail:
-        res = getattr(res, tail)
-    if res and 'date' in spec:
+        res = get_attr(res, tail)
+    if res and 'date' in spec and isinstance(res, datetime.date):
         res = fmt_date(res)
     return res if res is not None else ''
 
@@ -314,23 +321,25 @@ def class_name_to_table_name(name):
 
 
 def field_type(table, field_name):
-    f_type = globals()[table].__table__.c[field_name].type
-    type_name = str(f_type)
-    data = None
     type = 'unknown'
-    if 'VARCHAR' in type_name:
-        type = 'string'
-    else:
-        if type_name == 'INTEGER':
-            type = 'num'
-        elif type_name == 'SMALLINT':
-            if hasattr(f_type, 'data'):
-                type = 'enum'
-                data = f_type.data
-            else:
+    data = None
+    if field_name in globals()[table].__table__.c:
+        f_type = globals()[table].__table__.c[field_name].type
+        type_name = str(f_type)
+
+        if 'VARCHAR' in type_name:
+            type = 'string'
+        else:
+            if type_name == 'INTEGER':
                 type = 'num'
-        elif type_name == 'DATE':
-            type = 'date'
+            elif type_name == 'SMALLINT':
+                if hasattr(f_type, 'data'):
+                    type = 'enum'
+                    data = f_type.data
+                else:
+                    type = 'num'
+            elif type_name == 'DATE':
+                type = 'date'
     return type, data
 
 

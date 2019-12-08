@@ -231,8 +231,8 @@ class Member(Base):
         return self.status in MemberStatus.all_active()
 
     def is_upgrade(self):
-        return self.is_adult() and first_or_default(self.actions,
-                                                           MemberAction.other).action == MemberAction.upgrade
+        return self.is_adult() and \
+               first_or_default(self.actions, MemberAction.other).action == MemberAction.upgrade
 
     def is_recent_new(self):
         return self.start_date >= datetime(datetime.today().year, 2, 1).date()
@@ -242,11 +242,6 @@ class Member(Base):
 
     def email_bounced(self):
         return self.comms_status == CommsStatus.email_fail
-
-    def birth_month(self):
-        if self.birth_date:
-            return self.birth_date.month
-        return None
 
     def next_birthday(self, as_of=None):
         if not as_of:
@@ -284,6 +279,9 @@ class Member(Base):
                     return 25
             else:
                 return 25
+
+    def age_next_birthday(self):
+        return self.age(self.next_birthday())
 
     def dues(self, as_of=None, default=True):
         if not as_of:
@@ -324,6 +322,17 @@ class Member(Base):
 
         # endregion
 
+    def future_membership_type(self, next_renewal_date=None):
+        # returns membership type at next renewal
+        if not next_renewal_date:
+            next_renewal_date = datetime(2020, 8, 1).date()
+        age = self.age(next_renewal_date)
+        if self.member_type == MembershipType.junior and age >= 16:
+            self.member_type =  MembershipType.intermediate
+        elif self.member_type == MembershipType.intermediate and age >= 21:
+            self.member_type = MembershipType.standard
+        return self.member_type
+        
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())
 

@@ -141,17 +141,18 @@ def select_fields_to_update(select_fields, default_table):
 
 extract_fields_map = OrderedDict([
     ('number', 'dt_number()'),
+    ('full name', 'full_name()'),
     ('first name', 'first_name'),
     ('last name', 'last_name'),
-    ('full name', 'full_name()'),
     ('sex', 'sex.name'),
     ('status', 'status.name'),
     ('type', 'member_type.name'),
     ('start', 'start_date'),
     ('end', 'end_date'),
-    ('birth', 'birth_date'),
+    ('birth date', 'birth_date'),
     ('birth month', 'birth_month()'),
     ('age', 'age()'),
+    ('age next bday', 'age_next_birthday()'),
     ('email', 'email'),
     ('home phone', 'home_phone'),
     ('mobile phone', 'mobile_phone'),
@@ -172,9 +173,16 @@ extract_fields_map = OrderedDict([
     ('action date', 'actions[].date'),
     ('action status', 'actions[].status.name'),
     ('upgrade', 'is_upgrade()'),
+    ('use email', 'use_email()'),
     ('email bounced', 'email_bounced()'),
+    ('junior email', 'junior.email'),
+    ('AFCW access', 'afcw_has_access()'),
+    ('3rd pty access', 'third_pty_access()'),
     ('recent_new', 'is_recent_new()'),
-    ('card start year', 'start_year_for_card()')
+    ('card start year', 'start_year_for_card()'),
+    ('certificate date', '=encode_date_formal(datetime.date.today(), cert=True)'),
+    ('next_membership_type', 'future_membership_type().name'),
+    ('volatile concession', 'volatile_concession()')
 ])
 
 

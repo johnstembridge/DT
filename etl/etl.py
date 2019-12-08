@@ -107,23 +107,6 @@ def member_etl(rec):
             email=rec['Junior email'],
             gift=junior_gift_etl[rec['Junior Gift']] if rec['Junior Gift'] != '' else None
         )
-    # member = handle_upgrade(member, date(2019, 8, 1))
-    return member
-
-
-def handle_upgrade(member, end_date):
-    age = member.age(end_date)
-    if member.member_type == MembershipType.junior:
-        if age >= 16:
-            member.member_type = MembershipType.intermediate if age < 21 else MembershipType.standard
-            member.actions.insert(0, Action(
-                date=end_date,
-                action=MemberAction.upgrade,
-                status=ActionStatus.open,
-                comment='Automatic upgrade from Junior on ETL load'
-            ))
-    elif member.member_type == MembershipType.intermediate and age >= 21:
-        member.member_type = MembershipType.standard
     return member
 
 

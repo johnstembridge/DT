@@ -1,7 +1,6 @@
 from flask_login import login_required
 
 from globals.decorators import role_required
-from globals.enumerations import Months
 from main import app
 from back_end.extracts import Extracts
 from back_end.query import Query
@@ -13,35 +12,21 @@ import datetime
 @login_required
 @role_required('extract')
 def extracts_certs():
-    return return_csv_file(Extracts.extract_certificates(), 'certs.txt')
+    return Extracts.extract_certificates()
 
 
 @app.route('/extracts/cards', methods=['GET', 'POST'])
 @login_required
 @role_required('extract')
 def extracts_cards():
-    return return_csv_file(Extracts.extract_cards(), 'cards.csv')
-
-
-@app.route('/extracts/cards_all', methods=['GET', 'POST'])
-@login_required
-@role_required('extract')
-def extracts_cards_all():
-    return return_csv_file(Extracts.extract_cards_all(), 'cards_all.txt')
-
-
-@app.route('/extracts/renewals', methods=['GET', 'POST'])
-@login_required
-@role_required('extract')
-def extracts_renewals():
-    return return_csv_file(Extracts.extract_renewals(), 'renewals.csv')
+    return Extracts.extract_cards()
 
 
 @app.route('/extracts/juniors', methods=['GET', 'POST'])
 @login_required
 @role_required('extract')
 def extracts_juniors():
-    return return_csv_file(Extracts.extract_juniors(), 'juniors.csv')
+    return Extracts.extract_juniors()
 
 
 @app.route('/extracts/junior_birthdays', methods=['GET', 'POST'])
@@ -56,30 +41,43 @@ def extracts_junior_birthdays():
 @role_required('extract')
 def extracts_junior_birthdays_for_month(month=None):
     if not month:
-        month = datetime.date.today().month + 1
-    month_name = [m for m in Months if m.value ==12][0].name
-    return return_csv_file(Extracts.extract_junior_birthdays(month), 'junior birthdays {}.csv'.format(month_name))
-
-
-@app.route('/extracts/debits', methods=['GET', 'POST'])
-@login_required
-@role_required('admin')
-def extracts_debits():
-    return return_csv_file(Extracts.extract_debits(), 'debits.txt')
+        month = datetime.date.today().month % 12 + 1
+    return Extracts.extract_junior_birthdays(month)
 
 
 @app.route('/extracts/email', methods=['GET', 'POST'])
 @login_required
 @role_required('extract')
 def extracts_email():
-    return return_csv_file(Extracts.extract_email(), 'email.csv')
+    return Extracts.extract_email()
 
 
 @app.route('/extracts/comms', methods=['GET', 'POST'])
 @login_required
 @role_required('extract')
 def extracts_comms():
-    return return_csv_file(Extracts.extract_comms(), 'comms.csv')
+    return Extracts.extract_comms()
+
+
+@app.route('/extracts/cards_all', methods=['GET', 'POST'])
+@login_required
+@role_required('extract')
+def extracts_cards_all():
+    return Extracts.extract_cards_all()
+
+
+@app.route('/extracts/renewals', methods=['GET', 'POST'])
+@login_required
+@role_required('extract')
+def extracts_renewals():
+    return Extracts.extract_renewals()
+
+
+@app.route('/extracts/debits', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_debits():
+    return Extracts.extract_debits()
 
 
 @app.route('/extracts/select', methods=['GET', 'POST'])
@@ -108,12 +106,3 @@ def extracts_extract():
 @role_required('admin')
 def extracts_bulk_update():
     return Query.bulk_update()
-
-
-@app.route('/extracts/selected', methods=['GET', 'POST'])
-@login_required
-@role_required('extract')
-def extracts_extract_selected():
-    return return_csv_file(Extracts.extract_comms(), 'comms.csv')
-
-

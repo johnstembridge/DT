@@ -29,14 +29,14 @@ class Query:
         return render_template('query.html', form=form, render_link=render_link, title=title)
 
     @staticmethod
-    def extract_found():
-        pass  # ToDo
-
-    @staticmethod
     def show_found():
         page = request.args.get('page', 1, int)
         query_clauses = url_pickle_load(request.args.get('query_clauses'))
         display_fields = url_pickle_load(request.args.get('display_fields'))
+        return Query.show_found_do(query_clauses, display_fields, page)
+
+    @staticmethod
+    def show_found_do(query_clauses, display_fields, page=1):
         form = ExtractForm()
         query = get_members_for_query(query_clauses)
         page = form.populate_result(clauses=url_pickle_dump(query_clauses), fields=url_pickle_dump(display_fields),
@@ -49,6 +49,10 @@ class Query:
     def extract():
         query_clauses = url_pickle_load(request.args.get('query_clauses'))
         display_fields = url_pickle_load(request.args.get('display_fields'))
+        return Query.extract_do(query_clauses, display_fields)
+
+    @staticmethod
+    def extract_do(query_clauses, display_fields):
         members = get_members_for_query(query_clauses)
         csv = []
         head = display_fields
