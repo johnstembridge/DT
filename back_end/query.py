@@ -1,4 +1,5 @@
 from flask import render_template, redirect, url_for, request
+from collections import OrderedDict
 
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, extract_fields_map
 from front_end.query_form import QueryForm
@@ -41,7 +42,7 @@ class Query:
         query = get_members_for_query(query_clauses)
         page = form.populate_result(clauses=url_pickle_dump(query_clauses), fields=url_pickle_dump(display_fields),
                                     query=query, page_number=page)
-        fields = {k: extract_fields_map[k] for k in display_fields}
+        fields = OrderedDict([(k, extract_fields_map[k]) for k in display_fields])
         return render_template('extract.html', form=form, render_link=render_link, data=page.items, fields=fields,
                                get_attr=get_attr)
 
