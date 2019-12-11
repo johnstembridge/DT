@@ -26,7 +26,6 @@ class Query:
                 )
             elif form.errors:
                 flash_errors(form)
-
         return render_template('query.html', form=form, render_link=render_link, title=title)
 
     @staticmethod

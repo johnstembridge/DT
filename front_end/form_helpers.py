@@ -172,17 +172,19 @@ extract_fields_map = OrderedDict([
     ('action', 'actions[].action.name'),
     ('action date', 'actions[].date'),
     ('action status', 'actions[].status.name'),
+    ('action comment', 'actions[].comment'),
     ('upgrade', 'is_upgrade()'),
     ('use email', 'use_email()'),
     ('email bounced', 'email_bounced()'),
     ('junior email', 'junior.email'),
     ('AFCW access', 'afcw_has_access()'),
     ('3rd pty access', 'third_pty_access()'),
-    ('recent_new', 'is_recent_new()'),
+    ('recent new', 'is_recent_new()'),
     ('card start year', 'start_year_for_card()'),
     ('certificate date', '=encode_date_formal(datetime.date.today(), cert=True)'),
-    ('next_membership_type', 'future_membership_type().name'),
-    ('volatile concession', 'volatile_concession()')
+    ('next member type', 'future_membership_type().name'),
+    ('volatile concession', 'volatile_concession()'),
+    ('last updated', 'last_updated')
 ])
 
 

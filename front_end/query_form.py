@@ -10,6 +10,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Co
 class QueryForm(FlaskForm):
     months = [(m, calendar.month_name[m]) for m in range(1, 13)]
     number = MyStringField(label='number', db_map='Member.number')
+    last_updated = MyStringField(label='last updated', db_map='Member.last_updated', validators=[validate_date_format])
     status = MySelectField(label='status', choices=[], coerce=MemberStatus.coerce, db_map='Member.status')
     member_type = MySelectField(label='member type',
                                 choices=MembershipType.choices(extra=[(99, 'adult (!=junior)')], blank=True),
@@ -39,7 +40,7 @@ class QueryForm(FlaskForm):
     email = MyStringField(label='email', db_map='Member.email')
 
     query_clauses = HiddenField(label='query')
-    display_fields = MultiCheckboxField(label='fields to show',
+    display_fields = MultiCheckboxField(label='fields to show ...',
                                         choices=list(enumerate(extract_fields_map)))
     submit = SubmitField(label='Submit')
 
@@ -47,7 +48,7 @@ class QueryForm(FlaskForm):
         return [self.number, self.status, self.member_type, self.start_date, self.end_date,
                 self.payment_method, self.comms, self.birth_month, self.age,
                 self.current_action, self.action_status, self.action_comment,
-                self.comment_date, self.comment,
+                self.comment_date, self.comment, self.last_updated,
                 self.first_name, self.last_name, self.email, self.post_code, self.country]
 
     def set_status_choices(self):

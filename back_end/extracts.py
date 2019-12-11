@@ -17,9 +17,9 @@ class Extracts:
             ('Action', 'action', [MemberAction.certificate.value, MemberAction.upgrade.value], 'in', None)
         ]
         display_fields = ['number', 'status', 'type', 'full name', 'address (line 1)', 'address (line 2)',
-                          'address (line 3)', 'city', 'county',
-                          'state', 'post code', 'country', 'full address', 'certificate date', 'upgrade',
-                          'card start year']
+                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
+                          'full address', 'certificate date', 'upgrade',
+                          'card start year', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
@@ -32,8 +32,8 @@ class Extracts:
             ('Action', 'action', MemberAction.card.value, '=', None)
         ]
         display_fields = ['number', 'status', 'type', 'full name', 'address (line 1)', 'address (line 2)',
-                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country', 'recent_new',
-                          'email bounced']
+                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'recent new',
+                          'email bounced', 'card start year', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
@@ -45,7 +45,7 @@ class Extracts:
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = ['number', 'status', 'full name', 'address (line 1)', 'address (line 2)',
-                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country', 'dues',
+                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'dues',
                           'age', 'use email', 'email', 'email bounced', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
@@ -64,7 +64,7 @@ class Extracts:
             # ('Member', 'age_next_birthday', 16, '<', None)
         ]
         display_fields = ['number', 'full name', 'address (line 1)', 'address (line 2)',
-                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country',
+                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
                           'email', 'home phone', 'mobile phone', 'birth date', 'age next bday', 'first name',
                           'last name']
         return Query.show_found_do(query_clauses, display_fields)
@@ -96,7 +96,7 @@ class Extracts:
     def extract_cards_all():
         # annual replacement cards for printers
         query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)]
-        display_fields = ['next_membership_type', 'number', 'full name', 'card start year']
+        display_fields = ['next membership type', 'number', 'full name', 'card start year']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
@@ -114,8 +114,8 @@ class Extracts:
         display_fields = \
             ['number', 'status', 'type', 'full name', 'address (line 1)', 'address (line 2)',
              'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
-             'dues', 'payment method', 'birth date', 'email', 'use email',
-             'AFCW access', '3rd pty access', 'home phone', 'mobile phone', 'junior email', 'volatile concession']
+             'dues', 'payment method', 'birth date', 'email', 'use email', 'AFCW access', '3rd pty access',
+             'home phone', 'mobile phone', 'junior email', 'volatile concession', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
@@ -130,5 +130,5 @@ class Extracts:
         ]
         display_fields = \
             ['number', 'type', 'full name', 'dues', 'email', 'address (line 1)', 'address (line 2)',
-             'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post' ]
+             'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)

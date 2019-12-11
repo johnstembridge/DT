@@ -84,7 +84,7 @@ def extracts_debits():
 @login_required
 @role_required('extract')
 def extracts_select():
-    return Query.select(title='Select data')
+    return Query.select(title='Custom extract')
 
 
 @app.route('/extracts/show', methods=['GET', 'POST'])

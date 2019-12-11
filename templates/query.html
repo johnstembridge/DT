@@ -3,14 +3,18 @@
 
 {% block page_content %}
 
-<h2>{{ title }}</h2>
+<h3>{{ title }}</h3>
 
 <form method="POST">
     {{ form.csrf_token }}
-    <table width="60%" class="table">
+    <label>filter by ...</label>
+    <table>
         <tr>
             <td>{{ form.number.label }}</td>
             <td>{{ form.number(size=6, title='Select by DT number. Just enter the number e.g. 4502') }}</td>
+
+            <td>{{ form.last_updated.label }}</td>
+            <td>{{ form.last_updated(size=12, title='select by date last updated(dd/mm/yyyy)') }}</td>
         </tr>
         <tr>
             <td>{{ form.status.label }}</td>
