@@ -137,7 +137,7 @@ def save_member_details(member_number, details):
     member.end_date = details['end_date']
     member.birth_date = details['birth_date']
 
-    member.last_payment_method = PaymentMethod(details['payment_method'])
+    member.last_payment_method = PaymentMethod(details['payment_method']) if details['payment_method'] > 0 else None
     member.external_access = ExternalAccess(details['external_access'])
 
     member.home_phone = details['home_phone']
