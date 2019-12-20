@@ -25,7 +25,7 @@ def bulk_update():
 
 @app.route('/members/<int:member_number>', methods=['GET', 'POST'])
 @login_required
-@role_required('afcw')
+@role_required('admin')
 def edit_or_view_member(member_number):
     return MaintainMembers.edit_or_view_member(member_number)
 

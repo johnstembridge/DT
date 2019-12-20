@@ -240,6 +240,9 @@ class Member(Base):
     def is_founder(self):
         return self.number <= 1889
 
+    def is_life(self):
+        return self.end_date == datetime(2100, 8, 1).date()
+
     def email_bounced(self):
         return self.comms_status == CommsStatus.email_fail
 
@@ -312,10 +315,10 @@ class Member(Base):
         return self.member_type in MembershipType.volatile_concessions()
 
     def start_year_for_card(self):
-        if self.status == MemberStatus.founder:
-            extra = ' (founder)'
-        elif self.status == MemberStatus.life:
+        if self.is_life():
             extra = ' (life member)'
+        elif self.is_founder():
+            extra = ' (founder)'
         else:
             extra = ''
         return str(self.start_date.year) + extra
@@ -357,6 +360,22 @@ class User(Base, UserMixin):
             'role': self.role.name
         }
         return data
+
+    def has_access(self, required_role):
+        return self.role.level >= required_role.level
+
+    def has_lapsed_access(self):
+        return self.role.access == 'all' or 'lapsed' in self.role.access
+
+    def access_limit(self):
+        if self.role.access == 'all':
+            return 100
+        if 'lapsed' in self.role.access:
+            return MemberStatus.lapsed.value
+        return MemberStatus.current.value
+
+    def has_write_access(self, required_role):
+        return self.role.write
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -413,10 +432,6 @@ class User(Base, UserMixin):
     @staticmethod
     def decode_token(token, app):
         return jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
-
-    def has_access(self, required_role):
-        current_user_role = self.role.level
-        return current_user_role >= required_role.level
 
     # endregion
 

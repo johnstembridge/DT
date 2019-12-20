@@ -63,7 +63,7 @@
                 {{ render_link(
                     url=url_for('edit_or_view_member', member_number=item.member_number.data),
                     image=url_for('static', filename='images/right-arrow.png'),
-                    text=('Edit' if current_user.has_access(UserRole.admin) else 'View') + ' member details'
+                    text=('Edit' if current_user.has_write_access(UserRole.admin) else 'View') + ' member details'
                 )|safe }}
             </td>
             <td>{{ item.number.data }}</td>

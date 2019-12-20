@@ -38,25 +38,24 @@ def flash_errors(form):
 
 
 def status_choices():
-    # set choices for membership status according to access rights
-    if current_user.role.value >= UserRole.dt_board.value:
-        choices = MemberStatus.choices(extra=[(99, 'all active (<lapsed)')], blank=True)
-    else:
-        choices = MemberStatus.choices(blank=True)
-    access = current_user.role.access
-    if access != 'all':
-        limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
+    # set choices for membership status according to current user's access rights
+    lapsed = current_user.has_lapsed_access()
+    choices = MemberStatus.choices(extra=[(99, 'all active (<lapsed)')] if lapsed else None, blank=True)
+    limit = current_user.access_limit()
+    if lapsed:
         choices = [c for c in choices if c[0] <= limit or c[0] == 99]
+    else:
+        choices = [c for c in choices if c[0] <= limit]
     return choices
 
 
 def limit_status_by_access(query_clauses):
-    if current_user.role != UserRole.super:
+    access = current_user.role.access
+    if access != 'all':
         # limit inclusion of lapsed members according to current user's access rights
-        access = current_user.role.access
-        limit = MemberStatus.lapsed.value if 'lapsed' in access else MemberStatus.current.value
         sel_status = [c for c in query_clauses if c[0] == 'Member' and c[1] == 'status']
         if not sel_status:
+            limit = current_user.access_limit()
             query_clauses.append(('Member', 'status', limit, '<=', None))
         if 'lapsed 1yr+' not in access:
             today = date.today()

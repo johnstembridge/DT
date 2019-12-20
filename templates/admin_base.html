@@ -3,6 +3,7 @@
     {{super()}}
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/dt_admin.css') }}">
     <style>@media print{a[href]:after{content:none}}</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 {% endblock %}
 {% block title %}Dons Trust Membership Admin{% endblock %}
 
@@ -20,11 +21,11 @@
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">Members<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     {% if current_user.has_access(UserRole.admin) %}
-                        <li><a href="{{ url_for('members') }}">Find/Edit Members</a></li>
-                        <li><a href="{{ url_for('edit_or_view_member', member_number=0) }}">Add New Member</a></li>
-                        <li><a href="{{ url_for('bulk_update') }}">Bulk Update</a></li>
+                        <li><a href="{{ url_for('members') }}">Quick find/edit members</a></li>
+                        <li><a href="{{ url_for('edit_or_view_member', member_number=0) }}">Add new member</a></li>
+                        <li><a href="{{ url_for('bulk_update') }}">Bulk update</a></li>
                     {% else %}
-                        <li><a href="{{ url_for('members') }}">Find Members</a></li>
+                        <li><a href="{{ url_for('members') }}">Quick find members</a></li>
                     {% endif %}
                 </ul>
             <li>

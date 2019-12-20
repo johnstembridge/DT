@@ -45,7 +45,7 @@ def process_etl_db(file_in, etl_fn):
 
 def user_etl(rec):
     if rec == 'header':
-        return ['member_id', 'user_name', 'password']
+        return ['member_number', 'user_name', 'role', 'password']
     user = User(
         member_id=get_member_id(rec['member_number']),
         user_name=rec['user_name']

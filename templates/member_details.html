@@ -33,6 +33,8 @@
             <td>{{ form.payment_method }}</td>
             <td>{{ form.external_access.label }}</td>
             <td>{{ form.external_access }}</td>
+            <td>{{ form.last_updated.label }}</td>
+            <td>{{ form.last_updated.data }}</td>
         </tr>
     </table>
     <hr/>
@@ -41,9 +43,9 @@
             <td>{{ form.title.label }} </td>
             <td>{{ form.title(size='1') }}</td>
             <td>{{ form.first_name.label }} </td>
-            <td>{{ form.first_name(size='25', required='required') }}</td>
+            <td>{{ form.first_name(size='15', required='required') }}</td>
             <td>{{ form.last_name.label }} </td>
-            <td>{{ form.last_name(size='25', required='required') }}</td>
+            <td>{{ form.last_name(size='20', required='required') }}</td>
             <td>{{ form.sex.label }} </td>
             <td>{{ form.sex(size='1') }}</td>
         </tr>

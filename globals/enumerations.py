@@ -36,6 +36,22 @@ class FormEnum(Enum):
         return str(self.value)
 
 
+class UserRole(FormEnum):
+    member = (1, 'own', True)
+    afcw = (2, 'current', False)
+    extract = (3, 'current', False)
+    jd_admin = (4, 'lapsed 1yr', True)
+    dt_board = (5, 'lapsed 1yr', False)
+    support = (5, 'lapsed 1yr+', False)
+    admin = (6, 'lapsed 1yr+', True)
+    super = (7, 'all', True)
+
+    def __init__(self, level, access, write):
+        self.level = level
+        self.access = access
+        self.write = write
+
+
 class MemberStatus(FormEnum):
     life = 1
     founder = 2
@@ -47,13 +63,8 @@ class MemberStatus(FormEnum):
     reserved = 98
 
     @staticmethod
-    def active():
-        return [MemberStatus.founder, MemberStatus.current]
-
-    @staticmethod
     def all_active():
         return [MemberStatus.life, MemberStatus.founder, MemberStatus.current]
-
 
     @staticmethod
     def all_including_lapsed():
@@ -131,20 +142,6 @@ class ExternalAccess(FormEnum):
     none = 0
     AFCW = 1
     all = 2
-
-
-class UserRole(FormEnum):
-    member = (1, 'own')
-    afcw = (2, 'current')
-    extract = (3, 'current')
-    jd_admin = (4, 'lapsed 1yr')
-    dt_board = (5, 'lapsed 1yr')
-    admin = (6, 'lapsed 1yr+')
-    super = (7, 'all')
-
-    def __init__(self, level, access):
-        self.level = level
-        self.access = access
 
 
 class Sex(FormEnum):
