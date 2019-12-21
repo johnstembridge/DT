@@ -235,46 +235,6 @@ def url_pickle_load(obj):
     return pickle.loads(bytes(obj, 'ISO-8859-1'))
 
 
-def render_html(template, **kwargs):
-    import jinja2
-    env = jinja2.Environment(loader=jinja2.FileSystemLoader(searchpath=config.get('locations')['templates']))
-    template = env.get_template(template)
-    return template.render(url_for=url_for, **kwargs)
-
-
-def template_exists(template):
-    return os.path.exists(os.path.join(current_app.jinja_loader.searchpath[0], template))
-
-
-def update_html(html, pairs):
-    for id, value in pairs.items():
-        i = html.find(id)
-        start = i + 1 + html[i:].find('>')
-        length = html[start:].find('<')
-        html = html[:start] + value + html[start + length:]
-    return html
-
-
-def get_elements_from_html(html, ids):
-    result = {}
-    for id in force_list(ids):
-        i = html.find(id)
-        if i >= 0:
-            start = i + 1 + html[i:].find('>')
-            length = html[start:].find('<')
-            result[id] = html[start: start + length]
-    return result
-
-
-def line_break(text, line_break_character=None):
-    br = '<br/>'
-    if type(text) is list:
-        res = br.join(text)
-    else:
-        res = text.replace(line_break_character, br)
-    return res
-
-
 class MultiCheckboxField(SelectMultipleField):
     widget = ListWidget(prefix_label=False)
     option_widget = CheckboxInput()
