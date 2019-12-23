@@ -46,7 +46,7 @@ class Extracts:
         ]
         display_fields = ['number', 'status', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'dues',
-                          'age', 'use email', 'email', 'email bounced', 'first name', 'last name']
+                          'age', 'use email', 'email', 'email bounced', 'junior email', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
@@ -63,10 +63,10 @@ class Extracts:
             ('Member', 'birth_date', month, '=', 'month'),
             # ('Member', 'age_next_birthday', 16, '<', None)
         ]
-        display_fields = ['number', 'full name', 'address (line 1)', 'address (line 2)',
-                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
-                          'email', 'home phone', 'mobile phone', 'birth date', 'age next bday', 'first name',
-                          'last name']
+        display_fields = ['number', 'full name', 'address (line 1)', 'address (line 2)', 'address (line 3)',
+                          'city', 'county', 'state', 'post code', 'country for post', 'use email',
+                          'email', 'junior email', 'home phone', 'mobile phone', 'birth date', 'age next bday',
+                          'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod

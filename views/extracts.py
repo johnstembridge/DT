@@ -96,7 +96,7 @@ def extracts_show():
 
 @app.route('/extracts/extract', methods=['GET', 'POST'])
 @login_required
-@role_required('admin')
+@role_required('extract')
 def extracts_extract():
     return return_csv_file(Query.extract(), 'extract.csv')
 
