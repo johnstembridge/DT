@@ -110,6 +110,20 @@ def member_etl(rec):
     return member
 
 
+def address_etl(rec):
+    address = Address(
+        line_1=rec['Address Line 1'],
+        line_2=rec['Address Line 2'],
+        line_3=rec['Address Line 3'],
+        city=rec['City'],
+        county=rec['County'],
+        state=rec['State/Province'],
+        post_code=rec['ZIP/Post Code'],
+        country=rec['Country Name']
+    )
+    return address
+
+
 status_etl = {
     'LIF': MemberStatus.life,
     'JLF': MemberStatus.life,
@@ -186,59 +200,27 @@ def external_access_etl(rec):
             return ExternalAccess.AFCW
 
 
-def address_etl(rec):
-    address = Address(
-        line_1=rec['Address Line 1'],
-        line_2=rec['Address Line 2'],
-        line_3=rec['Address Line 3'],
-        city=rec['City'],
-        county=rec['County'],
-        state=rec['State/Province'],
-        post_code=rec['ZIP/Post Code'],
-        country=rec['Country Name']
-    )
-    return address
-
-
 def actions_etl(rec):
     actions = []
     card = rec['Card']
+    action = None
     if 'new' in card:
-        action = Action(
-            date=date.today(),
-            action=MemberAction.certificate,
-            status=ActionStatus.open,
-            comment='from import: {}'.format(card)
-        )
-        actions.append(action)
-
-    elif card in ['print', 'resend', 'replacement']:
-        action = Action(
-            date=date.today(),
-            action=MemberAction.card,
-            status=ActionStatus.open,
-            comment='from import: {}'.format(card)
-        )
-        actions.append(action)
-
+        action = Action(action=MemberAction.certificate)
+    if 'replacement' in card:
+        action = Action(action=MemberAction.replacement)
+    if 'print' in card:
+        action = Action(action=MemberAction.card)
+    if 'resend' in card:
+        action = Action(action=MemberAction.resend)
     elif 'send' in card:
-        action = Action(
-            date=date.today(),
-            action=MemberAction.send,
-            status=ActionStatus.open,
-            comment='from import: {}'.format(card)
-        )
-        actions.append(action)
-
+        action = Action(action=MemberAction.send)
     elif 'upgrade' in card:
-        action = Action(
-            date=date.today(),
-            action=MemberAction.upgrade,
-            status=ActionStatus.open,
-            comment='from import: {}'.format(card)
-        )
+        action = Action(action=MemberAction.upgrade)
+    if action:
+        action.date = date.today()
+        action.status = ActionStatus.open
+        action.comment = 'from import: {}'.format(card)
         actions.append(action)
-
     return actions
 
 

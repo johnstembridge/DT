@@ -14,7 +14,7 @@ class Extracts:
                 'county', 'state', 'post_code', 'country', 'address', 'cert_date', 'upgrade']
         query_clauses = [
             ('Action', 'status', ActionStatus.open.value, '=', None),
-            ('Action', 'action', [MemberAction.certificate.value, MemberAction.upgrade.value], 'in', None)
+            ('Action', 'action', [MemberAction.certificate.value, MemberAction.upgrade.value, MemberAction.replacement.value], 'in', None)
         ]
         display_fields = ['number', 'status', 'type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
@@ -29,7 +29,7 @@ class Extracts:
                 'state', 'post_code', 'country', 'recent_new', 'bounced_email']
         query_clauses = [
             ('Action', 'status', ActionStatus.open.value, '=', None),
-            ('Action', 'action', MemberAction.card.value, '=', None)
+            ('Action', 'action', [MemberAction.card.value, MemberAction.resend.value], 'in', None)
         ]
         display_fields = ['number', 'status', 'type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'recent new',
