@@ -49,7 +49,7 @@ def status_choices():
     return choices
 
 
-def limit_status_by_access(query_clauses):
+def limit_status_and_lapsed_date_by_access(query_clauses):
     access = current_user.role.access
     if access != 'all':
         # limit inclusion of lapsed members according to current user's access rights
@@ -58,10 +58,16 @@ def limit_status_by_access(query_clauses):
             limit = current_user.access_limit()
             query_clauses.append(('Member', 'status', limit, '<=', None))
         if 'lapsed 1yr+' not in access:
-            today = date.today()
-            last_lapse_date = date(year=(today.year - 1 if today.month >= 8 else 2), month=8, day=1)
+            last_lapse_date = get_1yr_lapsed_date()
             query_clauses.append(('Member', 'end_date', fmt_date(last_lapse_date), '>=', None))
     return query_clauses
+
+
+def get_1yr_lapsed_date(as_of=None):
+    if not as_of:
+        as_of = date.today()
+    last_lapse_date = date(year=(as_of.year - (1 if as_of.month >= 8 else 2)), month=8, day=1)
+    return last_lapse_date
 
 
 def select_fields_to_query(select_fields, default_table):
@@ -89,7 +95,7 @@ def select_fields_to_query(select_fields, default_table):
                 else:
                     table, column = default_table, field_name
                 query_clauses.append((table, column, value, condition, func))
-    query_clauses = limit_status_by_access(query_clauses)
+    query_clauses = limit_status_and_lapsed_date_by_access(query_clauses)
     return query_clauses
 
 
