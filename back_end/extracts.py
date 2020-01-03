@@ -96,7 +96,7 @@ class Extracts:
     def extract_cards_all():
         # annual replacement cards for printers
         query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)]
-        display_fields = ['next membership type', 'number', 'full name', 'card start year']
+        display_fields = ['next member type', 'number', 'full name', 'card start year']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod

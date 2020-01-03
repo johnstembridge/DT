@@ -1,15 +1,13 @@
-from flask import flash, url_for, current_app
+from flask import flash
 from flask_login import current_user
 from wtforms import SelectField, StringField, ValidationError, SelectMultipleField
 from wtforms.widgets import ListWidget, CheckboxInput
 from datetime import date, datetime
-import os
 import pickle
 from collections import OrderedDict
 
-from back_end.data_utilities import force_list, first_or_default, last_or_default, fmt_date, remove
-from globals import config
-from globals.enumerations import UserRole, MemberStatus
+from back_end.data_utilities import first_or_default, last_or_default, fmt_date, remove
+from globals.enumerations import MemberStatus
 
 
 class MyStringField(StringField):
