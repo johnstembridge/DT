@@ -6,7 +6,7 @@ import io, csv
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
-from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country
+from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
 from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, encode_date_formal
 from back_end.file_access import file_delimiter
 
@@ -75,9 +75,11 @@ def get_members_by_name(name):
 
 def get_members_for_query(query_clauses, default_table='Member', limit=None):
     clauses = []
-    tables = unique([globals()[t[0]] for t in [[default_table]] + query_clauses])
+    tables = get_tables_for_query(default_table, query_clauses)
     for field in query_clauses:
-        table, column, value, condition, func = field
+        if len(field) == 5:
+            field = field + (default_table,)
+        table, column, value, condition, func, field_name = field
         type, values = field_type(table, column)
         table = class_name_to_table_name(table)
         if type == 'string':
@@ -105,6 +107,7 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
             s = s.replace('[', '(').replace(']', ')')
         clauses.append(s)
     q = db_session.query(tables[0])
+
     for table in tables[1:]:
         q = q.join(table)
     if len(clauses) > 0:
@@ -113,6 +116,17 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
     if limit:
         q = q.limit(limit)
     return q
+
+
+def get_tables_for_query(default_table, query_clauses):
+    # find all tables required for a query defined by query_clauses
+    tables = unique([default_table] + [q[0] for q in query_clauses])
+    # Address is also needed if any second level table is required
+    second_level = ['Country', 'County', 'State']
+    if ('Address' not in tables) and len([t for t in tables if t in second_level]) > 0:
+        tables = [tables[0]] + ['Address'] + tables[1:]
+    tables = [globals()[t] for t in tables]
+    return tables
 
 
 def save_member(member):
@@ -262,8 +276,58 @@ def save_user(user):
 # endregion
 
 
-def get_countries():
-    return db_session.query(Country.code, Country.name).all()
+# region Addresses
+def country_choices(blank=False, extra=None):
+    countries = db_session.query(Country.id, Country.code, Country.name).order_by(Country.name).all()
+    ret = [(c.id, c.name) for c in countries]
+    if extra:
+        ret = extra + ret
+    if blank:
+        ret = [(0, '')] + ret
+    return ret
+
+
+def county_choices(blank=False, extra=None):
+    counties = db_session.query(County.id, County.name).order_by(County.name).all()
+    ret = [(c.id, c.name) for c in counties]
+    if extra:
+        ret = extra + ret
+    if blank:
+        ret = [(0, '')] + ret
+    return ret
+
+
+def state_choices(blank=False, extra=None):
+    states = db_session.query(State.id, State.code, State.name).order_by(State.name).all()
+    ret = [(c.id, c.name) for c in states]
+    if extra:
+        ret = extra + ret
+    if blank:
+        ret = [(0, '')] + ret
+    return ret
+
+
+def get_new_address():
+    uk = db_session.query(Country).filter(Country.code == 'UK').first()
+    return Address(country = uk)
+
+
+def get_country(id):
+    return db_session.query(Country).filter(Country.id == id).first()
+
+
+def get_county(id):
+    if id == 0:
+        return None
+    return db_session.query(County).filter(Country.id == id).first()
+
+
+def get_state(id):
+    if id == 0:
+        return None
+    return db_session.query(State).filter(State.id == id).first()
+
+# endregion
 
 
 def get_new_action(new_member=False):
@@ -290,10 +354,6 @@ def get_new_payment():
     )
 
 
-def get_new_address():
-    return Address()
-
-
 def get_attr(obj, spec):
     # extract data for attr spec from extract_fields_map
     if '=' == first_or_default(spec, ' '):
@@ -317,6 +377,8 @@ def get_attr(obj, spec):
 def class_name_to_table_name(name):
     if name.lower() == 'address':
         name = name + 'e'
+    if name.lower() in ['county', 'country']:
+        name = name[:-1] + 'ie'
     return name.lower() + 's'
 
 

@@ -31,9 +31,9 @@ class TestEtl(unittest.TestCase):
         process_etl_file(in_file, out_file, user_etl)
 
     def test_etl_db(self):
-        self.test_country_etl_db()
         self.test_county_etl_db()
         self.test_state_etl_db()
+        self.test_country_etl_db()
         self.test_member_etl_db()
         self.test_payment_etl_db()
         self.test_donation_etl_db()

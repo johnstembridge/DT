@@ -4,11 +4,13 @@ from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
 
 from back_end.interface import get_new_member, get_member, save_member_details, get_new_comment, get_new_payment, \
-    get_members_by_name, get_new_action, get_countries
+    get_members_by_name, get_new_action, country_choices, county_choices, state_choices, get_country, get_county, \
+    get_state
 from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
     ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess
 from back_end.data_utilities import fmt_date
+
 
 class PaymentItemForm(FlaskForm):
     date = DateField(label='Date')
@@ -41,8 +43,10 @@ class MemberDetailsForm(FlaskForm):
     end_date = DateField(label='End')
     birth_date = DateField(label='Birth', validators=[Optional()])
     age = HiddenField(label='Age')
-    payment_method = MySelectField(label='Current payment method', choices=PaymentMethod.choices(blank=True), coerce=PaymentMethod.coerce)
-    external_access = MySelectField(label='External access', choices=ExternalAccess.choices(), coerce=ExternalAccess.coerce)
+    payment_method = MySelectField(label='Current payment method', choices=PaymentMethod.choices(blank=True),
+                                   coerce=PaymentMethod.coerce)
+    external_access = MySelectField(label='External access', choices=ExternalAccess.choices(),
+                                    coerce=ExternalAccess.coerce)
     last_updated = StringField(label='Last Update')
 
     title = MySelectField(label='Title', choices=Title.choices(blank=True), coerce=Title.coerce)
@@ -54,11 +58,10 @@ class MemberDetailsForm(FlaskForm):
     line2 = StringField(label='Address line 2')
     line3 = StringField(label='Address line 3')
     city = StringField(label='City')
-    state = StringField(label='State')
+    state = MySelectField(label='State', choices=state_choices(blank=True), coerce=int)
     post_code = StringField(label='Post Code')
-    county = StringField(label='County')
-    country = StringField(label='Country')
-    #country = MySelectField(label='Country', choices=get_countries())
+    county = MySelectField(label='County', choices=county_choices(blank=True), coerce=int)
+    country = MySelectField(label='Country', choices=country_choices(), coerce=int)
 
     home_phone = StringField(label='Home Phone')
     mobile_phone = StringField(label='Mobile')
@@ -106,10 +109,10 @@ class MemberDetailsForm(FlaskForm):
         self.line2.data = address.line_2
         self.line3.data = address.line_3
         self.city.data = address.city
-        self.state.data = address.state
+        self.state.data = address.state.id if address.state else 0
         self.post_code.data = address.post_code
-        self.county.data = address.county
-        self.country.data = address.country
+        self.county.data = address.county.id if address.county else 0
+        self.country.data = address.country.id
 
         self.home_phone.data = member.home_phone
         self.mobile_phone.data = member.mobile_phone
@@ -120,7 +123,7 @@ class MemberDetailsForm(FlaskForm):
         for payment in [get_new_payment()] + member.payments:
             item_form = PaymentItemForm()
             item_form.date = payment.date
-            item_form.pay_type = payment.type.value ## nb: don't set the data attribute for select fields in a fieldlist!
+            item_form.pay_type = payment.type.value  ## nb: don't set the data attribute for select fields in a fieldlist!
             item_form.amount = payment.amount
             item_form.method = payment.method.value if payment.method else None
             item_form.comment = payment.comment or ''
@@ -187,10 +190,10 @@ class MemberDetailsForm(FlaskForm):
             'line_2': self.line2.data,
             'line_3': self.line3.data,
             'city': self.city.data,
-            'state': self.state.data,
+            'state': get_state(self.state.data),
             'post_code': self.post_code.data,
-            'county': self.county.data,
-            'country': self.country.data,
+            'county': get_county(self.county.data),
+            'country': get_country(self.country.data),
 
             'payments': [],
             'actions': [],

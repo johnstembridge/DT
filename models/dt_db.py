@@ -53,10 +53,14 @@ class Address(Base):
     line_2 = Column(String(50))
     line_3 = Column(String(50))
     city = Column(String(30))
-    county = Column(String(20))
-    state = Column(String(10))
+    county_id = Column(Integer, ForeignKey('counties.id'), nullable=True)
+    county = relationship('County', back_populates='addresses')
+    state_id = Column(Integer, ForeignKey('states.id'), nullable=True)
+    state = relationship('State', back_populates='addresses')
     post_code = Column(String(20))
-    country = Column(String(25))
+    country_id = Column(Integer, ForeignKey('countries.id'), nullable=False)
+    country = relationship('Country', back_populates='addresses')
+
     members = relationship('Member', back_populates='address')
 
     dict_fields = ['line_1', 'line_2', 'line_3', 'city', 'county', 'state', 'post_code', 'country']
@@ -75,7 +79,7 @@ class Address(Base):
                 setattr(self, field, value)
 
     def country_for_mail(self):
-        return self.country if self.country not in ['UK', 'United Kingdom'] else ''
+        return self.country.name if self.country.code != 'UK' else ''
 
     def full(self):
         return ', '.join(
@@ -84,8 +88,8 @@ class Address(Base):
               self.line_2,
               self.line_3,
               self.city,
-              self.county,
-              self.state,
+              self.county.name if self.county else '',
+              self.state.code if self.state else '',
               self.post_code,
               self.country_for_mail()
               ]
@@ -444,6 +448,10 @@ class Country(Base):
     id = Column(Integer, primary_key=True)
     code = Column(String(5), nullable=False)
     name = Column(String(50), nullable=False)
+    addresses = relationship("Address", back_populates="country")
+
+    def is_uk(self):
+        return self.code == 'UK'
 
     def __repr__(self):
         return '<Country {}>'.format(self.code, self.name)
@@ -453,6 +461,7 @@ class County(Base):
     __tablename__ = 'counties'
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
+    addresses = relationship("Address", back_populates="county")
 
     def __repr__(self):
         return '<County {}>'.format(self.name)
@@ -463,6 +472,7 @@ class State(Base):
     id = Column(Integer, primary_key=True)
     code = Column(String(5), nullable=False)
     name = Column(String(50), nullable=False)
+    addresses = relationship("Address", back_populates="state")
 
     def __repr__(self):
         return '<State {}: {}>'.format(self.code, self.name)

@@ -124,6 +124,7 @@ def current_year():
 
 # region lists
 def unique(item_list):
+    # retains order
     res = []
     for item in item_list:
         if item not in res:

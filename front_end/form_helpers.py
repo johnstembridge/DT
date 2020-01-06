@@ -54,10 +54,10 @@ def limit_status_and_lapsed_date_by_access(query_clauses):
         sel_status = [c for c in query_clauses if c[0] == 'Member' and c[1] == 'status']
         if not sel_status:
             limit = current_user.access_limit()
-            query_clauses.append(('Member', 'status', limit, '<=', None))
+            query_clauses.append(('Member', 'status', limit, '<=', None, 'sel_status'))
         if 'lapsed 1yr+' not in access:
             last_lapse_date = get_1yr_lapsed_date()
-            query_clauses.append(('Member', 'end_date', fmt_date(last_lapse_date), '>=', None))
+            query_clauses.append(('Member', 'end_date', fmt_date(last_lapse_date), '>=', None, 'sel_end_date'))
     return query_clauses
 
 
@@ -90,9 +90,11 @@ def select_fields_to_query(select_fields, default_table):
                         table, column = a
                     if len(a) == 3:
                         table, column, func = a
+                        if '()' not in func:
+                            table, column, func = column, func, None
                 else:
                     table, column = default_table, field_name
-                query_clauses.append((table, column, value, condition, func))
+                query_clauses.append((table, column, value, condition, func, field.name))
     query_clauses = limit_status_and_lapsed_date_by_access(query_clauses)
     return query_clauses
 
@@ -100,10 +102,10 @@ def select_fields_to_query(select_fields, default_table):
 def query_to_select_fields(select_fields, query_clauses):
     fields = {f.name: f for f in select_fields}
     for clause in query_clauses:
-        table, column, value, condition, func = clause
+        table, column, value, condition, func, field_name = clause
         if condition == '=':
             condition = ''
-        field = fields['sel_' + column]
+        field = fields[field_name]
         if field.type == 'MySelectField':
             choice = [f[1] for f in field.choices if f[0] == value][0]
             if condition != '':
@@ -149,7 +151,7 @@ extract_fields_map = OrderedDict([
     ('last name', 'last_name'),
     ('sex', 'sex.name'),
     ('status', 'status.name'),
-    ('type', 'member_type.name'),
+    ('member type', 'member_type.name'),
     ('start', 'start_date'),
     ('end', 'end_date'),
     ('birth date', 'birth_date'),
@@ -167,10 +169,10 @@ extract_fields_map = OrderedDict([
     ('address (line 2)', 'address.line_2'),
     ('address (line 3)', 'address.line_3'),
     ('city', 'address.city'),
-    ('county', 'address.county'),
-    ('state', 'address.state'),
+    ('county', 'address.county.name'),
+    ('state', 'address.state.code'),
     ('post code', 'address.post_code'),
-    ('country', 'address.country'),
+    ('country', 'address.country.name'),
     ('country for post', 'address.country_for_mail()'),
     ('action', 'actions[].action.name'),
     ('action date', 'actions[].date'),
@@ -203,7 +205,7 @@ def validate_date_format(form, field):
 
 def split_condition_and_value(value):
     if '(' in value:
-        value = remove(value[value.find('('):], '() ')
+        value = remove(value[value.find('('):], '()')
     if len(value) > 0 and value[0] in [c[0] for c in ['!=', '=', '>', '>=', '<', '<=', '?']]:
         c = 1
         if value[1] == '=':

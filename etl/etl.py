@@ -78,6 +78,20 @@ def state_etl(rec):
     return state
 
 
+def address_etl(rec):
+    address = Address(
+        line_1=rec['Address Line 1'],
+        line_2=rec['Address Line 2'],
+        line_3=rec['Address Line 3'],
+        city=rec['City'],
+        county_id=get_county_id(rec['County']),
+        state_id=get_state_id(rec['State/Province']),
+        post_code=rec['ZIP/Post Code'],
+        country_id=get_country_id(rec['Country Code'])
+    )
+    return address
+
+
 def member_etl(rec):
     member = Member(
         number=int(rec['Member ID'][2:]),  # drop "0-"
@@ -108,20 +122,6 @@ def member_etl(rec):
             gift=junior_gift_etl[rec['Junior Gift']] if rec['Junior Gift'] != '' else None
         )
     return member
-
-
-def address_etl(rec):
-    address = Address(
-        line_1=rec['Address Line 1'],
-        line_2=rec['Address Line 2'],
-        line_3=rec['Address Line 3'],
-        city=rec['City'],
-        county=rec['County'],
-        state=rec['State/Province'],
-        post_code=rec['ZIP/Post Code'],
-        country=rec['Country Name']
-    )
-    return address
 
 
 status_etl = {
@@ -322,3 +322,26 @@ def save_object(objects):
 
 def get_member_id(member_number):
     return db_session.query(Member).filter(Member.number == member_number).first().id
+
+
+def get_country_id(country_code):
+    country = db_session.query(Country).filter(Country.code == country_code).first()
+    if country:
+        return country.id
+    return None
+
+
+def get_county_id(county_name):
+    if county_name != '':
+        county = db_session.query(County).filter(County.name == county_name).first()
+        if county:
+            return county.id
+    return None
+
+
+def get_state_id(state_code):
+    if state_code != '':
+        state = db_session.query(State).filter(State.code == state_code).first()
+        if state:
+            return state.id
+    return None

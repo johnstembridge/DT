@@ -4,6 +4,7 @@ import calendar
 
 from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, select_fields_to_update, \
     status_choices, validate_date_format, MultiCheckboxField, extract_fields_map
+from back_end.interface import country_choices
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, CommsType, MemberAction, ActionStatus
 
 
@@ -18,7 +19,9 @@ class QueryForm(FlaskForm):
     start_date = MyStringField(label='start date', db_map='Member.start_date', validators=[validate_date_format])
     end_date = MyStringField('end date', db_map='Member.end_date', validators=[validate_date_format])
     post_code = MyStringField(label='post code', db_map='Address.post_code')
-    country = MyStringField(label='country', db_map='Address.country')
+    country = MySelectField(label='country',
+                            choices=country_choices(blank=True, extra=[(9999, 'overseas (!=United Kingdom)')]),
+                            coerce=int, db_map='Address.Country.id')
     payment_method = MySelectField(label='payment method', choices=PaymentMethod.choices(blank=True),
                                    coerce=PaymentMethod.coerce, db_map='Member.last_payment_method')
     comms = MySelectField(label='comms', choices=CommsType.choices(blank=True), coerce=CommsType.coerce,
