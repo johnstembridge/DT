@@ -30,6 +30,13 @@ def edit_or_view_member(member_number):
     return MaintainMembers.edit_or_view_member(member_number)
 
 
+@app.route('/members/<int:member_number>/copy', methods=['GET', 'POST'])
+@login_required
+@role_required('afcw')
+def copy_member(member_number):
+    return MaintainMembers.copy_member(member_number)
+
+
 @app.route('/members_area', methods=['GET', 'POST'])
 @login_required
 @role_required('member')

@@ -5,7 +5,7 @@ from wtforms.fields.html5 import DateField
 
 from back_end.interface import get_new_member, get_member, save_member_details, get_new_comment, get_new_payment, \
     get_members_by_name, get_new_action, country_choices, county_choices, state_choices, get_country, get_county, \
-    get_state
+    get_state, get_junior
 from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
     ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess
@@ -78,15 +78,20 @@ class MemberDetailsForm(FlaskForm):
     jd_email = StringField(label='JD Email ', validators=[Optional(), Email("Invalid email address")])
     jd_gift = MySelectField(label='JD Gift', choices=JuniorGift.choices(blank=True), coerce=JuniorGift.coerce)
 
-    def populate_member(self, member_number, return_url):
+    def populate_member(self, member_number, return_url, copy=False):
         self.return_url.data = return_url
         new_member = member_number == 0
         if new_member:
             member = get_new_member()
         else:
             member = get_member(member_number)
+        if copy:
+            new_member = True
+            member.number = 0
+            member.first_name = 'new'
+            member.payments = member.comments = member.actions = []
         address = member.address
-        self.member_number = member_number
+        self.member_number = member.number
         self.dt_number.data = member.dt_number()
         self.status.data = member.status.value
         self.type.data = member.member_type.value
@@ -146,6 +151,8 @@ class MemberDetailsForm(FlaskForm):
             self.comment_list.append_entry(item_form)
 
         if new_member or member.member_type == MembershipType.junior:
+            if not member.junior:
+                member.junior = get_junior()
             self.jd_email.data = member.junior.email or ''
             self.jd_gift.data = member.junior.gift.value if member.junior.gift else ''
         else:

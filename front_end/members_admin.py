@@ -54,3 +54,19 @@ class MaintainMembers:
         if not form.is_submitted():
             form.populate_member(member_number, request.referrer)
         return render_template('member_details.html', form=form, render_link=render_link)
+
+    @staticmethod
+    def copy_member(member_number):
+        form = MemberDetailsForm()
+        if form.validate_on_submit():
+            if form.submit.data:
+                member_number = 0
+                member = form.save_member(member_number)
+                if member:
+                    flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'), 'success')
+                    return redirect(form.return_url.data)
+        elif form.errors:
+            flash_errors(form)
+        if not form.is_submitted():
+            form.populate_member(member_number, request.referrer, copy=True)
+        return render_template('member_details.html', form=form, render_link=render_link)

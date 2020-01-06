@@ -60,6 +60,10 @@ def get_new_member():
     return member
 
 
+def get_junior():
+    return Junior()
+
+
 def get_members_by_name(name):
     name = name.split(' ')
     if len(name) == 2:
