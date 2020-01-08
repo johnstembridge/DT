@@ -4,6 +4,21 @@
 {% block page_content %}
 <div class="page-header">
     <h1>Dons Trust admin home</h1>
+    <h3>Membership</h3>
+    <table>
+        <tr><td>{{ form.total.label }}</td><td>{{ form.total.data }}</td></tr>
+        <tr><td>{{ form.adults.label }}</td><td>{{ form.adults.data }} (life {{ form.life_adults.data }})</td></tr>
+        <tr><td>{{ form.concessions.label }}</td><td>{{ form.concessions.data }}</td></tr>
+            <tr><td></td><td></td><td>{{ form.seniors.label }}</td><td>{{ form.seniors.data }}</td></tr>
+            <tr><td></td><td></td><td>{{ form.students.label }}</td><td>{{ form.students.data }}</td></tr>
+            <tr><td></td><td></td><td>{{ form.job_seekers.label }}</td><td>{{ form.job_seekers.data }}</td></tr>
+            <tr><td></td><td></td><td>{{ form.incapacity.label }}</td><td>{{ form.incapacity.data }}</td></tr>
+            <tr><td></td><td></td><td>{{ form.honorary.label }}</td><td>{{ form.honorary.data }}</td></tr>
+            <tr><td></td><td></td><td>{{ form.others.label }}</td><td>{{ form.others.data }}</td></tr>
+        <tr><td>{{ form.young_adults.label }}</td><td>{{ form.young_adults.data }}</td></tr>
+        <tr><td>{{ form.juniors.label }}</td><td>{{ form.juniors.data }} (life {{ form.life_juniors.data }})</td></tr>
+<!--        <tr><td>{{ form.actions.label }}</td><td>{{ form.actions.data }}</td></tr>-->
+    </table>
 
 </div>
 {% endblock %}
