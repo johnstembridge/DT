@@ -378,7 +378,7 @@ class User(Base, UserMixin):
             return MemberStatus.lapsed.value
         return MemberStatus.current.value
 
-    def has_write_access(self, required_role):
+    def has_write_access(self):
         return self.role.write
 
     def set_password(self, password):
