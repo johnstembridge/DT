@@ -303,7 +303,7 @@ def county_choices(blank=False, extra=None):
 
 def state_choices(blank=False, extra=None):
     states = db_session.query(State.id, State.code, State.name).order_by(State.name).all()
-    ret = [(c.id, c.name) for c in states]
+    ret = [(c.id, c.code + '-' + c.name) for c in states]
     if extra:
         ret = extra + ret
     if blank:
