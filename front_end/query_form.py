@@ -27,8 +27,8 @@ class QueryForm(FlaskForm):
     comms = MySelectField(label='comms', choices=CommsType.choices(blank=True), coerce=CommsType.coerce,
                           db_map='Member.comms')
     birth_month = MySelectField(label='birth month', choices=[(0, '')] + months, coerce=int,
-                                db_map='Member.birth_date.month')
-    age = MyStringField(label='age', db_map='Member.birth_date.age')
+                                db_map='Member.birth_date.birth_month()')
+    age = MyStringField(label='age', db_map='Member.birth_date.age()')
     current_action = MySelectField(label='current action', choices=MemberAction.choices(blank=True),
                                    coerce=MemberAction.coerce, db_map='Action.action')
     action_status = MySelectField(label='action status', choices=ActionStatus.choices(blank=True),
@@ -43,7 +43,7 @@ class QueryForm(FlaskForm):
     email = MyStringField(label='email', db_map='Member.email')
 
     query_clauses = HiddenField(label='query')
-    display_fields = MultiCheckboxField(label='fields to show ...',
+    display_fields = MultiCheckboxField(label='fields to extract ...',
                                         choices=list(enumerate(extract_fields_map)))
     submit = SubmitField(label='Submit')
 

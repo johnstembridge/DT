@@ -1,6 +1,7 @@
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import jwt
+import calendar
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime, Enum
@@ -263,6 +264,9 @@ class Member(Base):
         if leap and next_birthday.year % 4 == 0:
             next_birthday = next_birthday.replace(day=29)
         return next_birthday
+
+    def birth_month(self):
+        return calendar.month_name[self.birth_date.month]
 
     def age(self, as_of=None, default=False):
         if self.birth_date:

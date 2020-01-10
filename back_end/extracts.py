@@ -60,7 +60,7 @@ class Extracts:
         query_clauses = [
             ('Member', 'member_type', MembershipType.junior.value, '=', None),
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
-            ('Member', 'birth_date', month, '=', 'month'),
+            ('Member', 'birth_date', month, '=', 'birth_month()'),
             # ('Member', 'age_next_birthday', 16, '<', None)
         ]
         display_fields = ['number', 'full name', 'address (line 1)', 'address (line 2)', 'address (line 3)',
@@ -112,7 +112,7 @@ class Extracts:
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = \
-            ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
+            ['number', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
              'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
              'dues', 'payment method', 'birth date', 'email', 'use email', 'AFCW access', '3rd pty access',
              'home phone', 'mobile phone', 'junior email', 'volatile concession', 'first name', 'last name']

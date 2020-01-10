@@ -97,9 +97,9 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
             if not func:
                 date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
                 s = '{}.{} {} "{}"'.format(table, column, condition, date)
-            if func == 'month':
+            if func == 'birth_month()':
                 s = 'strftime("%m", {}.{}){} "{:02}"'.format(table, column, condition, value)
-            if func == 'age':
+            if func == 'age()':
                 if '>' in condition:
                     condition = condition.replace('>', '<')
                 elif '<' in condition:
