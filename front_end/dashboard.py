@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from globals.enumerations import MemberStatus, MembershipType
+from globals.enumerations import MemberStatus, MembershipType, PaymentMethod
 from back_end.interface import get_members_for_query
 
 
@@ -16,16 +16,21 @@ class Dashboard(FlaskForm):
     incapacity = StringField(label='Incapacity')
     others = StringField(label='Others')
     honorary = StringField(label='Honorary')
-
     young_adults = StringField(label='Young Adults')
     juniors = StringField(label='Juniors')
+
+    cash = StringField(label='Cash')
+    chq = StringField(label='Cheque')
+    cc = StringField(label='Credit Card')
+    dd = StringField(label='Direct Debit')
+    other_payment = StringField(label='Other')
 
     actions = StringField(label='Outstanding actions')
 
     def populate(self):
         query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),]
         query = get_members_for_query(query_clauses)
-        totals = {
+        member_totals = {
             MembershipType.standard: 0,
             MembershipType.senior: 0,
             MembershipType.student: 0,
@@ -38,32 +43,53 @@ class Dashboard(FlaskForm):
             100: 0,
             101: 0
         }
+        payment_totals = {
+            PaymentMethod.cash: 0,
+            PaymentMethod.chq: 0,
+            PaymentMethod.cc: 0,
+            PaymentMethod.dd: 0,
+            100: 0
+        }
 
-        def add_member(member, totals):
-            totals[member.member_type] += 1
+        def add_member(member, member_totals):
+            member_totals[member.member_type] += 1
             if member.status == MemberStatus.life:
                 if member.member_type == MembershipType.junior:
-                    totals[101] += 1
+                    member_totals[101] += 1
                 else:
-                    totals[100] += 1
+                    member_totals[100] += 1
+            return
+
+        def add_payment(member, payment_totals):
+            if member.last_payment_method:
+                payment_totals[member.last_payment_method] += 1
+            else:
+                payment_totals[PaymentMethod.chq] += 1
             return
 
         for member in query.all():
-            add_member(member, totals)
+            add_member(member, member_totals)
+            add_payment(member, payment_totals)
 
-        self.adults.data = totals[MembershipType.standard]
-        self.life_adults.data = totals[100]
-        self.seniors.data = totals[MembershipType.senior]
-        self.students.data = totals[MembershipType.student]
-        self.job_seekers.data = totals[MembershipType.job_seeker]
-        self.incapacity.data = totals[ MembershipType.incapacity]
-        self.honorary.data = totals[MembershipType.honorary]
-        self.others.data = totals[MembershipType.other_concession]
-        self.young_adults.data = totals[MembershipType.intermediate]
-        self.juniors.data = totals[MembershipType.junior]
-        self.life_juniors.data = totals[101]
+        self.adults.data = member_totals[MembershipType.standard]
+        self.life_adults.data = member_totals[100]
+        self.seniors.data = member_totals[MembershipType.senior]
+        self.students.data = member_totals[MembershipType.student]
+        self.job_seekers.data = member_totals[MembershipType.job_seeker]
+        self.incapacity.data = member_totals[ MembershipType.incapacity]
+        self.honorary.data = member_totals[MembershipType.honorary]
+        self.others.data = member_totals[MembershipType.other_concession]
+        self.young_adults.data = member_totals[MembershipType.intermediate]
+        self.juniors.data = member_totals[MembershipType.junior]
+        self.life_juniors.data = member_totals[101]
 
         self.concessions.data = self.seniors.data + self.students.data + self.job_seekers.data + self.incapacity.data + self.honorary.data + self.others.data
         self.total.data = self.adults.data + self.concessions.data + self.young_adults.data + self.juniors.data
+
+        self.cash.data = payment_totals[PaymentMethod.cash]
+        self.chq.data = payment_totals[PaymentMethod.chq]
+        self.cc.data = payment_totals[PaymentMethod.cc]
+        self.dd.data = payment_totals[PaymentMethod.dd]
+        self.other_payment.data = payment_totals[100]
 
         self.actions.data = 0
