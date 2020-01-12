@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField
-from globals.enumerations import MemberStatus, MembershipType, PaymentMethod
+from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, MemberAction
 from back_end.interface import get_members_for_query
 
 
@@ -25,7 +25,9 @@ class Dashboard(FlaskForm):
     dd = StringField(label='Direct Debit')
     other_payment = StringField(label='Other')
 
-    actions = StringField(label='Outstanding actions')
+    cert = StringField(label='New membership packs')
+    card = StringField(label='Renewal cards')
+    other_action = StringField(label='Other')
 
     def populate(self):
         query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),]
@@ -50,6 +52,11 @@ class Dashboard(FlaskForm):
             PaymentMethod.dd: 0,
             100: 0
         }
+        action_totals = {
+            MemberAction.certificate: 0,
+            MemberAction.card: 0,
+            MemberAction.other: 0
+        }
 
         def add_member(member, member_totals):
             member_totals[member.member_type] += 1
@@ -67,9 +74,21 @@ class Dashboard(FlaskForm):
                 payment_totals[PaymentMethod.chq] += 1
             return
 
+        def add_action(member, action_totals):
+            action = member.current_action()
+            if action:
+                if action.action in MemberAction.send_cards():
+                    action_totals[MemberAction.card] += 1
+                elif action.action in MemberAction.send_certificates():
+                    action_totals[MemberAction.certificate] += 1
+                else:
+                    action_totals[MemberAction.other] += 1
+            return
+
         for member in query.all():
             add_member(member, member_totals)
             add_payment(member, payment_totals)
+            add_action(member, action_totals)
 
         self.adults.data = member_totals[MembershipType.standard]
         self.life_adults.data = member_totals[100]
@@ -92,4 +111,6 @@ class Dashboard(FlaskForm):
         self.dd.data = payment_totals[PaymentMethod.dd]
         self.other_payment.data = payment_totals[100]
 
-        self.actions.data = 0
+        self.cert.data = action_totals[MemberAction.certificate]
+        self.card.data = action_totals[MemberAction.card]
+        self.other_action.data = action_totals[MemberAction.other]

@@ -5,8 +5,10 @@
 <div class="page-header">
     <h1>Dons Trust admin home</h1>
     <div class="table-responsive col-md-4">
-        <h3>Membership</h3>
         <table>
+            <tr>
+                <td colspan="4"><h3>Membership</h3></td>
+            </tr>
             <tr>
                 <td>{{ form.total.label }}</td>
                 <td>{{ form.total.data }}</td>
@@ -21,39 +23,39 @@
             </tr>
             <tr>
                 <td></td>
-                <td></td>
                 <td>{{ form.seniors.label }}</td>
                 <td>{{ form.seniors.data }}</td>
+                <td></td>
             </tr>
             <tr>
-                <td></td>
                 <td></td>
                 <td>{{ form.students.label }}</td>
                 <td>{{ form.students.data }}</td>
+                <td></td>
             </tr>
             <tr>
-                <td></td>
                 <td></td>
                 <td>{{ form.job_seekers.label }}</td>
                 <td>{{ form.job_seekers.data }}</td>
+                <td></td>
             </tr>
             <tr>
-                <td></td>
                 <td></td>
                 <td>{{ form.incapacity.label }}</td>
                 <td>{{ form.incapacity.data }}</td>
+                <td></td>
             </tr>
             <tr>
-                <td></td>
                 <td></td>
                 <td>{{ form.honorary.label }}</td>
                 <td>{{ form.honorary.data }}</td>
+                <td></td>
             </tr>
             <tr>
                 <td></td>
-                <td></td>
                 <td>{{ form.others.label }}</td>
                 <td>{{ form.others.data }}</td>
+                <td></td>
             </tr>
             <tr>
                 <td>{{ form.young_adults.label }}</td>
@@ -63,12 +65,13 @@
                 <td>{{ form.juniors.label }}</td>
                 <td>{{ form.juniors.data }} (life {{ form.life_juniors.data }})</td>
             </tr>
-            <!--        <tr><td>{{ form.actions.label }}</td><td>{{ form.actions.data }}</td></tr>-->
         </table>
     </div>
     <div class="table-responsive col-md-4">
-        <h3>Payment</h3>
         <table>
+            <tr>
+                <td colspan="4"><h3>Payment Methods</h3></td>
+            </tr>
             <tr>
                 <td>{{ form.cc.label }}</td>
                 <td>{{ form.cc.data }}</td>
@@ -88,6 +91,21 @@
             <tr>
                 <td>{{ form.other_payment.label }}</td>
                 <td>{{ form.other_payment.data }}</td>
+            </tr>
+            <tr>
+                <td colspan="4"><h3>Actions</h3></td>
+            </tr>
+            <tr>
+                <td>{{ form.cert.label }}</td>
+                <td>{{ form.cert.data }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.card.label }}</td>
+                <td>{{ form.card.data }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.other_action.label }}</td>
+                <td>{{ form.other_action.data }}</td>
             </tr>
         </table>
     </div>

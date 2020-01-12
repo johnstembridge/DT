@@ -15,3 +15,7 @@ def internal_error(e):
     message = getattr(e, 'description', 'unexpected error')
     return render_template('500.html', message=message), 500
 
+
+def csrf_error(e):
+    message = e.description + '\n' + 'please refresh'
+    render_template('csrf_error.html', message=message), 400

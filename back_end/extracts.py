@@ -10,11 +10,9 @@ class Extracts:
     @staticmethod
     def extract_certificates():
         # new member packs
-        head = ['id', 'status', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city',
-                'county', 'state', 'post_code', 'country', 'address', 'cert_date', 'upgrade']
         query_clauses = [
             ('Action', 'status', ActionStatus.open.value, '=', None),
-            ('Action', 'action', [MemberAction.certificate.value, MemberAction.upgrade.value, MemberAction.replacement.value], 'in', None)
+            ('Action', 'action', [a.value for a in MemberAction.send_certificates()], 'in', None)
         ]
         display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
@@ -25,11 +23,9 @@ class Extracts:
     @staticmethod
     def extract_cards():
         # renewal acknowledgement
-        head = ['id', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
-                'state', 'post_code', 'country', 'recent_new', 'bounced_email']
         query_clauses = [
             ('Action', 'status', ActionStatus.open.value, '=', None),
-            ('Action', 'action', [MemberAction.card.value, MemberAction.resend.value], 'in', None)
+            ('Action', 'action', [a.value for a in MemberAction.send_cards()], 'in', None)
         ]
         display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'recent new',
@@ -38,8 +34,6 @@ class Extracts:
 
     @staticmethod
     def extract_juniors():
-        head = ['id', 'status', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county',
-                'state', 'post_code', 'country', 'amount', 'first_name', 'last_name']
         query_clauses = [
             ('Member', 'member_type', MembershipType.junior.value, '=', None),
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
@@ -51,9 +45,6 @@ class Extracts:
 
     @staticmethod
     def extract_junior_birthdays(month=None):
-        head = ['id', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3',
-                'city', 'county', 'state', 'post_code', 'country', 'email', 'home_phone', 'mobile_phone', 'birth_date',
-                'age_next_birthday', 'first_name', 'last_name']
         today = datetime.date.today()
         if not month:
             month = today.month % 12 + 1  # next month
@@ -81,9 +72,6 @@ class Extracts:
 
     @staticmethod
     def extract_comms():
-        head = ['id', 'type', 'first_name', 'last_name', 'use_email', 'email',
-                'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county', 'state', 'post_code', 'country']
-
         query_clauses = [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
@@ -102,10 +90,6 @@ class Extracts:
     @staticmethod
     def extract_renewals():
         # for renewal notices at membership year end
-        head = ['member_id', 'status', 'type', 'fullname', 'address_line_1', 'address_line_2', 'address_line_3', 'city',
-                'county', 'state', 'post_code', 'country', 'amount', 'pay_method', 'birth_date', 'email', 'use_email',
-                'afcw_access', 'third_pty_access', 'home_phone', 'mobile_phone', 'jd_email', 'volatile_concession',
-                'latest_action']
         end_date = fmt_date(datetime.date(datetime.date.today().year + 1, 8, 1))
         query_clauses = [
             ('Member', 'end_date', end_date, '=', None),
@@ -120,8 +104,6 @@ class Extracts:
 
     @staticmethod
     def extract_debits():
-        head = ['id', 'type', 'first_name', 'last_name', 'amount', 'email', 'home_phone', 'mobile_phone',
-                'address_line_1', 'address_line_2', 'address_line_3', 'city', 'county', 'state', 'post_code', 'country']
         end_date = fmt_date(datetime.date(datetime.date.today().year + 1, 8, 1))
         query_clauses = [
             ('Member', 'end_date', end_date, '=', None),

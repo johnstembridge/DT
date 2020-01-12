@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_wtf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
+from flask_wtf.csrf import CSRFError
 #from flask_httpauth import HTTPBasicAuth
 
 from globals.app_setup import init_app
@@ -22,7 +23,7 @@ from views.actions import *
 from views.extracts import *
 from views.help import *
 from views.testing import *
-from views.others import page_not_found, internal_error, unauthorised
+from views.others import page_not_found, internal_error, unauthorised, csrf_error
 from api.endpoints import *
 from api.helpers import wants_json_response, api_error_response
 
@@ -57,6 +58,11 @@ def catch_internal_error(e):
     if wants_json_response():
         return api_error_response(500)
     return internal_error(e)
+
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    return csrf_error
 
 
 if __name__ == '__main__':

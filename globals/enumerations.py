@@ -106,6 +106,14 @@ class MemberAction(FormEnum):
     gift = 7
     other = 8
 
+    @staticmethod
+    def send_certificates():
+        return [MemberAction.certificate, MemberAction.upgrade, MemberAction.replacement]
+
+    @staticmethod
+    def send_cards():
+        return [MemberAction.card, MemberAction.resend]
+
 
 class ActionStatus(FormEnum):
     open = 1

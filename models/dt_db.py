@@ -343,6 +343,13 @@ class Member(Base):
         elif self.member_type == MembershipType.intermediate and age >= 21:
             self.member_type = MembershipType.standard
         return self.member_type
+
+    def current_action(self):
+        current = [a for a in self.actions if a.status == ActionStatus.open]
+        if len(current) > 0:
+            return sorted(current, key=lambda action: action.date, reverse=True)[0]
+        else:
+            return None
         
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())
