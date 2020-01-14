@@ -62,7 +62,7 @@ def catch_internal_error(e):
 
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
-    return csrf_error
+    return csrf_error(e)
 
 
 if __name__ == '__main__':
