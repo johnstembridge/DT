@@ -1,6 +1,8 @@
 <html>
-<h3>Members | Find Members</h3>
-<p>This menu option allows you to quickly find a member</p>
+<h3>Find Members</h3>
+<p>This menu option allows you to quickly find a member.
+    {% if current_user.has_write_access() %} You can also update a member's details.{% endif %}
+</p>
 <ol>
     <li>Go to membership.thedonstrust.org
     <li>Click on "Members"
@@ -29,7 +31,10 @@ To find all senior members that live in SW19 who joined after 1st Jan 2010, fill
 <p>
     If more results are found than will fit on the screen, you can use the navigation buttons on the right to flip through "pages".
 </p>
-<h3>View a member's details</h3>
+{% if current_user.has_write_access() %}
+<h3>Add new member</h3>
+{% endif %}
+<h3>View{% if current_user.has_write_access() %}/edit{% endif %} a member's details</h3>
 <p>
     Click on the <img src="/static/images/right-arrow.png"> for a member.
 <br/>This will show the following screen containing the details held for that member.

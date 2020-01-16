@@ -31,10 +31,9 @@ class DTHelp:
 
 class HelpSubjectForm(FlaskForm):
     title = StringField(label='Subject')
-    #text = TextAreaField()
 
     def populate_help(self, subject):
-        self.title.data = subject
+        self.title.data = subject.replace('_', ' ').title()
 
     def save_help(self, subject):
         return ''
