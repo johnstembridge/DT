@@ -4,9 +4,9 @@
 {% block page_content %}
 <div class="page-header">
     <h2>Details for {{ form.dt_number.data }} {{ form.full_name.data }}</h2>
-    {% if current_user.has_write_access() and form.member_number > 0 %}
+    {% if current_user.has_write_access() and form.member_number.data != '0' %}
     <h5 class="right">
-        <a class='button' href="{{ url_for('copy_member', member_number=form.member_number) }}">Copy as new member</a>
+        <a class='button' href="{{ url_for('copy_member', member_number=form.member_number.data) }}">Copy as new member</a>
     </h5>
     {% endif %}
 </div>

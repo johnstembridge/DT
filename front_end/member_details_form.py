@@ -91,7 +91,7 @@ class MemberDetailsForm(FlaskForm):
             member.first_name = 'new'
             member.payments = member.comments = member.actions = []
         address = member.address
-        self.member_number = member.number
+        self.member_number.data = str(member.number)
         self.dt_number.data = member.dt_number()
         self.status.data = member.status.value
         self.type.data = member.member_type.value
@@ -160,7 +160,7 @@ class MemberDetailsForm(FlaskForm):
 
     def validate(self):
         result = True
-        new_member = self.member_number.data == 0
+        new_member = int(self.member_number.data) == 0
         if not super(MemberDetailsForm, self).validate():
             return False
         if new_member:
