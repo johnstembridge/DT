@@ -33,6 +33,14 @@ To find all senior members that live in SW19 who joined after 1st Jan 2010, fill
 </p>
 {% if current_user.has_write_access() %}
 <h3>Add new member</h3>
+<p>Shows a form for entering the new member's details.</p>
+<p>An action is automatically added to create a membership pack.</p>
+<p>Fill in all details, including a payment and comments if necessary (click on Payments or Comments to expand).</p>
+<p>When finished, click the Save button.</p>
+<p>Confirmation of the new member's membership number will be shown.</p>
+
+<img src="/static/images/help/dt_board_add_member.jpg" alt="add member">
+
 {% endif %}
 <h3>View{% if current_user.has_write_access() %}/edit{% endif %} a member's details</h3>
 <p>
