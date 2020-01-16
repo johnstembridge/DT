@@ -26,6 +26,11 @@ class MySelectField(SelectField):
             raise ValueError(self.gettext('Please choose an option'))
 
 
+class MultiCheckboxField(SelectMultipleField):
+    widget = ListWidget(prefix_label=False)
+    option_widget = CheckboxInput()
+
+
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:
@@ -33,6 +38,40 @@ def flash_errors(form):
                 getattr(form, field).name,
                 error
             ), 'danger')
+
+
+def validate_date_format(form, field):
+    if field.data:
+        try:
+            date = split_condition_and_value(field.data)[1]
+            datetime.strptime(date, '%d/%m/%Y').date()
+        except:
+            field.message = 'Date must be in format dd/mm/yyyy'
+            raise ValidationError('Date must be in format dd/mm/yyyy')
+
+
+def render_link(url, text="", image=None, icon=None, target=None):
+    target = ' target="{}"'.format(target) if target else ''
+    if image:
+        return '<a href="{}"{}><img title="{}" src="{}"></a>'.format(url, target, text, image)
+    if icon:
+        if icon.startswith('glyphicon'):
+            icon = '<i class="{}" style="font-size:20px;color:#6E1285"></i>'.format(icon)
+        if icon == 'fa-link':
+            icon = '<i class="fa fa-chevron-circle-right" style="font-size:20px;color:#6E1285"></i>'
+        if icon.startswith('fa-'):
+            icon = '<i class="fa {}" style="font-size:20px;color:#6E1285"></i>'.format(icon)
+        return '<a href="{}"{} title="{}" class="icon-block">{}'.format(url, target, text, icon)
+    if text:
+        return '<a href="{}"{}>{}</a>'.format(url, target, text)
+
+
+def url_pickle_dump(obj):
+    return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL).decode("ISO-8859-1")
+
+
+def url_pickle_load(obj):
+    return pickle.loads(bytes(obj, 'ISO-8859-1'))
 
 
 def status_choices():
@@ -193,16 +232,6 @@ extract_fields_map = OrderedDict([
 ])
 
 
-def validate_date_format(form, field):
-    if field.data:
-        try:
-            date = split_condition_and_value(field.data)[1]
-            datetime.strptime(date, '%d/%m/%Y').date()
-        except:
-            field.message = 'Date must be in format dd/mm/yyyy'
-            raise ValidationError('Date must be in format dd/mm/yyyy')
-
-
 def split_condition_and_value(value):
     if '(' in value:
         value = remove(value[value.find('('):], '()')
@@ -215,32 +244,3 @@ def split_condition_and_value(value):
     else:
         condition = '='
     return condition, value
-
-
-def render_link(url, text="", image=None, icon=None, target=None):
-    target = ' target="{}"'.format(target) if target else ''
-    if image:
-        return '<a href="{}"{}><img title="{}" src="{}"></a>'.format(url, target, text, image)
-    if icon:
-        if icon.startswith('glyphicon'):
-            icon = '<i class="{}" style="font-size:20px;color:#6E1285"></i>'.format(icon)
-        if icon == 'fa-link':
-            icon = '<i class="fa fa-chevron-circle-right" style="font-size:20px;color:#6E1285"></i>'
-        if icon.startswith('fa-'):
-            icon = '<i class="fa {}" style="font-size:20px;color:#6E1285"></i>'.format(icon)
-        return '<a href="{}"{} title="{}" class="icon-block">{}'.format(url, target, text, icon)
-    if text:
-        return '<a href="{}"{}>{}</a>'.format(url, target, text)
-
-
-def url_pickle_dump(obj):
-    return pickle.dumps(obj, protocol=pickle.HIGHEST_PROTOCOL).decode("ISO-8859-1")
-
-
-def url_pickle_load(obj):
-    return pickle.loads(bytes(obj, 'ISO-8859-1'))
-
-
-class MultiCheckboxField(SelectMultipleField):
-    widget = ListWidget(prefix_label=False)
-    option_widget = CheckboxInput()

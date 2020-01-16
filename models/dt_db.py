@@ -133,7 +133,7 @@ class Comment(Base):
     __tablename__ = 'comments'
     id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False)
-    comment = Column(String(250), nullable=True)
+    comment = Column(String(1024), nullable=True)
     member_id = Column(Integer, ForeignKey('members.id'))
     member = relationship('Member', back_populates='comments')
 

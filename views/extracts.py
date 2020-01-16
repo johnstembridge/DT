@@ -80,10 +80,10 @@ def extracts_debits():
     return Extracts.extract_debits()
 
 
-@app.route('/extracts/select', methods=['GET', 'POST'])
+@app.route('/extracts/custom', methods=['GET', 'POST'])
 @login_required
 @role_required('extract')
-def extracts_select():
+def extracts_custom():
     return Query.select(title='Custom extract')
 
 

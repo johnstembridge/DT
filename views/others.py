@@ -17,5 +17,5 @@ def internal_error(e):
 
 
 def csrf_error(e):
-    message = e.description + '\n' + 'please refresh'
-    render_template('csrf_error.html', message=message), 400
+    reason = e.description
+    render_template('csrf_error.html', reason=reason), 400

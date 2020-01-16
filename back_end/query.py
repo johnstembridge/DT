@@ -37,8 +37,8 @@ class Query:
 
     @staticmethod
     def show_found_do(query_clauses, display_fields, page=1):
-        form = ExtractForm()
         query = get_members_for_query(query_clauses)
+        form = ExtractForm()
         page = form.populate_result(clauses=url_pickle_dump(query_clauses), fields=url_pickle_dump(display_fields),
                                     query=query, page_number=page)
         fields = OrderedDict([(k, extract_fields_map[k]) for k in display_fields])
