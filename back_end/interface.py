@@ -117,6 +117,8 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
     if len(clauses) > 0:
         statement = ' and '.join(clauses)
         q = q.filter(text(statement))
+    if globals()['Member'] in tables:
+        q = q.order_by('number')
     if limit:
         q = q.limit(limit)
     return q

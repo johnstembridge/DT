@@ -14,8 +14,9 @@ class TestDb(unittest.TestCase):
         self.engine = create_engine(db_path, echo=True)
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
-        Base.metadata.create_all(self.engine)
+
+    def test_delete_tables(self):
+        Base.metadata.drop_all(self.engine)
 
     def test_create_tables(self):
-        pass
-
+        Base.metadata.create_all(self.engine)
