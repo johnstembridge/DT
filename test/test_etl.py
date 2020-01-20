@@ -52,7 +52,8 @@ class TestEtl(unittest.TestCase):
         in_file = os.path.join(self.import_path, 'comments.txt')
         process_etl(in_file, comment_etl)
 
-    def xtest_parse_comments(self):
+    @unittest.skip('not useful at the moment')
+    def test_parse_comments(self):
         comment = '13/08/2018: dd payment made'
         # comment = '22/06/2006: address change 05/10/2008: address change 13/02/2011: address change 18/08/2018: dd failed 20/08/2018: dd started again'
         # comment = 'Returned as moved to new (unknown address)'
@@ -60,3 +61,7 @@ class TestEtl(unittest.TestCase):
         comment = '13/08/2018: dd payment made  12/09/2018: deceased Felix Stride-Darnley'
         comment_etl({'Member ID': '0-00368', 'Comments': comment})
         # parse_comments(comment)
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -15,8 +15,12 @@ class TestDb(unittest.TestCase):
         Session = sessionmaker(bind=self.engine)
         self.session = Session()
 
-    def test_delete_tables(self):
+    def test_a_delete_tables(self):
         Base.metadata.drop_all(self.engine)
 
-    def test_create_tables(self):
+    def test_b_create_tables(self):
         Base.metadata.create_all(self.engine)
+
+
+if __name__ == '__main__':
+    unittest.main()
