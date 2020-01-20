@@ -1,7 +1,6 @@
 import os
 import json
 from flask import url_for
-from flask import request
 from werkzeug.urls import url_parse, url_unparse, url_join
 
 

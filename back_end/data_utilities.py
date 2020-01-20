@@ -3,6 +3,7 @@ import datetime
 import time
 import math
 import re
+import os
 from email.utils import parseaddr
 
 
@@ -182,6 +183,26 @@ def last_or_default(list, default):
 def list_from_dict(dict, keys):
     return [dict.get(item, None) for item in keys]
 
+# endregion
+
+
+# region files
+def file_delimiter(filename):
+    file_type = (filename.split('.'))[-1]
+    if file_type == 'csv':
+        delimiter = ','
+    elif file_type == 'tab':
+        delimiter = ':'
+    elif file_type == 'txt':
+        delimiter = '\t'
+    else:
+        delimiter = ' '
+    return delimiter
+
+
+def delete_file(file):
+    if os.path.isfile(file):
+        os.remove(file)
 # endregion
 
 

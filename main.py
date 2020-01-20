@@ -19,7 +19,6 @@ from views.home import *
 from globals.access import *
 from views.members import *
 from views.actions import *
-#from views.reports import *
 from views.extracts import *
 from views.help import *
 from views.testing import *

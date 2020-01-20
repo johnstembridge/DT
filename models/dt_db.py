@@ -156,7 +156,7 @@ class Junior(Base):
 class Member(Base):
     __tablename__ = 'members'
     id = Column(Integer, primary_key=True)
-    number = Column(Integer)
+    number = Column(Integer, unique=True)
     sex = Column(EnumType(Sex), nullable=True)
     title = Column(EnumType(Title), nullable=True)
     first_name = Column(String(25), nullable=False)
@@ -184,8 +184,8 @@ class Member(Base):
 
     # region Member extras
     dict_fields = ['number', 'start_date', 'end_date', 'status', 'member_type', 'sex', 'birth_date', 'title',
-                   'first_name',
-                   'last_name', 'address', 'email', 'home_phone', 'mobile_phone', 'comms', 'external_access']
+                   'first_name', 'last_name', 'address', 'email', 'home_phone', 'mobile_phone', 'comms',
+                   'external_access']
 
     def to_dict(self):
         data = {}
@@ -339,7 +339,7 @@ class Member(Base):
             next_renewal_date = datetime(2020, 8, 1).date()
         age = self.age(next_renewal_date)
         if self.member_type == MembershipType.junior and age >= 16:
-            self.member_type =  MembershipType.intermediate
+            self.member_type = MembershipType.intermediate
         elif self.member_type == MembershipType.intermediate and age >= 21:
             self.member_type = MembershipType.standard
         return self.member_type
@@ -350,7 +350,7 @@ class Member(Base):
             return sorted(current, key=lambda action: action.date, reverse=True)[0]
         else:
             return None
-        
+
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())
 

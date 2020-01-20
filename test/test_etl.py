@@ -1,78 +1,58 @@
 import unittest
+import os
 
-from etl.etl import process_etl_file, process_etl_db, member_etl, payment_etl, donation_etl, comment_etl, country_etl, \
-    county_etl, state_etl, user_etl
+from globals import config
+from etl.etl import process_etl, member_etl, payment_etl, donation_etl, comment_etl, country_etl, county_etl, \
+    state_etl, user_etl
 
 
 class TestEtl(unittest.TestCase):
-
-    @staticmethod
-    def members_etl(rec):
-        header = ['Member ID', 'Sex', 'Prefix', 'First Name', 'Last Name', 'Birthdate', 'Email Address', 'Home Phone',
-                  'Other Phone', 'Concession Type', 'Status Code', 'Start Date', 'End Date', 'Updated', 'Direct Debit',
-                  'Use email', 'AFC has access', '3rdPty have access']
-        if type(rec) is str:
-            return header
-        return rec
-
-    def test_member_etl_file(self):
-        in_file = 'members_in.txt'
-        out_file = 'members_out.txt'
-        process_etl_file(in_file, out_file, member_etl)
-
-    def test_payment_etl_file(self):
-        in_file = 'payments_in.txt'
-        out_file = 'payments_out.txt'
-        process_etl_file(in_file, out_file, payment_etl)
-
-    def test_user_etl_file(self):
-        in_file = r'D:\donstrust\exports\users.txt'
-        out_file = 'users_out.txt'
-        process_etl_file(in_file, out_file, user_etl)
+    def setUp(self):
+        self.import_path = config.get('locations')['import']
 
     def test_etl_db(self):
-        self.test_county_etl_db()
-        self.test_state_etl_db()
-        self.test_country_etl_db()
-        self.test_member_etl_db()
-        self.test_payment_etl_db()
-        self.test_donation_etl_db()
-        self.test_comment_etl_db()
-        self.test_user_etl_db()
+        self.county_etl_db()
+        self.state_etl_db()
+        self.country_etl_db()
+        self.member_etl_db()
+        self.payment_etl_db()
+        self.donation_etl_db()
+        self.comment_etl_db()
+        self.user_etl_db()
 
-    def test_user_etl_db(self):
-        in_file = r'D:\donstrust\exports\users.txt'
-        process_etl_db(in_file, user_etl)
+    def user_etl_db(self):
+        in_file = os.path.join(self.import_path, 'users.txt')
+        process_etl(in_file, user_etl)
 
-    def test_country_etl_db(self):
-        in_file = r'D:\donstrust\exports\countries.txt'
-        process_etl_db(in_file, country_etl)
+    def country_etl_db(self):
+        in_file = os.path.join(self.import_path, 'countries.txt')
+        process_etl(in_file, country_etl)
 
-    def test_county_etl_db(self):
-        in_file = r'D:\donstrust\exports\counties.txt'
-        process_etl_db(in_file, county_etl)
+    def county_etl_db(self):
+        in_file = os.path.join(self.import_path, 'counties.txt')
+        process_etl(in_file, county_etl)
 
-    def test_state_etl_db(self):
-        in_file = r'D:\donstrust\exports\states.txt'
-        process_etl_db(in_file, state_etl)
+    def state_etl_db(self):
+        in_file = os.path.join(self.import_path, 'states.txt')
+        process_etl(in_file, state_etl)
 
-    def test_member_etl_db(self):
-        in_file = r'D:\donstrust\exports\members.txt'
-        process_etl_db(in_file, member_etl)
+    def member_etl_db(self):
+        in_file = os.path.join(self.import_path, 'members.txt')
+        process_etl(in_file, member_etl)
 
-    def test_payment_etl_db(self):
-        in_file = r'D:\donstrust\exports\payments.txt'
-        process_etl_db(in_file, payment_etl)
+    def payment_etl_db(self):
+        in_file = os.path.join(self.import_path, 'payments.txt')
+        process_etl(in_file, payment_etl)
 
-    def test_donation_etl_db(self):
-        in_file = r'D:\donstrust\exports\donations.txt'
-        process_etl_db(in_file, donation_etl)
+    def donation_etl_db(self):
+        in_file = os.path.join(self.import_path, 'donations.txt')
+        process_etl(in_file, donation_etl)
 
-    def test_comment_etl_db(self):
-        in_file = r'D:\donstrust\exports\comments.txt'
-        process_etl_db(in_file, comment_etl)
+    def comment_etl_db(self):
+        in_file = os.path.join(self.import_path, 'comments.txt')
+        process_etl(in_file, comment_etl)
 
-    def test_parse_comments(self):
+    def xtest_parse_comments(self):
         comment = '13/08/2018: dd payment made'
         # comment = '22/06/2006: address change 05/10/2008: address change 13/02/2011: address change 18/08/2018: dd failed 20/08/2018: dd started again'
         # comment = 'Returned as moved to new (unknown address)'

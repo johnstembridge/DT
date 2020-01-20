@@ -5,31 +5,13 @@ from datetime import date
 from models.dt_db import Member, Address, Payment, Comment, Action, Junior, Country, County, State, User
 from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType, \
     CommsStatus, MemberAction, ActionStatus, ExternalAccess, JuniorGift, UserRole
-from back_end.file_access import delete_file, file_delimiter
-from back_end.data_utilities import parse_date, valid_date, force_list
+from back_end.data_utilities import parse_date, valid_date, force_list, file_delimiter
 from main import db
 
 db_session = db.session
 
 
-def process_etl_file(file_in, file_out, etl_fn):
-    delete_file(file_out)
-    out_file = open(file_out, 'w', newline='')
-    writer = None
-    with open(file_in, 'r') as in_file:
-        reader = csv.DictReader(in_file, delimiter=file_delimiter(file_in))
-        for row in reader:
-            if not writer:
-                fields = etl_fn('header')
-                writer = csv.DictWriter(out_file, fields, delimiter=file_delimiter(file_out),
-                                        quoting=csv.QUOTE_MINIMAL)
-                writer.writeheader()
-            out = etl_fn(row)
-            writer.writerow(out.to_dict())
-    out_file.close()
-
-
-def process_etl_db(file_in, etl_fn):
+def process_etl(file_in, etl_fn):
     print('Importing ' + file_in)
     with open(file_in, 'r') as in_file:
         reader = csv.DictReader(in_file, delimiter=file_delimiter(file_in))

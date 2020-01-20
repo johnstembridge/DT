@@ -7,8 +7,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
-from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, encode_date_formal
-from back_end.file_access import file_delimiter
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter
 
 db_session = db.session
 
@@ -336,6 +335,7 @@ def get_state(id):
 # endregion
 
 
+# region others
 def get_new_action(new_member=False):
     if new_member:
         return Action(
@@ -358,10 +358,13 @@ def get_new_payment():
         type=PaymentType.dues,
         method=None
     )
+# endregion
 
 
 def get_attr(obj, spec):
-    # extract data for attr spec from extract_fields_map
+    # extract data for attr spec from populated database object
+    # e.g. get_attr(member, 'address.line_1')
+    # or get_attr(member, 'address.country_for_mail()') - invoke a method
     if '=' == first_or_default(spec, ' '):
         return eval(spec[1:])
     attr, tail = pop_next(spec, '.')

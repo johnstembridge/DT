@@ -3,14 +3,15 @@
   "SECRET_KEY": "secret squirrel",
   "override": false,
   "send_mail": false,
-  "db_path_old": "sqlite:///D:\\python\\dt\\dt.db",
-  "db_path": "mysql+pymysql://DTuser:9wudger9!DTuser!@localhost:3306/dt_test",
+  "db_path": "sqlite:///D:\\python\\dt\\dt.db",
+  "db_path_new": "mysql+pymysql://DTuser:9wudger9!DTuser!@localhost:3306/dt_test",
   "locations": {
     "base_url": "http://127.0.0.1:5000/",
     "templates": "templates",
     "html": "D:\\python\\dt\\",
     "output": "D:\\donstrust\\output",
-    "logs": "D:\\python\\dt\\logs"
+    "logs": "D:\\python\\dt\\logs",
+    "import": "D:\\donstrust\\exports"
   },
   "url_prefix": {
     "admin": "",
