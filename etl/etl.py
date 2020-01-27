@@ -14,7 +14,7 @@ def process_etl(import_path, file_in, session, etl_fn):
     db_session = session
     file_in = os.path.join(import_path, file_in)
     print('Importing ' + file_in)
-    with open(file_in, 'r', encoding='ANSI') as in_file:
+    with open(file_in, 'r', encoding='latin-1') as in_file:
         reader = csv.DictReader(in_file, delimiter=file_delimiter(file_in))
         count = 0
         for row in reader:
