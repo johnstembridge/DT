@@ -1,17 +1,18 @@
 import csv
 import re
+import os
 from datetime import date
 
 from models.dt_db import Member, Address, Payment, Comment, Action, Junior, Country, County, State, User
 from globals.enumerations import MemberStatus, MembershipType, Sex, Title, CommsType, PaymentMethod, PaymentType, \
     CommsStatus, MemberAction, ActionStatus, ExternalAccess, JuniorGift, UserRole
 from back_end.data_utilities import parse_date, valid_date, force_list, file_delimiter
-from main import db
-
-db_session = db.session
 
 
-def process_etl(file_in, etl_fn):
+def process_etl(import_path, file_in, session, etl_fn):
+    global db_session
+    db_session = session
+    file_in = os.path.join(import_path, file_in)
     print('Importing ' + file_in)
     with open(file_in, 'r') as in_file:
         reader = csv.DictReader(in_file, delimiter=file_delimiter(file_in))
