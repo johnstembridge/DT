@@ -64,14 +64,14 @@ def get_junior():
 
 
 def get_members_by_name(name):
-    name = name.split(' ')
+    name = name.split()
     if len(name) == 2:
         return db_session.query(Member).filter(and_(
             func.lower(Member.first_name) == func.lower(name[0]),
             func.lower(Member.last_name) == func.lower(name[1])
-        ))
+        )).all()
     elif len(name) == 1:
-        return db_session.query(Member).filter(func.lower(Member.last_name) == func.lower(name[0]))
+        return db_session.query(Member).filter(func.lower(Member.last_name) == func.lower(name[0])).all()
     else:
         return []
 

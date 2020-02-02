@@ -165,7 +165,7 @@ class MemberDetailsForm(FlaskForm):
             return False
         if new_member:
             name = self.first_name.data + ' ' + self.last_name.data
-            existing = get_members_by_name(name).all()
+            existing = get_members_by_name(name)
             if len(existing) > 0:
                 self.first_name.errors.append('{} is already member {}'.format(name, existing[0].dt_number()))
                 result = False
@@ -174,8 +174,8 @@ class MemberDetailsForm(FlaskForm):
     def save_member(self, member_number):
         member = {
             'title': self.title.data,
-            'first_name': self.first_name.data,
-            'last_name': self.last_name.data,
+            'first_name': self.first_name.data.strip(),
+            'last_name': self.last_name.data.strip(),
             'sex': self.sex.data,
 
             'member_type': self.type.data,
@@ -187,9 +187,9 @@ class MemberDetailsForm(FlaskForm):
             'payment_method': self.payment_method.data,
             'external_access': self.external_access.data,
 
-            'home_phone': self.home_phone.data,
-            'mobile_phone': self.mobile_phone.data,
-            'email': self.email.data,
+            'home_phone': self.home_phone.data.strip(),
+            'mobile_phone': self.mobile_phone.data.strip(),
+            'email': self.email.data.strip(),
             'comms': self.comms.data,
             'comms_status': self.comms_status.data,
 
@@ -198,7 +198,7 @@ class MemberDetailsForm(FlaskForm):
             'line_3': self.line3.data,
             'city': self.city.data,
             'state': get_state(self.state.data),
-            'post_code': self.post_code.data,
+            'post_code': self.post_code.data.strip(),
             'county': get_county(self.county.data),
             'country': get_country(self.country.data),
 
