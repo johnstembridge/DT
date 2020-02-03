@@ -103,7 +103,13 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
                     condition = condition.replace('>', '<')
                 elif '<' in condition:
                     condition = condition.replace('<', '>')
-                s = '{}.{} {} date("now", "-{} years")'.format(table, column, condition, value)
+                engine = db_session.bind.engine.name
+                if engine == 'sqlite':
+                    s = '{}.{} {} date("now", "-{} years")'.format(table, column, condition, value)
+                elif engine == 'mysql':
+                    s = '{}.{} {} date_add(current_date(), interval -{} year)'.format(table, column, condition, value)
+                else:
+                    s = 'Unknown engine: ' + engine
         else:
             s = '{}.{} {} {}'.format(table, column, condition, value)
         if isinstance(value, list):
