@@ -18,4 +18,4 @@ def internal_error(e):
 
 def csrf_error(e):
     reason = e.description
-    render_template('csrf_error.html', reason=reason), 400
+    return render_template('csrf_error.html', reason=reason), 400
