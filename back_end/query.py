@@ -4,7 +4,7 @@ from collections import OrderedDict
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, extract_fields_map
 from front_end.query_form import QueryForm
 from front_end.extract_form import ExtractForm
-from back_end.interface import get_attr, get_members_for_query
+from back_end.interface import get_attr, get_members_for_query, reset_member_actions_for_query
 
 
 class Query:
@@ -36,11 +36,11 @@ class Query:
         return Query.show_found_do(query_clauses, display_fields, page)
 
     @staticmethod
-    def show_found_do(query_clauses, display_fields, page=1):
+    def show_found_do(query_clauses, display_fields, page=1, action=None):
         query = get_members_for_query(query_clauses)
         form = ExtractForm()
         page = form.populate_result(clauses=url_pickle_dump(query_clauses), fields=url_pickle_dump(display_fields),
-                                    query=query, page_number=page)
+                                    query=query, page_number=page, action=action)
         fields = OrderedDict([(k, extract_fields_map[k]) for k in display_fields])
         return render_template('extract.html', form=form, render_link=render_link, data=page.items, fields=fields,
                                get_attr=get_attr)
@@ -79,3 +79,7 @@ class Query:
             flash_errors(form)
 
         return render_template('query.html', form=form, render_link=render_link, title='Bulk update')
+
+    @staticmethod
+    def reset_member_actions(query_clauses):
+        reset_member_actions_for_query(url_pickle_load(query_clauses))

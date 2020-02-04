@@ -33,8 +33,9 @@
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Actions<b class="caret"></b></a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('show_actions') }}">Show outstanding</a></li>
-                        <li><a href="{{ url_for('clear_actions') }}">Clear outstanding</a></li>
+                        <li><a href="{{ url_for('show_actions', type='cert') }}">Outstanding - certificates</a></li>
+                        <li><a href="{{ url_for('show_actions', type='card') }}">Outstanding - cards</a></li>
+                        <li><a href="{{ url_for('show_actions', type='other') }}">Outstanding - other</a></li>
                     </ul>
                 </li>
             {% endif %}

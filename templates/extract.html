@@ -8,7 +8,12 @@
     {{ form.hidden_tag() }}
     <h4 class="left">{{ form.total.data }} {{ 'result' if form.total.data == 1 else 'results' }} found</h4>
     <h5 class="right">
-        <a class='button' href="{{ form.extract_url }}">Extract ...</a>
+        {% if form.extract_url and form.total.data > 0 %}
+            <a class='button' href="{{ form.extract_url }}", title="Create csv file">Extract ...</a>
+        {% endif %}
+        {% if form.close_url and form.total.data > 0 %}
+            <a class='button' href="{{ form.close_url }}", title="Close open actions">Close ...</a>
+        {% endif %}
         <a href="{{ form.first_url }}"><span class="glyphicon">&#xe069;</span></a>
         {% if form.prev_url %}
             <a href="{{ form.prev_url }}"><span class="glyphicon">&#xe251;</span></a>

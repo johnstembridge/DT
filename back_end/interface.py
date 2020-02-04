@@ -7,7 +7,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
-from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, encode_date_formal
 
 db_session = db.session
 
@@ -74,6 +74,13 @@ def get_members_by_name(name):
         return db_session.query(Member).filter(func.lower(Member.last_name) == func.lower(name[0])).all()
     else:
         return []
+
+
+def reset_member_actions_for_query(query_clauses):
+    for member in get_members_for_query(query_clauses):
+        for action in [a for a in member.actions if a.status == ActionStatus.open]:
+            action.status = ActionStatus.closed
+    db_session.commit()
 
 
 def get_members_for_query(query_clauses, default_table='Member', limit=None):
@@ -420,6 +427,7 @@ def field_type(table, field_name):
     return type, data
 
 
+# region files
 def list_to_csv_object(csv_list, delimiter=','):
     csv_object = io.StringIO()
     if delimiter == '\t':
@@ -452,3 +460,4 @@ def return_file(file_path_or_object, filename, mime_type='text/csv'):
         return send_file(file_path_or_object, mimetype=mime_type, attachment_filename=filename, as_attachment=True)
     except Exception as e:
         return str(e)
+# endregion

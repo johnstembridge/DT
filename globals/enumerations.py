@@ -114,6 +114,10 @@ class MemberAction(FormEnum):
     def send_cards():
         return [MemberAction.card, MemberAction.resend]
 
+    @staticmethod
+    def send_other():
+        return [MemberAction.gift, MemberAction.other]
+
 
 class ActionStatus(FormEnum):
     open = 1
