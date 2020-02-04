@@ -80,6 +80,7 @@ def reset_member_actions_for_query(query_clauses):
     for member in get_members_for_query(query_clauses):
         for action in [a for a in member.actions if a.status == ActionStatus.open]:
             action.status = ActionStatus.closed
+        member.last_updated = datetime.date.today()
     db_session.commit()
 
 
