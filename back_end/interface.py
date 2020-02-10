@@ -109,7 +109,7 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
                 if engine == 'sqlite':
                     s = 'strftime("%m", {}.{}){} "{:02}"'.format(table, column, condition, value)
                 elif engine == 'mysql':
-                    s = 'MONTH({}.{}}){}{}'.format(table, column, condition, value)
+                    s = 'MONTH({}.{}){}{}'.format(table, column, condition, value)
                 else:
                     s = 'Unknown engine: ' + engine
             if func == 'age()':
