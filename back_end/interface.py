@@ -105,7 +105,12 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
                 date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
                 s = '{}.{} {} "{}"'.format(table, column, condition, date)
             if func == 'birth_month()':
-                s = 'strftime("%m", {}.{}){} "{:02}"'.format(table, column, condition, value)
+                if engine == 'sqlite':
+                    s = 'strftime("%m", {}.{}){} "{:02}"'.format(table, column, condition, value)
+                elif engine == 'mysql':
+                    s = 'MONTH({}.{}}){}{}'.format(table, column, condition, value)
+                else:
+                    s = 'Unknown engine: ' + engine
             if func == 'age()':
                 if '>' in condition:
                     condition = condition.replace('>', '<')
