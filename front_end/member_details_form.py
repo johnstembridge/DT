@@ -193,10 +193,10 @@ class MemberDetailsForm(FlaskForm):
             'comms': self.comms.data,
             'comms_status': self.comms_status.data,
 
-            'line_1': self.line1.data,
-            'line_2': self.line2.data,
-            'line_3': self.line3.data,
-            'city': self.city.data,
+            'line_1': self.line1.data.strip(),
+            'line_2': self.line2.data.strip(),
+            'line_3': self.line3.data.strip(),
+            'city': self.city.data.strip(),
             'state': get_state(self.state.data),
             'post_code': self.post_code.data.strip(),
             'county': get_county(self.county.data),
@@ -207,7 +207,7 @@ class MemberDetailsForm(FlaskForm):
             'comments': []
         }
         if self.type.data == MembershipType.junior.value:
-            member['jd_mail'] = self.jd_email.data
+            member['jd_mail'] = self.jd_email.data.strip()
             member['jd_gift'] = self.jd_gift.data
 
         for payment in self.payment_list.data:

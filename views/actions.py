@@ -5,19 +5,13 @@ from main import app
 from front_end.actions import MaintainActions
 
 
-@app.route('/actions', methods=['GET', 'POST'])
-@login_required
-@role_required('admin')
-def actions_main():
-    pass
-
-
 @app.route('/actions/show', methods=['GET', 'POST'])
 @login_required
 @role_required('admin')
 def show_actions():
     type = request.args.get('type')
-    return MaintainActions.list_actions(type)
+    page = request.args.get('page', 1, int)
+    return MaintainActions.list_actions(type, page)
 
 
 @app.route('/actions/clear', methods=['GET', 'POST'])

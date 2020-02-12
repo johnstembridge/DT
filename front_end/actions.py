@@ -5,7 +5,7 @@ from back_end.query import Query
 class MaintainActions:
 
     @staticmethod
-    def list_actions(action):
+    def list_actions(action, page):
         actions = {
             'cert': MemberAction.send_certificates(),
             'card': MemberAction.send_cards(),
@@ -17,7 +17,7 @@ class MaintainActions:
             ('Action', 'status', ActionStatus.open.value, '=', None)
         ]
         display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment']
-        return Query.show_found_do(query_clauses, display_fields, action=action)
+        return Query.show_found_do(query_clauses, display_fields, action=action, page=page)
 
     @staticmethod
     def clear_actions(query_clauses):
