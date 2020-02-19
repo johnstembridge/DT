@@ -343,7 +343,7 @@ def get_country(id):
 def get_county(id):
     if id == 0:
         return None
-    return db_session.query(County).filter(Country.id == id).first()
+    return db_session.query(County).filter(County.id == id).first()
 
 
 def get_state(id):
