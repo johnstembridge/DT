@@ -121,6 +121,13 @@ def current_year():
     return datetime.datetime.now().year
 
 
+def current_year_end():
+    year = datetime.datetime.now().year
+    if datetime.datetime.now().month >= 8:
+        year += 1
+    return datetime.date(year=year, month=8, day=1)
+
+
 # endregion
 
 # region lists

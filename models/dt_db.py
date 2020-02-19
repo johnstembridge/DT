@@ -8,7 +8,7 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
     CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus
-from back_end.data_utilities import fmt_date, parse_date, first_or_default
+from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end
 from datetime import datetime
 from time import time, localtime, strftime
 
@@ -336,7 +336,7 @@ class Member(Base):
     def future_membership_type(self, next_renewal_date=None):
         # returns membership type at next renewal
         if not next_renewal_date:
-            next_renewal_date = datetime(2020, 8, 1).date()
+            next_renewal_date = current_year_end()
         age = self.age(next_renewal_date)
         if self.member_type == MembershipType.junior and age >= 16:
             self.member_type = MembershipType.intermediate

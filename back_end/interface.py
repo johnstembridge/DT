@@ -7,7 +7,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
-from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, encode_date_formal
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, current_year_end
 
 db_session = db.session
 
@@ -49,7 +49,7 @@ def get_new_member():
     member.member_type = MembershipType.standard
     member.sex = None
     member.start_date = datetime.date.today()
-    member.end_date = datetime.date(year=2020, month=8, day=1)
+    member.end_date = current_year_end()
     member.comms = CommsType.email
 
     member.address = get_new_address()

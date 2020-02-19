@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, HiddenField, FieldList, FormField, DecimalField
 from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
+import datetime
 
 from back_end.interface import get_new_member, get_member, save_member_details, get_new_comment, get_new_payment, \
     get_members_by_name, get_new_action, country_choices, county_choices, state_choices, get_country, get_county, \
@@ -90,6 +91,7 @@ class MemberDetailsForm(FlaskForm):
             member.number = 0
             member.first_name = 'new'
             member.payments = member.comments = member.actions = []
+            member.start_date = datetime.date.today()
         address = member.address
         self.member_number.data = str(member.number)
         self.dt_number.data = member.dt_number()
