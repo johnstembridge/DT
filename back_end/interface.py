@@ -7,7 +7,8 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
-from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, current_year_end
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, current_year_end, \
+    encode_date_formal
 
 db_session = db.session
 
@@ -297,6 +298,8 @@ def save_user(user):
     if not user.id:
         db_session.add(user)
     db_session.commit()
+
+
 # endregion
 
 
@@ -333,7 +336,7 @@ def state_choices(blank=False, extra=None):
 
 def get_new_address():
     uk = db_session.query(Country).filter(Country.code == 'UK').first()
-    return Address(country = uk)
+    return Address(country=uk)
 
 
 def get_country(id):
@@ -350,6 +353,7 @@ def get_state(id):
     if id == 0:
         return None
     return db_session.query(State).filter(State.id == id).first()
+
 
 # endregion
 
@@ -377,6 +381,8 @@ def get_new_payment():
         type=PaymentType.dues,
         method=None
     )
+
+
 # endregion
 
 
