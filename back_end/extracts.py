@@ -8,7 +8,7 @@ import datetime
 class Extracts:
 
     @staticmethod
-    def extract_certificates():
+    def extract_certificates(page):
         # new member packs
         query_clauses = [
             ('Action', 'status', ActionStatus.open.value, '=', None),
@@ -18,10 +18,10 @@ class Extracts:
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
                           'full address', 'certificate date', 'upgrade',
                           'card start year', 'first name', 'last name']
-        return Query.show_found_do(query_clauses, display_fields, action='cert')
+        return Query.show_found_do(query_clauses, display_fields, action='cert', page=page)
 
     @staticmethod
-    def extract_cards():
+    def extract_cards(page):
         # renewal acknowledgement
         query_clauses = [
             ('Action', 'status', ActionStatus.open.value, '=', None),
@@ -30,7 +30,18 @@ class Extracts:
         display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'recent new',
                           'email bounced', 'card start year', 'first name', 'last name']
-        return Query.show_found_do(query_clauses, display_fields, action='card')
+        return Query.show_found_do(query_clauses, display_fields, action='card', page=page)
+
+    @staticmethod
+    def extract_other_actions(page):
+        # other actions
+        query_clauses = [
+            ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+            ('Action', 'action', [a.value for a in MemberAction.send_other()], 'in', None),
+            ('Action', 'status', ActionStatus.open.value, '=', None)
+        ]
+        display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment']
+        return Query.show_found_do(query_clauses, display_fields, action='other', page=page)
 
     @staticmethod
     def extract_juniors():
