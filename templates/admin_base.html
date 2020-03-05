@@ -53,13 +53,13 @@
                     <li><a href="{{ url_for('extracts_custom') }}">Custom</a></li>
                 </ul>
             {% endif %}
-            {% if current_user.has_access(UserRole.admin) %}
+            {% if current_user.has_access(UserRole.extract) %}
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Actions<b class="caret"></b></a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('show_actions', type='cert') }}">New member packs</a></li>
                         <li><a href="{{ url_for('show_actions', type='card') }}">Renewal cards</a></li>
-                        <li><a href="{{ url_for('show_actions', type='other') }}">other</a></li>
+                        <li><a href="{{ url_for('show_actions', type='other') }}">Other</a></li>
                     </ul>
                 </li>
             {% endif %}
@@ -68,6 +68,7 @@
                 <ul class="dropdown-menu">
                     <li><a href="{{ url_for('show_help', subject='members') }}">Members</a></li>
                     <li><a href="{{ url_for('show_help', subject='extracts') }}">Extracts</a></li>
+                    <li><a href="{{ url_for('show_help', subject='actions') }}">Actions</a></li>
                     <li><a href="{{ url_for('show_help', subject='user_roles') }}">User roles</a></li>
                 </ul>
             </li>

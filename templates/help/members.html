@@ -14,7 +14,7 @@
     You can search for members by giving values in any of the column fields.
     <br/>Drop-down fields "status", "type" and "country" have standard search values, the other fields are free-form text.
     <br/>The "number" field is for searching by DT member number and you just need to enter the numeric part e.g. 1865
-    <br/>All fields apart from drop-downs can also filter by preceding the search value by one the following operators:
+    <br/>All fields apart from drop-downs can also filter by preceding the search value by one of the following operators:
 </p>
 <table>
     <tr><td>!=</td><td>not equals</td></tr>
@@ -27,9 +27,17 @@
 <h4>example</h4>
 To find all senior members that live in SW19 who joined after 1st Jan 2010, fill in the relevant search fields and click the magnifying glass <img src="/static/images/search.png">.
 <img src="/static/images/help/dt_board_find_members_2.jpg" alt="find members">
-&nbsp;
 <p>
     If more results are found than will fit on the screen, you can use the navigation buttons on the right to flip through "pages".
+</p>
+<h3>View{% if current_user.has_write_access() %}/edit{% endif %} a member's details</h3>
+<p>
+    Click on the <img src="/static/images/right-arrow.png"> for a member.
+<br/>This will show the following screen containing the details held for that member.
+</p>
+<img src="/static/images/help/dt_board_find_members_3.jpg" alt="find members">
+<p>
+    The sections labelled "Payments", "Actions" and "Comments" may be expanded and contracted by clicking on them.
 </p>
 {% if current_user.has_write_access() %}
 <h3>Add new member</h3>
@@ -42,13 +50,4 @@ To find all senior members that live in SW19 who joined after 1st Jan 2010, fill
 <img src="/static/images/help/dt_board_add_member.jpg" alt="add member">
 
 {% endif %}
-<h3>View{% if current_user.has_write_access() %}/edit{% endif %} a member's details</h3>
-<p>
-    Click on the <img src="/static/images/right-arrow.png"> for a member.
-<br/>This will show the following screen containing the details held for that member.
-</p>
-<img src="/static/images/help/dt_board_find_members_3.jpg" alt="find members">
-<p>
-    The sections labelled "Payments", "Actions" and "Comments" may be expanded and contracted by clicking on them.
-</p>
 </html>

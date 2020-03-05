@@ -353,6 +353,7 @@ class Member(Base):
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())
+    # endregion
 
 
 class User(Base, UserMixin):
