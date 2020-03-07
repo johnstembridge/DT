@@ -40,7 +40,9 @@ class Extracts:
             ('Action', 'action', [a.value for a in MemberAction.send_other()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None)
         ]
-        display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment']
+        display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment', 'full name',
+                          'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state',
+                          'post code', 'country for post', 'card start year']
         return Query.show_found_do(query_clauses, display_fields, action='other', page=page)
 
     @staticmethod
@@ -86,7 +88,8 @@ class Extracts:
         query_clauses = [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
-        display_fields = ['number', 'member type', 'use email', 'email', 'full name', 'address (line 1)', 'address (line 2)',
+        display_fields = ['number', 'member type', 'use email', 'email', 'full name', 'address (line 1)',
+                          'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'first name',
                           'last name']
         return Query.show_found_do(query_clauses, display_fields)
