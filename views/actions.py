@@ -7,7 +7,7 @@ from front_end.actions import MaintainActions
 
 @app.route('/actions/show', methods=['GET', 'POST'])
 @login_required
-@role_required('admin')
+@role_required('extract')
 def show_actions():
     type = request.args.get('type')
     page = request.args.get('page', 1, int)
@@ -16,7 +16,7 @@ def show_actions():
 
 @app.route('/actions/clear', methods=['GET', 'POST'])
 @login_required
-@role_required('admin')
+@role_required('extract')
 def clear_actions():
     type = request.args.get('type')
     query = request.args.get('query_clauses')
