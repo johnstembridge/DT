@@ -5,7 +5,7 @@ from wtforms import StringField, IntegerField, FieldList, FormField, HiddenField
 from back_end.data_utilities import fmt_date
 from back_end.interface import get_members_for_query, country_choices
 from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, query_to_select_fields, \
-    status_choices, validate_date_format
+    status_choices, validate_date_format, membership_type_choices
 from globals.enumerations import MemberStatus, MembershipType
 
 
@@ -28,7 +28,7 @@ class MemberListForm(FlaskForm):
     sel_number = MyStringField(label='number', db_map='Member.number')
     sel_status = MySelectField(label='status', choices=[], coerce=MemberStatus.coerce, db_map='Member.status')
     sel_member_type = MySelectField(label='member type',
-                                    choices=MembershipType.choices(extra=[(99, 'adult (!=junior)')], blank=True),
+                                    choices=[],
                                     coerce=MembershipType.coerce, db_map='Member.member_type')
     sel_first_name = MyStringField(label='first name', db_map='Member.first_name')
     sel_last_name = MyStringField(label='last name', db_map='Member.last_name')
@@ -55,6 +55,10 @@ class MemberListForm(FlaskForm):
     def set_status_choices(self):
         # reset membership status choices. Has to be done after form declaration - will vary by user access.
         self.sel_status.choices = status_choices()
+
+    def set_membership_type_choices(self):
+        # reset membership type choices. Has to be done after form declaration - will vary by user access.
+        self.sel_member_type.choices = membership_type_choices()
 
     def set_initial_counts(self):
         self.total.data = self.total_pages.data = self.current_page.data = 0

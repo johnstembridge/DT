@@ -1,9 +1,9 @@
 {% extends "bootstrap/base.html" %}
 {% block head %}
-    {{super()}}
-    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/dt_admin.css') }}">
-    <style>@media print{a[href]:after{content:none}}</style>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{{super()}}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/dt_admin.css') }}">
+<style>@media print{a[href]:after{content:none}}</style>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 {% endblock %}
 {% block title %}Dons Trust Membership Admin{% endblock %}
 
@@ -12,7 +12,8 @@
     <ul class="container-fluid">
         <div class="navbar-header">
             <a class="navbar-brand" href="{{ url_for('index') }}" style="margin: -15px -15px;">
-                <img src="{{ url_for('static', filename='images/Dons Trust Logo.png') }}" style="display: inline-block;" />
+                <img src="{{ url_for('static', filename='images/Dons Trust Logo.png') }}"
+                     style="display: inline-block;"/>
                 <span style="display: inline-block;">DT admin</span>
             </a>
         </div>
@@ -20,7 +21,7 @@
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">Members<b class="caret"></b></a>
                 <ul class="dropdown-menu">
-                    {% if current_user.has_access(UserRole.admin) %}
+                    {% if current_user.has_write_access() %}
                         <li><a href="{{ url_for('members') }}">Quick find/edit members</a></li>
                         <li><a href="{{ url_for('edit_or_view_member', member_number=0) }}">Add new member</a></li>
                         <li><a href="{{ url_for('bulk_update') }}">Bulk update</a></li>
@@ -30,30 +31,36 @@
                 </ul>
             <li>
             {% if current_user.has_access(UserRole.extract) %}
-            <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Extracts<b class="caret"></b></a>
-                <ul class="dropdown-menu">
-                    <li class="dropdown-submenu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="nav-label">Standard (regular)</span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('extracts_email') }}">Email</a></li>
-                            <li><a href="{{ url_for('extracts_comms') }}">Comms</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">Extracts<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        {% if current_user.is_access(UserRole.jd_admin) %}
                             <li><a href="{{ url_for('extracts_juniors') }}">Junior Comms</a></li>
                             <li><a href="{{ url_for('extracts_junior_birthdays') }}">Juniors (birthday)</a></li>
-                         </ul>
-                    </li>
-                    <li class="dropdown-submenu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="nav-label">Standard (annual)</span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('extracts_cards_all') }}">Cards - new membership year</a></li>
-                            <li><a href="{{ url_for('extracts_renewals') }}">Renewal notices</a></li>
-                            <li><a href="{{ url_for('extracts_debits') }}">Debits</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="{{ url_for('extracts_custom') }}">Custom</a></li>
-                </ul>
+                        {% else %}
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="nav-label">Standard (regular)</span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ url_for('extracts_email') }}">Email</a></li>
+                                    <li><a href="{{ url_for('extracts_comms') }}">Comms</a></li>
+                                    <li><a href="{{ url_for('extracts_juniors') }}">Junior Comms</a></li>
+                                    <li><a href="{{ url_for('extracts_junior_birthdays') }}">Juniors (birthday)</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="nav-label">Standard (annual)</span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="{{ url_for('extracts_cards_all') }}">Cards - new membership year</a></li>
+                                    <li><a href="{{ url_for('extracts_renewals') }}">Renewal notices</a></li>
+                                    <li><a href="{{ url_for('extracts_debits') }}">Debits</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="{{ url_for('extracts_custom') }}">Custom</a></li>
+                        {% endif %}
+                    </ul>
+                </li>
             {% endif %}
-            {% if current_user.has_access(UserRole.extract) %}
+            {% if current_user.has_access(UserRole.admin) %}
                 <li class="dropdown">
                     <a class="dropdown-toggle" data-toggle="dropdown" href="#">Actions<b class="caret"></b></a>
                     <ul class="dropdown-menu">
@@ -63,7 +70,7 @@
                     </ul>
                 </li>
             {% endif %}
-           <li class="dropdown">
+            <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
                 <ul class="dropdown-menu">
                     <li><a href="{{ url_for('show_help', subject='members') }}">Members</a></li>
@@ -82,13 +89,13 @@
                 </li>
             {% endif %}
             {% if not current_user.is_anonymous %}
-                <li>
-                    <a href="{{ url_for('user_logout') }}">Logout</a>
-                </li>
+            <li>
+                <a href="{{ url_for('user_logout') }}">Logout</a>
+            </li>
             {% endif %}
         </ul>
         <h5 class="right inverted">{{ current_user.role.name }}</h5>
-    </div>
+        </div>
     </ul>
 </nav>
 {% endblock %}

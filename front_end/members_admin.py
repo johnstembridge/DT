@@ -11,6 +11,7 @@ class MaintainMembers:
     def find_members():
         form = MemberListForm()
         form.set_status_choices()
+        form.set_membership_type_choices()
         form.set_initial_counts()
         if form.validate_on_submit():
             query_clauses = form.find_members()
@@ -28,6 +29,7 @@ class MaintainMembers:
         page = request.args.get('page', 1, int)
         form = MemberListForm()
         form.set_status_choices()
+        form.set_membership_type_choices()
         form.set_initial_counts()
         form.populate_member_list(query_clauses, url_pickle_dump(query_clauses), page)
         return render_template('member_list.html', form=form, render_link=render_link)

@@ -380,6 +380,9 @@ class User(Base, UserMixin):
     def has_access(self, required_role):
         return self.role.level >= required_role.level
 
+    def is_access(self, required_role):
+        return self.role.level == required_role.level
+
     def has_lapsed_access(self):
         return self.role.access == 'all' or 'lapsed' in self.role.access
 

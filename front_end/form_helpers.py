@@ -7,7 +7,7 @@ import pickle
 from collections import OrderedDict
 
 from back_end.data_utilities import first_or_default, last_or_default, fmt_date, remove
-from globals.enumerations import MemberStatus
+from globals.enumerations import MemberStatus, MembershipType, UserRole
 
 
 class MyStringField(StringField):
@@ -83,6 +83,15 @@ def status_choices():
         choices = [c for c in choices if c[0] <= limit or c[0] == 99]
     else:
         choices = [c for c in choices if c[0] <= limit]
+    return choices
+
+
+def membership_type_choices():
+    # set choices for membership type according to current user's access rights
+    junior = current_user.is_access(UserRole.jd_admin)
+    choices = MembershipType.choices(extra=[(99, 'adult (!=junior)')], blank=True)
+    if junior:
+        choices = [c for c in choices if c[1] == 'junior']
     return choices
 
 
