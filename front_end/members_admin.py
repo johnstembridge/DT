@@ -1,8 +1,9 @@
 from flask import request, render_template, redirect, flash, url_for
+from flask_login import current_user
 
 from front_end.member_list_form import MemberListForm
 from front_end.member_details_form import MemberDetailsForm
-from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load
+from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, read_only_form
 
 
 class MaintainMembers:
@@ -55,6 +56,8 @@ class MaintainMembers:
             flash_errors(form)
         if not form.is_submitted():
             form.populate_member(member_number, request.referrer)
+            if not current_user.has_write_access():
+                read_only_form(form)
         return render_template('member_details.html', form=form, render_link=render_link)
 
     @staticmethod

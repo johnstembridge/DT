@@ -4,38 +4,35 @@ from flask import send_file
 import io, csv
 
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
-    Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess
+    Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess, UserRole
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
-from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, current_year_end, \
-    encode_date_formal
-
-db_session = db.session
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, current_year_end
 
 
 def save_object(object):
     if not object.id:
-        db_session.add(object)
-    db_session.commit()
+        db.session.add(object)
+    db.session.commit()
 
 
 def add_object(object):
     if not object.id:
-        db_session.add(object)
+        db.session.add(object)
 
 
 def select(select, where):
-    return db_session.query(select).filter(*where)
+    return db.session.query(select).filter(*where)
 
 
 # region Members
 def get_member_by_email(email):
     # case-insensitive
-    return db_session.query(Member).filter(func.lower(Member.email) == func.lower(email)).first()
+    return db.session.query(Member).filter(func.lower(Member.email) == func.lower(email)).first()
 
 
 def get_member(member_number):
-    member = db_session.query(Member).filter_by(number=member_number).first()
+    member = db.session.query(Member).filter_by(number=member_number).first()
     if member and member.member_type == MembershipType.junior and not member.junior:
         member.junior = Junior()
     return member
@@ -67,12 +64,12 @@ def get_junior():
 def get_members_by_name(name):
     name = name.split()
     if len(name) == 2:
-        return db_session.query(Member).filter(and_(
+        return db.session.query(Member).filter(and_(
             func.lower(Member.first_name) == func.lower(name[0]),
             func.lower(Member.last_name) == func.lower(name[1])
         )).all()
     elif len(name) == 1:
-        return db_session.query(Member).filter(func.lower(Member.last_name) == func.lower(name[0])).all()
+        return db.session.query(Member).filter(func.lower(Member.last_name) == func.lower(name[0])).all()
     else:
         return []
 
@@ -82,13 +79,13 @@ def reset_member_actions_for_query(query_clauses):
         for action in [a for a in member.actions if a.status == ActionStatus.open]:
             action.status = ActionStatus.closed
         member.last_updated = datetime.date.today()
-    db_session.commit()
+    db.session.commit()
 
 
 def get_members_for_query(query_clauses, default_table='Member', limit=None):
     clauses = []
     tables = get_tables_for_query(default_table, query_clauses)
-    engine = db_session.bind.engine.name
+    engine = db.session.bind.engine.name
     for field in query_clauses:
         if len(field) == 5:
             field = field + (default_table,)
@@ -129,7 +126,7 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
         if isinstance(value, list):
             s = s.replace('[', '(').replace(']', ')')
         clauses.append(s)
-    q = db_session.query(tables[0])
+    q = db.session.query(tables[0])
 
     for table in tables[1:]:
         q = q.join(table)
@@ -175,6 +172,12 @@ def save_member_details(member_number, details):
     member.start_date = details['start_date']
     member.end_date = details['end_date']
     member.birth_date = details['birth_date']
+
+    role = [u for u in UserRole if u.value[0] == details['access']][0]
+    if member.user:
+        member.user.role = role
+    elif role != UserRole.none:
+        member.user = get_new_user(role)
 
     member.last_payment_method = PaymentMethod(details['payment_method']) if details['payment_method'] > 0 else None
     member.external_access = ExternalAccess(details['external_access'])
@@ -266,14 +269,14 @@ def save_member_details(member_number, details):
 
     if member.number == 0:
         member.number = next_member_number()
-        db_session.add(member)
+        db.session.add(member)
 
-    db_session.commit()
+    db.session.commit()
     return member
 
 
 def next_member_number():
-    return db_session.query(func.max(Member.number)).scalar() + 1
+    return db.session.query(func.max(Member.number)).scalar() + 1
 
 
 # endregion
@@ -282,30 +285,32 @@ def next_member_number():
 # region Users
 def get_user(id=None, user_name=None):
     if id:
-        return db_session.query(User).filter(User.id == id).first()
+        return db.session.query(User).filter(User.id == id).first()
     if user_name:
-        return db_session.query(User).filter(User.user_name == user_name).first()
+        return db.session.query(User).filter(User.user_name == user_name).first()
 
 
 def get_user_by_api_key(api_key):
     if ':' in api_key:
         user_name, password = api_key.split(':')
         return get_user(user_name=user_name)
-    return db_session.query(User).query.filter_by(api_key=api_key).first()
+    return db.session.query(User).query.filter_by(api_key=api_key).first()
 
 
 def save_user(user):
     if not user.id:
-        db_session.add(user)
-    db_session.commit()
+        db.session.add(user)
+    db.session.commit()
 
+def get_new_user(role):
+    return User(role=role)
 
 # endregion
 
 
 # region Addresses
 def country_choices(blank=False, extra=None):
-    countries = db_session.query(Country.id, Country.code, Country.name).order_by(Country.name).all()
+    countries = db.session.query(Country.id, Country.code, Country.name).order_by(Country.name).all()
     ret = [(c.id, c.name) for c in countries]
     if extra:
         ret = extra + ret
@@ -315,7 +320,7 @@ def country_choices(blank=False, extra=None):
 
 
 def county_choices(blank=False, extra=None):
-    counties = db_session.query(County.id, County.name).order_by(County.name).all()
+    counties = db.session.query(County.id, County.name).order_by(County.name).all()
     ret = [(c.id, c.name) for c in counties]
     if extra:
         ret = extra + ret
@@ -325,7 +330,7 @@ def county_choices(blank=False, extra=None):
 
 
 def state_choices(blank=False, extra=None):
-    states = db_session.query(State.id, State.code, State.name).order_by(State.name).all()
+    states = db.session.query(State.id, State.code, State.name).order_by(State.name).all()
     ret = [(c.id, c.code + '-' + c.name) for c in states]
     if extra:
         ret = extra + ret
@@ -335,24 +340,24 @@ def state_choices(blank=False, extra=None):
 
 
 def get_new_address():
-    uk = db_session.query(Country).filter(Country.code == 'UK').first()
+    uk = db.session.query(Country).filter(Country.code == 'UK').first()
     return Address(country=uk)
 
 
 def get_country(id):
-    return db_session.query(Country).filter(Country.id == id).first()
+    return db.session.query(Country).filter(Country.id == id).first()
 
 
 def get_county(id):
     if id == 0:
         return None
-    return db_session.query(County).filter(County.id == id).first()
+    return db.session.query(County).filter(County.id == id).first()
 
 
 def get_state(id):
     if id == 0:
         return None
-    return db_session.query(State).filter(State.id == id).first()
+    return db.session.query(State).filter(State.id == id).first()
 
 
 # endregion

@@ -70,7 +70,12 @@ table#help {
     text-align: center;
   }
 }
-
+.spaced {
+  padding:15px;
+  th, td {
+    padding: 15px;
+    }
+}
 .grid li {
    display:inline-block;
    width:20%;

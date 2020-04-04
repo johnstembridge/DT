@@ -19,6 +19,7 @@ from views.home import *
 from globals.access import *
 from views.members import *
 from views.actions import *
+from views.super import *
 from views.extracts import *
 from views.help import *
 from views.testing import *
@@ -62,6 +63,12 @@ def catch_internal_error(e):
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
     return csrf_error(e)
+
+
+@app.teardown_appcontext
+def close_session(response_or_exc):
+    db.session.close()
+    return response_or_exc
 
 
 if __name__ == '__main__':

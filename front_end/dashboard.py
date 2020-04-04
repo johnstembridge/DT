@@ -30,7 +30,7 @@ class Dashboard(FlaskForm):
     other_action = StringField(label='Other')
 
     def populate(self):
-        query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),]
+        query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None), ]
         query = get_members_for_query(query_clauses)
         member_totals = {
             MembershipType.standard: 0,
@@ -95,7 +95,7 @@ class Dashboard(FlaskForm):
         self.seniors.data = member_totals[MembershipType.senior]
         self.students.data = member_totals[MembershipType.student]
         self.job_seekers.data = member_totals[MembershipType.job_seeker]
-        self.incapacity.data = member_totals[ MembershipType.incapacity]
+        self.incapacity.data = member_totals[MembershipType.incapacity]
         self.honorary.data = member_totals[MembershipType.honorary]
         self.others.data = member_totals[MembershipType.other_concession]
         self.young_adults.data = member_totals[MembershipType.intermediate]

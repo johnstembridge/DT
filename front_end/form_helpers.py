@@ -31,6 +31,28 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = CheckboxInput()
 
 
+class ReadOnlyWidget(object):
+    def __call__(self, field, **kwargs):
+        return field.data if field.data else ''
+
+
+def read_only_form(form):
+    fields = [val for val in form._fields]
+    for field in fields:
+        prop = getattr(form, field)
+        if prop:
+            if prop.type == 'FieldList':
+                for item in prop.entries:
+                    read_only_form(item.form)
+            else:
+                setattr(prop, 'widget', ReadOnlyWidget())
+                if prop.type == 'MySelectField':
+                    x = [c[1] for c in prop.choices if c[0] == prop.data]
+                    prop.data = x[0] if len(x) > 0 else ''
+                if prop.data == '':
+                    prop.data = '-'
+
+
 def flash_errors(form):
     for field, errors in form.errors.items():
         for error in errors:

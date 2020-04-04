@@ -16,8 +16,14 @@ class FormEnum(Enum):
         if not item:
             return None
         # return cls(int(item)) if not isinstance(item, cls) else item
+        if isinstance(item, str) and '(' == item[0]:
+            item = eval(item)
         if isinstance(item, cls):
             return item.value
+        elif isinstance(item, int):
+            return item
+        elif isinstance(item, tuple):
+            return item[0]
         else:
             return int(item)
 
@@ -37,6 +43,7 @@ class FormEnum(Enum):
 
 
 class UserRole(FormEnum):
+    none = (0, 'none', False)
     member = (1, 'own', True)
     afcw = (2, 'current', False)
     extract = (3, 'current', False)

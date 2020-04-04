@@ -70,6 +70,16 @@
                     </ul>
                 </li>
             {% endif %}
+            {% if current_user.has_access(UserRole.super) %}
+                <li class="dropdown">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Super<b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('backup') }}">Backup</a></li>
+                        <li><a href="{{ url_for('restore') }}">Restore</a></li>
+                        <li><a href="{{ url_for('show_help', subject='technical') }}">Technical documentation</a></li>
+                    </ul>
+                </li>
+            {% endif %}
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">Help<b class="caret"></b></a>
                 <ul class="dropdown-menu">

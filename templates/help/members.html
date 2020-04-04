@@ -1,7 +1,8 @@
 <html>
 <h3>Find Members</h3>
 <p>This menu option allows you to quickly find a member.
-    {% if current_user.has_write_access() %} You can also update a member's details.{% endif %}
+    {% if current_user.has_write_access() %} You can also update a member's details.
+    {% else %} You can also view a member's details.{% endif %}
 </p>
 <ol>
     <li>Go to membership.thedonstrust.org
