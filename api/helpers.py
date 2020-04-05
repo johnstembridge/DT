@@ -18,12 +18,12 @@ def wants_json_response():
 
 
 def user_ok_to_view_member(current_user, member_number):
-    if current_user.role is UserRole.admin:
+    if current_user.role in UserRole.admin_access():
         return True
     return current_user.member_id == member_number
 
 
 def id_is_current_user(current_user, id):
-    if current_user.role is UserRole.admin:
+    if current_user.role in UserRole.admin_access():
         return True
     return current_user.id == id

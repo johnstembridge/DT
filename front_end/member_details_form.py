@@ -2,15 +2,15 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, HiddenField, FieldList, FormField, DecimalField
 from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
-import datetime
 
 from back_end.interface import get_new_member, get_member, save_member_details, get_new_comment, get_new_payment, \
     get_members_by_name, get_new_action, country_choices, county_choices, state_choices, get_country, get_county, \
     get_state, get_junior
-from front_end.form_helpers import MySelectField
+from front_end.form_helpers import MySelectField, read_only_form
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
-    ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess
+    ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess, UserRole
 from back_end.data_utilities import fmt_date
+import datetime
 
 
 class PaymentItemForm(FlaskForm):
@@ -44,7 +44,9 @@ class MemberDetailsForm(FlaskForm):
     end_date = DateField(label='End')
     birth_date = DateField(label='Birth', validators=[Optional()])
     age = HiddenField(label='Age')
-    payment_method = MySelectField(label='Current payment method', choices=PaymentMethod.choices(blank=True),
+    access = MySelectField(label='Access', choices=UserRole.choices(blank=False, ),
+                           coerce=UserRole.coerce)
+    payment_method = MySelectField(label='Current payment', choices=PaymentMethod.choices(blank=True),
                                    coerce=PaymentMethod.coerce)
     external_access = MySelectField(label='External access', choices=ExternalAccess.choices(),
                                     coerce=ExternalAccess.coerce)
@@ -101,6 +103,7 @@ class MemberDetailsForm(FlaskForm):
         self.end_date.data = member.end_date
         self.birth_date.data = member.birth_date
         self.age.data = str(member.age()) if member.age() is not None else None
+        self.access.data = member.user.role.value if member.user else 0
 
         self.payment_method.data = member.last_payment_method.value if member.last_payment_method else ''
         self.external_access.data = (member.external_access or ExternalAccess.none).value
@@ -185,6 +188,8 @@ class MemberDetailsForm(FlaskForm):
             'start_date': self.start_date.data,
             'end_date': self.end_date.data,
             'birth_date': self.birth_date.data,
+
+            'access': self.access.data,
 
             'payment_method': self.payment_method.data,
             'external_access': self.external_access.data,

@@ -29,7 +29,7 @@ class FormEnum(Enum):
 
     @classmethod
     def from_name(cls, name):
-        return [c for c in cls if c.name == name][0]
+        return [c for c in cls if c.name in name][0]
 
     @classmethod
     def from_value(cls, value):
@@ -43,20 +43,46 @@ class FormEnum(Enum):
 
 
 class UserRole(FormEnum):
-    none = (0, 'none', False)
-    member = (1, 'own', True)
-    afcw = (2, 'current', False)
-    extract = (3, 'current', False)
-    jd_admin = (4, 'lapsed 1yr', True)
-    dt_board = (5, 'lapsed 1yr', False)
-    support = (5, 'lapsed 1yr+', False)
-    admin = (6, 'lapsed 1yr+', True)
-    super = (7, 'all', True)
+    none = 0  # (0, 'none', False)
+    member = 1  # (1, 'own', True)
+    afcw = 2  # (2, 'current', False)
+    extract = 3  # (3, 'current', False)
+    jd_admin = 4  # (4, 'lapsed 1yr', True)
+    dt_board = 5  # (5, 'lapsed 1yr', False)
+    support = 6  # (5, 'lapsed 1yr+', False)
+    admin = 7  # (6, 'lapsed 1yr+', True)
+    super = 8  # (7, 'all', True)
 
-    def __init__(self, level, access, write):
-        self.level = level
-        self.access = access
-        self.write = write
+    # def __init__(self, level, access, write):
+    #     self.level = level
+    #     self.access = access
+    #     self.write = write
+
+    @staticmethod
+    def admin_access():
+        return [UserRole.member, UserRole.jd_admin, UserRole.admin, UserRole.super]
+
+    @staticmethod
+    def write_access():
+        return [UserRole.member, UserRole.jd_admin, UserRole.admin, UserRole.super]
+
+    @staticmethod
+    def lapsed_access(type):
+        if type == 'all':
+            return [UserRole.super,]
+        elif type == 'any':
+            return [UserRole.jd_admin, UserRole.dt_board, UserRole.support, UserRole.admin, UserRole.super]
+        elif type == '1yr+':
+            return [UserRole.support, UserRole.admin, UserRole.super]
+
+    @staticmethod
+    def has_lapsed_access(type):
+        if type == 'all':
+            return [UserRole.super,]
+        elif type == 'any':
+            return [UserRole.jd_admin, UserRole.dt_board, UserRole.support, UserRole.admin, UserRole.super]
+        elif type == '1yr+':
+            return [UserRole.support, UserRole.admin, UserRole.super]
 
 
 class MemberStatus(FormEnum):

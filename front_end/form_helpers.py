@@ -118,14 +118,13 @@ def membership_type_choices():
 
 
 def limit_status_and_lapsed_date_by_access(query_clauses):
-    access = current_user.role.access
-    if access != 'all':
+    if not current_user.role.has_lapsed_access('all'):
         # limit inclusion of lapsed members according to current user's access rights
         sel_status = [c for c in query_clauses if c[0] == 'Member' and c[1] == 'status']
         if not sel_status:
             limit = current_user.access_limit()
             query_clauses.append(('Member', 'status', limit, '<=', None, 'sel_status'))
-        if 'lapsed 1yr+' not in access:
+        if not current_user.role.has_lapsed_access('1yr+'):
             last_lapse_date = get_1yr_lapsed_date()
             query_clauses.append(('Member', 'end_date', fmt_date(last_lapse_date), '>=', None, 'sel_end_date'))
     return query_clauses

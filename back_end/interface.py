@@ -173,7 +173,7 @@ def save_member_details(member_number, details):
     member.end_date = details['end_date']
     member.birth_date = details['birth_date']
 
-    role = [u for u in UserRole if u.value[0] == details['access']][0]
+    role = UserRole.from_value(details['access'])
     if member.user:
         member.user.role = role
     elif role != UserRole.none:

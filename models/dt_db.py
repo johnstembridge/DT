@@ -362,7 +362,7 @@ class User(Base, UserMixin):
     member_id = Column(Integer, ForeignKey('members.id'), nullable=False)
     user_name = Column(String(25), nullable=False)
     password = Column(String(100), nullable=False)
-    role = Column(Enum(UserRole), nullable=False)
+    role = Column(EnumType(UserRole), nullable=False)
     member = relationship('Member', back_populates='user')
     token = Column(String(256), nullable=True, index=True, unique=True)
     expires = Column(DateTime, nullable=True)
@@ -378,23 +378,23 @@ class User(Base, UserMixin):
         return data
 
     def has_access(self, required_role):
-        return self.role.level >= required_role.level
+        return self.role.value >= required_role.value
 
     def is_access(self, required_role):
-        return self.role.level == required_role.level
+        return self.role == required_role
 
-    def has_lapsed_access(self):
-        return self.role.access == 'all' or 'lapsed' in self.role.access
+    def has_lapsed_access(self, type='any'):
+        return self.role in UserRole.lapsed_access(type)
 
     def access_limit(self):
-        if self.role.access == 'all':
+        if self.role in UserRole.lapsed_access('all'):
             return 100
-        if 'lapsed' in self.role.access:
+        if self.role in UserRole.lapsed_access('any'):
             return MemberStatus.lapsed.value
         return MemberStatus.current.value
 
     def has_write_access(self):
-        return self.role.write
+        return self.role in UserRole.write_access()
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

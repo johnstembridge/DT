@@ -11,7 +11,7 @@ def role_required(*role):
         @wraps(f)
         def wrapped(*args, **kwargs):
             if current_user:
-                required_role = UserRole.from_name(role[0])
+                required_role = UserRole.from_name(role)
                 if current_user.has_access(required_role):
                     return f(*args, **kwargs)
                 abort(401, description='Sorry, you do not have access')
