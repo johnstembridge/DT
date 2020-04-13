@@ -6,7 +6,7 @@ class Super:
 
     @staticmethod
     def backup_database():
-        res = subprocess.run(["./backup.sh"], stderr=subprocess.PIPE, universal_newlines=True, shell=True)
+        res = subprocess.run(["/home/admin/backup.sh"], stderr=subprocess.PIPE, universal_newlines=True, shell=True)
         text = res.stderr.split('\n')
         if res.returncode == 0:
             flash('Backup successful', 'success')
