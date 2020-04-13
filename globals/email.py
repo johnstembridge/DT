@@ -16,7 +16,7 @@ def send_async_email(app, msg):
 
 def send_mail(to, sender, cc=None, subject=None, message=None):
     #in order to get this to work, had to change the libraries as follows:
-    #/home/admin/wagsv_python/venv/lib/python3.5/site-packages/flask_sendmail/connection.py[23]
+    #/home/admin/dt/venv3/lib/python3.5/site-packages/flask_sendmail/connection.py[23]
     #   sm.stdin.write(str.encode(message.dump()))
     #/usr/lib/python3.5/email/mime/text.py[17]
     #   def __init__(self, _text, _subtype='plain', _charset='utf-8'):

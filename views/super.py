@@ -1,5 +1,5 @@
 from flask_login import login_required
-from flask import request, flash, redirect, url_for
+from flask import request, flash, redirect, url_for, render_template
 from globals.decorators import role_required
 from main import app
 from front_end.super import Super
