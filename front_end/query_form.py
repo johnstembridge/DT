@@ -50,7 +50,7 @@ class QueryForm(FlaskForm):
     def query_fields(self):
         return [self.number, self.status, self.member_type, self.start_date, self.end_date,
                 self.payment_method, self.comms, self.birth_month, self.age,
-                self.current_action, self.action_status, self.action_comment,
+                self.current_action, self.action_date, self.action_status, self.action_comment,
                 self.comment_date, self.comment, self.last_updated,
                 self.first_name, self.last_name, self.email, self.post_code, self.country]
 
