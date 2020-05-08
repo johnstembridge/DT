@@ -26,6 +26,16 @@ def process_etl(import_path, file_in, session, etl_fn):
             save_object(obj)
 
 
+def season_ticket_etl(rec):
+    if rec == 'header':
+        return ['Member ID', 'Season Ticket ID']
+    member_number = int(rec['Member ID'])
+    member = db_session.query(Member).filter_by(number=member_number).first()
+    season_ticket_id = int(rec['Season Ticket ID'])
+    member.season_ticket_id = season_ticket_id
+    return member
+
+
 def user_etl(rec):
     if rec == 'header':
         return ['member_number', 'user_name', 'role', 'password']
@@ -298,9 +308,16 @@ def parse_comments(comment):
 
 def save_object(objects):
     for object in force_list(objects):
-        if not object.id:
-            db_session.add(object)
-        db_session.commit()
+        try:
+            if not object.id:
+                db_session.add(object)
+            db_session.commit()
+        except:
+            # if any kind of exception occurs, rollback transaction
+            db_session.rollback()
+            raise
+        finally:
+            pass  # db_session.close()
 
 
 def get_member_id(member_number):

@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 from models.dt_db import *  # Base, EnumType, Member, Address, Action, Comment, Payment etc.
 from globals import config
 from etl.etl import process_etl, member_etl, payment_etl, donation_etl, comment_etl, country_etl, county_etl, \
-    state_etl, user_etl
+    state_etl, user_etl, season_ticket_etl
 
 
 def delete_tables():
@@ -27,6 +27,10 @@ def import_all():
     process_etl(import_path, 'users.txt', session, user_etl)
 
 
+def import_season_tickets():
+    process_etl(import_path, 'season tickets.csv', session, season_ticket_etl)
+
+
 if __name__ == '__main__':
     args = sys.argv
     db_path = config.get('db_path')
@@ -42,3 +46,5 @@ if __name__ == '__main__':
         create_tables()
     if 'etl' in args or 'all' in args:
         import_all()
+    if 'season_ticket' in args:
+        import_season_tickets()

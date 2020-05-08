@@ -1,5 +1,5 @@
 {
-  "OS": "Unix",
+  "OS": "linux",
   "apache_group_name": "www-data",
   "SECRET_KEY": "secret squirrel",
   "override": false,
@@ -11,7 +11,9 @@
     "html": "/var/www/html",
     "logs": "/var/log/dt",
     "templates": "templates",
-    "import": "/var/data/import"
+    "scripts": "scripts/linux",
+    "import": "/var/data/import",
+    "backups": "/var/data/backups"
   },
     "url_prefix": {
     "admin": "",

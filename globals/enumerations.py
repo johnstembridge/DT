@@ -43,20 +43,15 @@ class FormEnum(Enum):
 
 
 class UserRole(FormEnum):
-    none = 0  # (0, 'none', False)
-    member = 1  # (1, 'own', True)
-    afcw = 2  # (2, 'current', False)
-    extract = 3  # (3, 'current', False)
-    jd_admin = 4  # (4, 'lapsed 1yr', True)
-    dt_board = 5  # (5, 'lapsed 1yr', False)
-    support = 6  # (5, 'lapsed 1yr+', False)
-    admin = 7  # (6, 'lapsed 1yr+', True)
-    super = 8  # (7, 'all', True)
-
-    # def __init__(self, level, access, write):
-    #     self.level = level
-    #     self.access = access
-    #     self.write = write
+    none = 0
+    member = 1
+    afcw = 2
+    extract = 3
+    jd_admin = 4
+    dt_board = 5
+    support = 6
+    admin = 7
+    super = 8
 
     @staticmethod
     def admin_access():

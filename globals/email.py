@@ -8,6 +8,7 @@ from globals.app_setup import mail
 
 import os
 
+
 @async
 def send_async_email(app, msg):
     with app.app_context():

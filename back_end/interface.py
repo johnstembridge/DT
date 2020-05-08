@@ -179,7 +179,7 @@ def save_member_details(member_number, details):
     elif role != UserRole.none:
         member.user = get_new_user(role)
 
-    member.last_payment_method = PaymentMethod(details['payment_method']) if details['payment_method'] > 0 else None
+    member.season_ticket_id = int(details['season_ticket']) if details['season_ticket'] else None
     member.external_access = ExternalAccess(details['external_access'])
 
     member.home_phone = details['home_phone']
@@ -224,8 +224,8 @@ def save_member_details(member_number, details):
         payments.append(item)
     member.payments = payments
 
-    # if len(payments) > 0 and not member.last_payment_method:
-    #     member.last_payment_method = [p.method for p in payments if p.date == max([p.date for p in payments])][0]
+    if len(payments) > 0 and not member.last_payment_method:
+        member.last_payment_method = [p.method for p in payments if p.date == max([p.date for p in payments])][0]
 
     actions = []
     for action in details['actions']:

@@ -46,8 +46,7 @@ class MemberDetailsForm(FlaskForm):
     age = HiddenField(label='Age')
     access = MySelectField(label='Access', choices=UserRole.choices(blank=False, ),
                            coerce=UserRole.coerce)
-    payment_method = MySelectField(label='Current payment', choices=PaymentMethod.choices(blank=True),
-                                   coerce=PaymentMethod.coerce)
+    season_ticket = StringField(label='Season Ticket')
     external_access = MySelectField(label='External access', choices=ExternalAccess.choices(),
                                     coerce=ExternalAccess.coerce)
     last_updated = StringField(label='Last Update')
@@ -105,7 +104,7 @@ class MemberDetailsForm(FlaskForm):
         self.age.data = str(member.age()) if member.age() is not None else None
         self.access.data = member.user.role.value if member.user else 0
 
-        self.payment_method.data = member.last_payment_method.value if member.last_payment_method else ''
+        self.season_ticket.data = member.season_ticket_id if member.season_ticket_id else ''
         self.external_access.data = (member.external_access or ExternalAccess.none).value
         self.last_updated.data = fmt_date(member.last_updated)
 
@@ -190,9 +189,8 @@ class MemberDetailsForm(FlaskForm):
             'birth_date': self.birth_date.data,
 
             'access': self.access.data,
-
-            'payment_method': self.payment_method.data,
             'external_access': self.external_access.data,
+            'season_ticket': self.season_ticket.data,
 
             'home_phone': self.home_phone.data.strip(),
             'mobile_phone': self.mobile_phone.data.strip(),
