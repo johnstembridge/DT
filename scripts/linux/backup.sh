@@ -1,0 +1,1 @@
+mysqldump -v --single-transaction --flush-logs --master-data=2 dt | gzip -9 > /var/data/backups/dt-db-$(date +%Y%m%d).sql.gz

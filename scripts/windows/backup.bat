@@ -1,0 +1,1 @@
+"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqldump" -u DTuser -p"9wudger9!DTuser!" -h localhost dt > D:\donstrust\backups\dt-db-%date:/=%.sql
