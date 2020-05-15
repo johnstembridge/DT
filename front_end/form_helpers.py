@@ -257,7 +257,7 @@ extract_fields_map = OrderedDict([
     ('season ticket', 'season_ticket_id'),
     ('recent new', 'is_recent_new()'),
     ('card start year', 'start_year_for_card()'),
-    ('certificate date', '=encode_date_formal(datetime.date.today(), cert=True)'),
+    ('certificate date', 'certificate_date()'),
     ('next member type', 'future_membership_type().name'),
     ('volatile concession', 'volatile_concession()'),
     ('last updated', 'last_updated')

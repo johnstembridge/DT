@@ -8,8 +8,8 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
     CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus
-from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end
-from datetime import datetime
+from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal
+from datetime import datetime, date
 from time import time, localtime, strftime
 
 Base = declarative_base()
@@ -332,7 +332,8 @@ class Member(Base):
             extra = ''
         return str(self.start_date.year) + extra
 
-        # endregion
+    def certificate_date(self):
+        return encode_date_formal(date.today(), cert=True)
 
     def future_membership_type(self, next_renewal_date=None):
         # returns membership type at next renewal
