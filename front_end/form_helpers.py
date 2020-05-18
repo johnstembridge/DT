@@ -216,6 +216,7 @@ def select_fields_to_update(select_fields, default_table):
 extract_fields_map = OrderedDict([
     ('number', 'dt_number()'),
     ('full name', 'full_name()'),
+    ('title', 'title.name'),
     ('first name', 'first_name'),
     ('last name', 'last_name'),
     ('sex', 'sex.name'),
