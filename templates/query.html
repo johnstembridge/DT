@@ -48,8 +48,15 @@
             <td>{{ form.payment_method.label }}</td>
             <td>{{ form.payment_method(title='Select by payment method') }}</td>
 
+            <td>{{ form.payment_date.label }}</td>
+            <td>{{ form.payment_date(title='Select by payment date') }}</td>
+        </tr>
+        <tr>
             <td>{{ form.comms.label }}</td>
             <td>{{ form.comms(title='Select by comms preference') }}</td>
+
+            <td>{{ form.comms_status.label }}</td>
+            <td>{{ form.comms_status(title='Select by comms status') }}</td>
         </tr>
         <tr>
             <td>{{ form.current_action.label }}</td>

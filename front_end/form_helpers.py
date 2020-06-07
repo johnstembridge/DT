@@ -232,6 +232,7 @@ extract_fields_map = OrderedDict([
     ('home phone', 'home_phone'),
     ('mobile phone', 'mobile_phone'),
     ('comms', 'comms.name'),
+    ('comms status', 'comms_status.name'),
     ('payment method', 'last_payment_method.name'),
     ('dues', 'dues()'),
     ('full address', 'address.full()'),
@@ -261,6 +262,7 @@ extract_fields_map = OrderedDict([
     ('certificate date', 'certificate_date()'),
     ('next member type', 'future_membership_type().name'),
     ('volatile concession', 'volatile_concession()'),
+    ('last payment date', 'last_payment_date()'),
     ('last updated', 'last_updated')
 ])
 

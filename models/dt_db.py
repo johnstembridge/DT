@@ -353,6 +353,14 @@ class Member(Base):
         else:
             return None
 
+    def last_payment_date(self):
+        dates = [p.date for p in self.payments]
+        if len(dates) > 0:
+            latest = max(dates)
+        else:
+            latest = None
+        return latest
+
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())
     # endregion

@@ -69,7 +69,10 @@ class Dashboard(FlaskForm):
 
         def add_payment(member, payment_totals):
             if member.last_payment_method:
-                payment_totals[member.last_payment_method] += 1
+                if member.last_payment_method.value > PaymentMethod.cash.value:
+                    payment_totals[100] += 1  # other
+                else:
+                    payment_totals[member.last_payment_method] += 1
             else:
                 payment_totals[PaymentMethod.chq] += 1
             return

@@ -224,7 +224,7 @@ def save_member_details(member_number, details):
         payments.append(item)
     member.payments = payments
 
-    if len(payments) > 0 and not member.last_payment_method:
+    if len(payments) > 0:
         member.last_payment_method = [p.method for p in payments if p.date == max([p.date for p in payments])][0]
 
     actions = []
