@@ -84,7 +84,7 @@ def reset_member_actions_for_query(query_clauses):
 
 def get_members_for_query(query_clauses, default_table='Member', limit=None):
     clauses = []
-    tables = get_tables_for_query(default_table, query_clauses)
+    tables = tables_needed_for_query(default_table, query_clauses)
     engine = db.session.bind.engine.name
     for field in query_clauses:
         if len(field) == 5:
@@ -140,7 +140,7 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
     return q
 
 
-def get_tables_for_query(default_table, query_clauses):
+def tables_needed_for_query(default_table, query_clauses):
     # find all tables required for a query defined by query_clauses
     tables = unique([default_table] + [q[0] for q in query_clauses])
     # Address is also needed if any second level table is required

@@ -1,5 +1,5 @@
 from back_end.query import Query
-from back_end.data_utilities import fmt_date
+from back_end.data_utilities import fmt_date, current_year_end
 from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod, CommsType, \
     CommsStatus
 import datetime
@@ -104,15 +104,15 @@ class Extracts:
     @staticmethod
     def extract_renewals():
         # for renewal notices at membership year end
-        end_date = fmt_date(datetime.date(datetime.date.today().year + 1, 8, 1))
+        end_date = fmt_date(current_year_end())
         query_clauses = [
             ('Member', 'end_date', end_date, '=', None),
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = \
             ['number', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
-             'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
-             'dues', 'payment method', 'birth date', 'email', 'use email', 'AFCW access', '3rd pty access',
+             'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'dues',
+             'payment method', 'birth date', 'age next renewal', 'email', 'use email', 'AFCW access', '3rd pty access',
              'home phone', 'mobile phone', 'junior email', 'volatile concession', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 

@@ -295,6 +295,10 @@ class Member(Base):
     def age_next_birthday(self):
         return self.age(self.next_birthday())
 
+    def age_next_renewal(self):
+        next_renewal_date = current_year_end()
+        return self.age(next_renewal_date)
+
     def dues(self, as_of=None, default=True):
         if not as_of:
             as_of = self.end_date
