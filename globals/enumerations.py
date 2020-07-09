@@ -88,6 +88,7 @@ class MemberStatus(FormEnum):
     suspended = 5
     cancelled = 6
     deceased = 7
+    plus = 8
     reserved = 98
 
     @staticmethod
@@ -96,7 +97,7 @@ class MemberStatus(FormEnum):
 
     @staticmethod
     def all_including_lapsed():
-        return [MemberStatus.life, MemberStatus.founder, MemberStatus.current, MemberStatus.lapsed]
+        return [MemberStatus.life, MemberStatus.founder, MemberStatus.current, MemberStatus.plus, MemberStatus.lapsed]
 
 
 class MembershipType(FormEnum):
@@ -112,7 +113,7 @@ class MembershipType(FormEnum):
 
     @staticmethod
     def all_concessions():
-        return [MembershipType.job_seeker, MembershipType.senior, MembershipType.student, MembershipType.incapacity,
+        return [MembershipType.job_seeker, MembershipType.student, MembershipType.incapacity,
                 MembershipType.other_concession]
 
     @staticmethod
@@ -197,6 +198,18 @@ class Dues(FormEnum):
     concession = 10
     standard = 25
     senior = 10
+    plus = 45
+
+
+class AgeBand(FormEnum):
+    junior = (0, 15)        # (0, 17)
+    intermediate = (16, 20) # (18, 21)
+    adult = (21, 59)        # (22, 64)
+    senior = (60, 200)      # (65, 200)
+
+    def __init__(self, lower, upper):
+        self.lower = lower
+        self.upper = upper
 
 
 class Months(FormEnum):

@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime, Enum
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus
+    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus, AgeBand
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal
 from datetime import datetime, date
 from time import time, localtime, strftime
@@ -238,7 +238,7 @@ class Member(Base):
 
     def is_upgrade(self):
         return self.is_adult() and \
-               first_or_default(self.actions, MemberAction.other).action == MemberAction.upgrade
+               first_or_default(self.actions, MemberAction.other) == MemberAction
 
     def is_recent_new(self):
         return self.start_date >= datetime(datetime.today().year, 2, 1).date()
@@ -253,6 +253,8 @@ class Member(Base):
         return self.comms_status == CommsStatus.email_fail
 
     def next_birthday(self, as_of=None):
+        if not self.birth_date:
+            return None
         if not as_of:
             as_of = datetime.today().date()
         birth_date = self.birth_date
@@ -267,7 +269,9 @@ class Member(Base):
         return next_birthday
 
     def birth_month(self):
-        return calendar.month_name[self.birth_date.month]
+        if self.birth_date:
+            return calendar.month_name[self.birth_date.month]
+        return None
 
     def age(self, as_of=None, default=False):
         if self.birth_date:
@@ -300,16 +304,18 @@ class Member(Base):
         return self.age(next_renewal_date)
 
     def dues(self, as_of=None, default=True):
+        if self.status == MemberStatus.life:
+            return None
         if not as_of:
             as_of = self.end_date
         age = self.age(as_of, default)
-        if age < 16:
+        if age <= AgeBand.junior.upper:
             if self.start_date.year == self.end_date.year and as_of < self.end_date:
                 return Dues.junior_new.value
             return Dues.junior.value
-        if age < 21:
+        if age <= AgeBand.intermediate.upper:
             return Dues.intermediate.value
-        if age >= 60:
+        if age >= AgeBand.senior.lower:
             return Dues.senior.value
         if self.member_type in MembershipType.all_concessions():
             return Dues.concession.value
