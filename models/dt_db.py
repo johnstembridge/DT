@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime, Enum
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, CommsStatus, AgeBand
+    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal
 from datetime import datetime, date
 from time import time, localtime, strftime

@@ -92,6 +92,16 @@ class MemberStatus(FormEnum):
     reserved = 98
 
     @staticmethod
+    def renewal_choices():
+        result = [
+            (1, 'Life Membership'),
+            (2, 'Founder'),
+            (3, 'Standard'),
+            (8, 'Dons Trust Plus')
+        ]
+        return result
+
+    @staticmethod
     def all_active():
         return [MemberStatus.life, MemberStatus.founder, MemberStatus.current]
 
@@ -110,6 +120,15 @@ class MembershipType(FormEnum):
     incapacity = 7
     other_concession = 8
     honorary = 9
+
+    @staticmethod
+    def renewal_choices():
+        result = [(choice.value, choice.name.replace('_', ' ').title()) for choice in MembershipType]
+        result[1] = (result[1][0], 'Young Adult (age 18-21)')
+        result[2] = (result[2][0], result[2][1] + ' (age 0-17)')
+        result[3] = (result[3][0], result[3][1] + ' (age 65+)')
+        del result[-1]
+        return result
 
     @staticmethod
     def all_concessions():
@@ -166,6 +185,16 @@ class PaymentMethod(FormEnum):
     cash = 4
     xfer = 5
     so = 6
+
+    @staticmethod
+    def renewal_choices():
+        result = [
+            (1, 'Credit/Debit card'),
+            (2, 'Direct Debit'),
+            (3, 'Cheque'),
+            (4, 'Cash')
+        ]
+        return result
 
 
 class CommsType(FormEnum):
