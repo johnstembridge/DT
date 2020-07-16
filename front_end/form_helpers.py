@@ -222,6 +222,7 @@ extract_fields_map = OrderedDict([
     ('sex', 'sex.name'),
     ('status', 'status.name'),
     ('member type', 'member_type.name'),
+    ('type next renewal', 'member_type_next_renewal().name'),
     ('start', 'start_date'),
     ('end', 'end_date'),
     ('birth date', 'birth_date'),
@@ -263,7 +264,6 @@ extract_fields_map = OrderedDict([
     ('recent new', 'is_recent_new()'),
     ('card start year', 'start_year_for_card()'),
     ('certificate date', 'certificate_date()'),
-    ('next member type', 'future_membership_type().name'),
     ('volatile concession', 'volatile_concession()'),
     ('last payment date', 'last_payment_date()'),
     ('last updated', 'last_updated')

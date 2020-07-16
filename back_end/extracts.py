@@ -110,7 +110,7 @@ class Extracts:
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = \
-            ['number', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
+            ['number', 'type next renewal', 'full name', 'address (line 1)', 'address (line 2)',
              'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'dues',
              'payment method', 'birth date', 'age next renewal', 'email', 'use email', 'AFCW access', '3rd pty access',
              'home phone', 'mobile phone', 'junior email', 'volatile concession', 'first name', 'last name']
@@ -125,6 +125,6 @@ class Extracts:
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = \
-            ['number', 'member type', 'full name', 'dues', 'email', 'address (line 1)', 'address (line 2)',
+            ['number', 'type next renewal', 'full name', 'dues', 'email', 'address (line 1)', 'address (line 2)',
              'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)

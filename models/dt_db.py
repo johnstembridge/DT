@@ -288,13 +288,15 @@ class Member(Base):
                 return None
             elif self.member_type:
                 if self.member_type == MembershipType.junior:
-                    return 10
+                    return AgeBand.junior.lower
                 elif self.member_type == MembershipType.intermediate:
-                    return 18
+                    return AgeBand.intermediate.lower
+                elif self.member_type == MembershipType.senior:
+                    return AgeBand.senior.lower
                 else:
-                    return 25
+                    return AgeBand.adult.lower
             else:
-                return 25
+                return AgeBand.adult.lower
 
     def age_next_birthday(self):
         return self.age(self.next_birthday())
@@ -303,9 +305,26 @@ class Member(Base):
         next_renewal_date = current_year_end()
         return self.age(next_renewal_date)
 
+    def member_type_next_renewal(self):
+        if self.member_type in MembershipType.all_concessions():
+            return self.member_type
+        next_renewal_date = current_year_end()
+        age = self.age(next_renewal_date, True)
+        if age <= AgeBand.junior.upper:
+            return MembershipType.junior
+        if age <= AgeBand.intermediate.upper:
+            return MembershipType.intermediate
+        if age <= AgeBand.senior.lower:
+            return MembershipType.standard
+        if age > AgeBand.senior.lower:
+            return MembershipType.senior
+        return MembershipType.standard
+
     def dues(self, as_of=None, default=True):
         if self.status == MemberStatus.life:
             return None
+        if self.member_type in MembershipType.all_concessions():
+            return Dues.concession.value
         if not as_of:
             as_of = self.end_date
         age = self.age(as_of, default)
@@ -315,10 +334,10 @@ class Member(Base):
             return Dues.junior.value
         if age <= AgeBand.intermediate.upper:
             return Dues.intermediate.value
-        if age >= AgeBand.senior.lower:
+        if age <= AgeBand.senior.lower:
+            return Dues.standard.value
+        if age > AgeBand.senior.lower:
             return Dues.senior.value
-        if self.member_type in MembershipType.all_concessions():
-            return Dues.concession.value
         return Dues.standard.value
 
     def use_email(self):
@@ -344,17 +363,6 @@ class Member(Base):
 
     def certificate_date(self):
         return encode_date_formal(date.today(), cert=True)
-
-    def future_membership_type(self, next_renewal_date=None):
-        # returns membership type at next renewal
-        if not next_renewal_date:
-            next_renewal_date = current_year_end()
-        age = self.age(next_renewal_date)
-        if self.member_type == MembershipType.junior and age >= 16:
-            self.member_type = MembershipType.intermediate
-        elif self.member_type == MembershipType.intermediate and age >= 21:
-            self.member_type = MembershipType.standard
-        return self.member_type
 
     def current_action(self):
         current = [a for a in self.actions if a.status == ActionStatus.open]

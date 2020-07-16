@@ -231,10 +231,10 @@ class Dues(FormEnum):
 
 
 class AgeBand(FormEnum):
-    junior = (0, 15)        # (0, 17)
-    intermediate = (16, 20) # (18, 21)
-    adult = (21, 59)        # (22, 64)
-    senior = (60, 200)      # (65, 200)
+    junior = (0, 17)        # was (0, 15)
+    intermediate = (18, 21) # was (16, 20)
+    adult = (22, 64)        # was (21, 59)
+    senior = (65, 200)      # was (60, 200)
 
     def __init__(self, lower, upper):
         self.lower = lower

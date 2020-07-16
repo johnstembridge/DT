@@ -5,6 +5,7 @@ import math
 import re
 import os
 from email.utils import parseaddr
+import globals.config as config
 
 
 # region dates
@@ -122,15 +123,14 @@ def current_year():
 
 
 def current_year_end():
-    year = datetime.datetime.now().year
-    if datetime.datetime.now().month >= 8:
-        year += 1
-    return datetime.date(year=year, month=8, day=1)
-
+    date = config.get('next_renewal_date')
+    return parse_date(date, reverse=True)
 
 # endregion
 
+
 # region lists
+
 def unique(item_list):
     # retains order
     res = []
@@ -194,6 +194,7 @@ def list_from_dict(dict, keys):
 
 
 # region files
+
 def file_delimiter(filename):
     file_type = (filename.split('.'))[-1]
     if file_type == 'csv':
@@ -211,7 +212,6 @@ def delete_file(file):
     if os.path.isfile(file):
         os.remove(file)
 # endregion
-
 
 def get_digits(text):
     return ''.join(list(filter(str.isdigit, text)))
@@ -345,3 +345,9 @@ def html_unescape(text):
 
 def yes_no(true_false):
     return 'yes' if true_false else 'no'
+
+
+def match_string(a, b):
+    a = remove(a.lower(), ' ')
+    b = remove(b.lower(), ' ')
+    return a == b
