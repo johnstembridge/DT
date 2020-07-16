@@ -118,7 +118,7 @@ class Extracts:
 
     @staticmethod
     def extract_debits():
-        end_date = fmt_date(datetime.date(datetime.date.today().year + 1, 8, 1))
+        end_date = fmt_date(current_year_end())
         query_clauses = [
             ('Member', 'end_date', end_date, '=', None),
             ('Member', 'last_payment_method', PaymentMethod.dd, '=', None),
