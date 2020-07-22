@@ -21,6 +21,10 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
                     if user and user.member_id != member.id:
                         ok, message, message_type = False, 'User name already in use', 'warning'
                     else:
+                        if role == UserRole.member:
+                            ok, message, message_type = member.check_credentials(user_name, password)
+                            if not ok:
+                                return ok, user_id, message, message_type
                         if not member.user:
                             user = User(user_name=user_name, member_id=member.id)
                         else:

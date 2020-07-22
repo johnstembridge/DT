@@ -43,7 +43,7 @@ def load_user_from_request(request):
 @app.route('/login', methods=['GET', 'POST'])
 def user_login():
     next_page = request.args.get('next')
-    return login.user_login(next_page)
+    return login.login(next_page)
 
 
 @app.route('/logout', methods=['GET', 'POST'])

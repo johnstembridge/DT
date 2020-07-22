@@ -22,16 +22,37 @@ class LoginForm(FlaskForm):
         pass
 
 
-def user_login(next_page, app=None):
+class MemberLoginForm(FlaskForm):
+    email = StringField('Email address', validators=[DataRequired(), Email("Invalid email address")])
+    post_code = StringField('Post code', validators=[DataRequired()])
+    remember_me = BooleanField('Remember Me')
+    submit = SubmitField('Sign In')
+
+    def populate(self):
+        pass
+
+
+def login(next_page, app=None):
     if current_user.is_authenticated:
         return redirect(next_page)
+    url_components = next_page.split('/')
+    is_member_login = 'members' in url_components  and 'renewal' in url_components
+    if is_member_login:
+        member_number = int(url_components[2])
+        return member_login(next_page, member_number, app)
+    else:
+        return user_login(next_page, app)
+
+
+def user_login(next_page, app=None):
+    form_name = 'login.html'
     form = LoginForm()
     if form.is_submitted():
         if form.validate_on_submit():
             user = get_user(user_name=form.username.data)
             if user is None or not user.check_password(form.password.data):
                 flash('Invalid username or password', 'danger')
-                return render_template('login.html', title='Sign In', form=form)
+                return render_template(form_name, title='Sign In', form=form)
             login_user(user, remember=form.remember_me.data)
             if not next_page:
                 next_page = 'index'
@@ -40,8 +61,33 @@ def user_login(next_page, app=None):
             return redirect(next_page)
     else:
         form.populate()
+    return render_template(form_name, title='Sign In', form=form)
 
-    return render_template('login.html', title='Sign In', form=form)
+
+def member_login(next_page, member_number, app=None):
+    form_name = 'member_login.html'
+    form = MemberLoginForm()
+    if form.is_submitted():
+        if form.validate_on_submit():
+            user_name = str(member_number)
+            password = User.member_password(form.post_code.data)
+            user = get_user(user_name=user_name)
+            if user is None:
+                ok, id, message, message_type = member_register(member_number, user_name, password, form.email.data)
+                if ok:
+                    user = get_user(id=id)
+            if user is None or not user.check_password(password):
+                flash('Email or post code do not match', 'danger')
+                return render_template(form_name, title='Sign In', form=form)
+            login_user(user, remember=form.remember_me.data)
+            if not next_page:
+                next_page = 'index'
+            else:
+                next_page = next_page
+            return redirect(next_page)
+    else:
+        form.populate()
+    return render_template(form_name, title='Sign In', form=form)
 
 
 def validate_username(self, username):
@@ -86,6 +132,15 @@ def user_register(new=True):
                 flash(message, message_type)
                 return redirect(url_for('user_register'))
     return render_template('register.html', title=form_title, form=form)
+
+
+def member_register(member_number, user_name, post_code, email, new=True):
+    # Register user (new is True) or reset login
+    if new and current_user.is_authenticated:
+        return
+    else:
+        ok, id, message, message_type = register_user(member_number, user_name, post_code, email)
+        return ok, id, message, message_type
 
 
 def user_logout():

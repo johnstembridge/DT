@@ -1,0 +1,156 @@
+{% extends "renewal_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+
+<div class="page-header">
+    <table>
+        <tr>
+            <td>
+                <h2 class="widget-title">Season 2020/2021 membership renewal</h2>
+                <h3>{{ form.dt_number.data }} {{ form.full_name.data }}</h3>
+                <i><p>Please check all the details that we hold about you and amend if necessary. (Press Save to update)</p></i>
+            </td>
+            <td class="top">
+                <img src="https://thedonstrust.org/files/Dons-Trust-Logo-2020-web.jpg" alt="" width="150"
+                     height="150"/></a>
+            </td>
+        </tr>
+        <tr>
+            <td width="60%">
+                <ul>
+                <b>
+                    {% for line in form.notes.data %}
+                    {% if line.startswith("**") %}<i>{% endif %}
+                    <li>{{ line.replace("**", "") }}</li>
+                    {% if line.startswith("**") %}</i>{% endif %}
+                    {% endfor %}
+                </b>
+                </ul>
+            </td>
+            <td></td>
+        </tr>
+    </table>
+    <p><b>For more details see <a
+            href="https://thedonstrust.org/2020/07/18/dt_membership_renewals/"
+            target="_blank"> here</a></b>
+</div>
+<form method="POST">
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+    <h3>Membership Details</h3>
+    <table>
+        <tr>
+            <td>{{ form.title.label }}</td>
+            <td>{{ form.title(size='1') }}</td>
+            <td>{{ form.first_name.label }}</td>
+            <td>{{ form.first_name(size='15', required='required') }}</td>
+            <td>{{ form.last_name.label }}</td>
+            <td>{{ form.last_name(size='20', required='required') }}</td>
+            <td>{{ form.sex.label }}</td>
+            <td>{{ form.sex(size='1') }}</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td>{{ form.birth_date.label }}</td>
+            <td>{{ form.birth_date }}{%if form.age.data != None %} ({{ form.age.data }}){% endif %}</td>
+            <td>{{ form.type.label }}</td>
+            <td>{{ form.type() }}</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td>{{ form.line1.label }}</td>
+            <td colspan=5>{{ form.line1(size='60', required='required') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.line2.label }}</td>
+            <td colspan=5>{{ form.line2(size='60') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.line3.label }}</td>
+            <td colspan=5>{{ form.line3(size='60') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.city.label }}</td>
+            <td>{{ form.city(size='20') }}</td>
+            <td>{{ form.state.label }}</td>
+            <td>{{ form.state(style="max-width:195px;") }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.post_code.label }}</td>
+            <td>{{ form.post_code(size='10') }}</td>
+            <td>{{ form.county.label }}</td>
+            <td>{{ form.county(style="width:195px;") }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.country.label }}</td>
+            <td>{{ form.country(style="max-width:200px;") }}</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td>{{ form.home_phone.label }}</td>
+            <td>{{ form.home_phone(size='20') }}</td>
+            <td>{{ form.mobile_phone.label }}</td>
+            <td>{{ form.mobile_phone(size='20') }}</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td>{{ form.comms.label }}</td>
+            <td>{{ form.comms(required='required') }}</td>
+            <td>{{ form.email.label }}</td>
+            <td>{{ form.email(size='40') }}</td>
+        </tr>
+        {% if form.jd_email %}
+        <tr>
+            <td></td>
+            <td></td>
+            <td>{{ form.jd_email.label }}</td>
+            <td>{{ form.jd_email(size='40') }}</td>
+        </tr>
+        {% endif %}
+    </table>
+    <hr/>
+    <h3>Payment</h3>
+    {% if form.status.data != 'life' %}
+    <table>
+        <tr>
+            <td>{{ form.payment_method.label }}</td>
+            <td>{{ form.payment_method() }}</td>
+            {% if form.type.data != 3 %}
+            <td>{{ form.upgrade.label }}</td>
+            <td>{{ form.upgrade }}</td>
+            {% else %}
+            <td></td>
+            <td></td>
+            {% endif %}
+        </tr>
+    </table>
+    {% endif %}
+    {{ form.comment.label }}<br>{{ form.comment(rows=2, cols=80) }}
+    <i>
+        {% if form.status.data == 'life' %}
+        <br>As you are a Life Member, no payment is needed.
+        {% elif form.last_payment_method.data == 2 %}
+        <br>As you currently pay by Direct Debit, your membership will be renewed automatically, taking into account any
+        membership type change. Payment will be taken on September 11th.
+        {% else %}
+        <br>If you opt to pay by Card, you will be taken to the payments page after pressing Save below.
+        {% endif %}
+    </i>
+    <hr/>
+    {% if current_user.has_write_access() %}
+    {{ form.submit(class="btn btn-primary") }}&nbsp;{{ form.last_updated.label }}{{ form.last_updated.data }}
+    {% endif %}
+</form>
+{% endblock %}

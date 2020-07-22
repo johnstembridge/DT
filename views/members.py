@@ -44,3 +44,11 @@ def members_area():
     return None
 
 
+@app.route('/members/<int:member_number>/renewal', methods=['GET', 'POST'])
+@login_required
+@role_required('member')
+def renew_member(member_number):
+    return MaintainMembers.renew_member(member_number)
+
+
+

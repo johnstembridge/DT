@@ -198,6 +198,8 @@ def save_member_details(member_number, details):
     member.address.country = details['country']
 
     if member.member_type == MembershipType.junior:
+        if not member.junior:
+            member.junior = Junior()
         member.junior.email = details['jd_mail']
         member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
 
@@ -221,7 +223,7 @@ def save_member_details(member_number, details):
                 method=PaymentMethod(payment['method']) if payment['method'] > 0 else None,
                 comment=payment['comment']
             )
-        payments.append(item)
+            payments.append(item)
     member.payments = payments
 
     if len(payments) > 0:
@@ -245,7 +247,7 @@ def save_member_details(member_number, details):
                 comment=action['comment'],
                 status=ActionStatus(action['status'])
             )
-        actions.append(item)
+            actions.append(item)
     member.actions = actions
 
     comments = []
@@ -254,7 +256,6 @@ def save_member_details(member_number, details):
             continue
         item = first_or_default([c for c in member.comments if c.date == comment['date']], None)
         if item:
-            item.date = comment['date']
             item.comment = comment['comment']
         else:
             item = Comment(
@@ -262,8 +263,91 @@ def save_member_details(member_number, details):
                 date=comment['date'],
                 comment=comment['comment']
             )
-        comments.append(item)
+            comments.append(item)
     member.comments = comments
+
+    member.last_updated = datetime.date.today()
+
+    if member.number == 0:
+        member.number = next_member_number()
+        db.session.add(member)
+
+    db.session.commit()
+    return member
+
+
+def save_member_contact_details(member_number, details):
+    if member_number > 0:
+        member = get_member(member_number)
+    else:
+        member = get_new_member()
+
+    member.title = Title(details['title']) if details['title'] > 0 else None
+    member.first_name = details['first_name']
+    member.last_name = details['last_name']
+    member.sex = Sex(details['sex']) if details['sex'] > 0 else None
+
+    member.member_type = MembershipType(details['member_type'])
+    # member.status = MemberStatus(details['status'])
+    # member.start_date = details['start_date']
+    # member.end_date = details['end_date']
+    member.birth_date = details['birth_date']
+
+    # role = UserRole.from_value(details['access'])
+    # if member.user:
+    #     member.user.role = role
+    # elif role != UserRole.none:
+    #     member.user = get_new_user(role)
+
+    # member.season_ticket_id = int(details['season_ticket']) if details['season_ticket'] else None
+    # member.external_access = ExternalAccess(details['external_access'])
+
+    member.home_phone = details['home_phone']
+    member.mobile_phone = details['mobile_phone']
+    member.email = details['email']
+    member.comms = CommsType(details['comms'])
+    # member.comms_status = CommsStatus(details['comms_status'])
+
+    member.address.line_1 = details['line_1']
+    member.address.line_2 = details['line_2']
+    member.address.line_3 = details['line_3']
+    member.address.city = details['city']
+    member.address.state = details['state']
+    member.address.post_code = details['post_code']
+    member.address.county = details['county']
+    member.address.country = details['country']
+
+    if member.member_type == MembershipType.junior:
+        member.junior.email = details['jd_mail']
+        member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
+
+    if not details['comment'] in [None, '']:
+        date = datetime.date.today()
+        item = first_or_default([c for c in member.comments if c.date == date], None)
+        if item:
+            item.comment = details['comment']
+        else:
+            item = Comment(
+                member_id=member.id,
+                date=date,
+                comment=details['comment']
+            )
+            member.comments.append(item)
+    if details['upgrade']:
+        date = datetime.date.today()
+        comment = 'Upgrade to DT plus'
+        item = first_or_default([c for c in member.actions if c.date == date], None)
+        if item:
+            item.comment = comment
+            item.status = ActionStatus.open
+        else:
+            item = Action(
+                member_id=member.id,
+                date=date,
+                comment=comment,
+                status=ActionStatus.open
+            )
+            member.actions.append(item)
 
     member.last_updated = datetime.date.today()
 
@@ -302,8 +386,10 @@ def save_user(user):
         db.session.add(user)
     db.session.commit()
 
+
 def get_new_user(role):
     return User(role=role)
+
 
 # endregion
 

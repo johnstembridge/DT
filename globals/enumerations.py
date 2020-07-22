@@ -111,7 +111,7 @@ class MemberStatus(FormEnum):
 
 
 class MembershipType(FormEnum):
-    standard = 1
+    standard = 1 # adult
     intermediate = 2
     junior = 3
     senior = 4
@@ -124,6 +124,7 @@ class MembershipType(FormEnum):
     @staticmethod
     def renewal_choices():
         result = [(choice.value, choice.name.replace('_', ' ').title()) for choice in MembershipType]
+        result[0] = (result[0][0], 'Adult')
         result[1] = (result[1][0], 'Young Adult (age 18-21)')
         result[2] = (result[2][0], result[2][1] + ' (age 0-17)')
         result[3] = (result[3][0], result[3][1] + ' (age 65+)')
@@ -131,13 +132,18 @@ class MembershipType(FormEnum):
         return result
 
     @staticmethod
-    def all_concessions():
+    def all_concessions(plus=False):
+        if plus:
+            extra = [MembershipType.senior, MembershipType.intermediate]
+        else:
+            extra = []
         return [MembershipType.job_seeker, MembershipType.student, MembershipType.incapacity,
-                MembershipType.other_concession]
+                MembershipType.other_concession] + extra
 
     @staticmethod
     def volatile_concessions():
-        return [MembershipType.job_seeker, MembershipType.student, MembershipType.incapacity, MembershipType.other_concession]
+        return [MembershipType.job_seeker, MembershipType.student, MembershipType.incapacity,
+                MembershipType.other_concession]
 
     @staticmethod
     def adult():
@@ -165,6 +171,22 @@ class MemberAction(FormEnum):
     @staticmethod
     def send_other():
         return [MemberAction.gift, MemberAction.other]
+
+
+class PayPalPayment(Enum):
+    Adult = "Adult £25.00 GBP"
+    Concession = "Concession £10.00 GBP"
+    Junior_Dons_new = "Junior Dons new £10.00 GBP"
+    Junior_Dons_renewal = "Junior Dons renewal £5.00 GBP"
+    Dons_Trust_Plus_Adult = "Dons Trust Plus (Adult) £45.00 GBP"
+    Dons_Trust_Plus_Concession = "Dons Trust Plus (Concession) £30.00 GBP"
+    Dons_Trust_Plus_Upgrade_Adult = "Dons Trust Plus - upgrade Adult £20.00 GBP"
+    Dons_Trust_Plus_Upgrade_Concession = "Dons Trust Plus - upgrade Concession £20.00 GBP"
+
+    @classmethod
+    def choices(cls):
+        result = [(choice.name.replace('_', ' '), choice.value) for choice in cls]
+        return result
 
 
 class ActionStatus(FormEnum):
@@ -230,11 +252,29 @@ class Dues(FormEnum):
     plus = 45
 
 
+class PlusUpgradeDues(FormEnum):
+    intermediate = 20
+    concession = 20
+    standard = 20
+    senior = 20
+
+
 class AgeBand(FormEnum):
     junior = (0, 17)        # was (0, 15)
     intermediate = (18, 21) # was (16, 20)
     adult = (22, 64)        # was (21, 59)
     senior = (65, 200)      # was (60, 200)
+
+    def __init__(self, lower, upper):
+        self.lower = lower
+        self.upper = upper
+
+
+class OldAgeBand(FormEnum):
+    junior = (0, 15)
+    intermediate = (16, 20)
+    adult = (21, 59)
+    senior = (60, 200)
 
     def __init__(self, lower, upper):
         self.lower = lower

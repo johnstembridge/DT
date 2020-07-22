@@ -6,9 +6,10 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime, Enum
 
-from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, \
-    CommsType, Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus
-from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal
+from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
+    Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues
+from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
+    match_string
 from datetime import datetime, date
 from time import time, localtime, strftime
 
@@ -301,15 +302,16 @@ class Member(Base):
     def age_next_birthday(self):
         return self.age(self.next_birthday())
 
-    def age_next_renewal(self):
+    def age_next_renewal(self, default=False):
         next_renewal_date = current_year_end()
-        return self.age(next_renewal_date)
+        return self.age(next_renewal_date, default)
 
-    def member_type_next_renewal(self):
+    def member_type_next_renewal(self, as_of=None):
         if self.member_type in MembershipType.all_concessions():
             return self.member_type
-        next_renewal_date = current_year_end()
-        age = self.age(next_renewal_date, True)
+        if not as_of:
+            as_of = current_year_end()
+        age = self.age(as_of, True)
         if age <= AgeBand.junior.upper:
             return MembershipType.junior
         if age <= AgeBand.intermediate.upper:
@@ -322,23 +324,35 @@ class Member(Base):
 
     def dues(self, as_of=None, default=True):
         if self.status == MemberStatus.life:
-            return None
-        if self.member_type in MembershipType.all_concessions():
-            return Dues.concession.value
+            return 0
         if not as_of:
-            as_of = self.end_date
-        age = self.age(as_of, default)
-        if age <= AgeBand.junior.upper:
-            if self.start_date.year == self.end_date.year and as_of < self.end_date:
+            as_of = current_year_end()
+        type = self.member_type_next_renewal(as_of)
+        if type in MembershipType.all_concessions():
+            return Dues.concession.value
+        if type == MembershipType.junior:
+            if self.start_date.year == self.end_date.year and as_of <= self.end_date:
                 return Dues.junior_new.value
             return Dues.junior.value
-        if age <= AgeBand.intermediate.upper:
+        if type == MembershipType.intermediate:
             return Dues.intermediate.value
-        if age <= AgeBand.senior.lower:
-            return Dues.standard.value
-        if age > AgeBand.senior.lower:
+        if type == MembershipType.senior:
             return Dues.senior.value
         return Dues.standard.value
+
+    def upgrade_dues(self, as_of=None):
+        if self.status == MemberStatus.life:
+            return 0
+        if not as_of:
+            as_of = current_year_end()
+        type = self.member_type_next_renewal(as_of)
+        if type in MembershipType.all_concessions():
+            return PlusUpgradeDues.concession.value
+        if type == MembershipType.intermediate:
+            return PlusUpgradeDues.intermediate.value
+        if type == MembershipType.senior:
+            return PlusUpgradeDues.senior.value
+        return PlusUpgradeDues.standard.value
 
     def use_email(self):
         return self.comms == CommsType.email and self.comms_status == CommsStatus.all_ok
@@ -378,6 +392,21 @@ class Member(Base):
         else:
             latest = None
         return latest
+
+    def check_credentials(self, user_name, password):
+        if not match_string(user_name, str(self.number)):
+            return False, 'Email does not match', 'warning'
+        post_code = password.split('!')[0]
+        if not match_string(post_code, self.address.post_code):
+            return False, 'Post Code does not match', 'warning'
+        return True, '', ''
+
+    def concession_type(self):
+        if self.member_type in MembershipType.all_concessions(plus=True):
+            long = [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1]
+        else:
+            long = ''
+        return long
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())
@@ -431,6 +460,10 @@ class User(Base, UserMixin):
         if self.password:
             return check_password_hash(self.password, password)
         return True
+
+    @staticmethod
+    def member_password(post_code):
+        return post_code.lower().replace(' ', '') + '!salty'
 
     def get_token(self, app, expires_in=3600):
         exp = None
