@@ -180,8 +180,8 @@ class PayPalPayment(Enum):
     Junior_Dons_renewal = "Junior Dons renewal £5.00 GBP"
     Dons_Trust_Plus_Adult = "Dons Trust Plus (Adult) £45.00 GBP"
     Dons_Trust_Plus_Concession = "Dons Trust Plus (Concession) £30.00 GBP"
-    Dons_Trust_Plus_Upgrade_Adult = "Dons Trust Plus - upgrade Adult £20.00 GBP"
-    Dons_Trust_Plus_Upgrade_Concession = "Dons Trust Plus - upgrade Concession £20.00 GBP"
+    Dons_Trust_Plus_Adult_upgrade = "Dons Trust Plus Adult upgrade £20.00 GBP"
+    Dons_Trust_Plus_Concession_upgrade = "Dons Trust Plus Concession upgrade £20.00 GBP"
 
     @classmethod
     def choices(cls):
@@ -198,6 +198,7 @@ class PaymentType(FormEnum):
     dues = 1
     donation = 2
     refund = 3
+    pending = 4
 
 
 class PaymentMethod(FormEnum):

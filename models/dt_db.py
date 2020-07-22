@@ -242,7 +242,7 @@ class Member(Base):
                first_or_default(self.actions, MemberAction.other) == MemberAction
 
     def is_recent_new(self):
-        return self.start_date >= datetime(datetime.today().year, 2, 1).date()
+        return self.start_date >= datetime(current_year_end().year, 2, 1).date()
 
     def is_founder(self):
         return self.number <= 1889
@@ -407,6 +407,11 @@ class Member(Base):
         else:
             long = ''
         return long
+
+    def long_membership_type(self):
+        plus = '' if self.status == MemberStatus.current \
+            else ' (' + [c for c in MemberStatus.renewal_choices() if c[0] == self.status.value][0][1] + ')'
+        return [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1] + plus
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())

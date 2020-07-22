@@ -1,0 +1,26 @@
+{% extends "renewal_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<body>
+<h3>Renewal Acknowledgement {{ dt_number}} </h3>
+<p>Thank you for activating your renewal.</p>
+<p>
+{% if payment_method == 'dd' %}
+    As you pay by Direct Debit, we will collect {{ dues }} on 11th September.
+    Provided the payment is successful, we will update your membership and send a new membership card.
+
+    <p><b>Membership Renewal Type</b>&nbsp;{{ renewal_type }}</p>
+    <p><b>Amount to be debited</b>&nbsp;{{ dues }}</p>
+
+{% else %}
+    <p><b>Membership Renewal Type</b>&nbsp;{{ renewal_type }}</p>
+    <p><b>Amount due</b>&nbsp;{{ dues }}</p>
+
+    When you make your payment, please provide your membership number and
+    renewal type with the payment.
+    Once we have received the payment, we will update your membership and send a new membership card.
+{% endif %}
+</p>
+</body>
+{% endblock %}

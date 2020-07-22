@@ -5,7 +5,7 @@ from front_end.member_list_form import MemberListForm
 from front_end.member_details_form import MemberDetailsForm
 from front_end.renewal_form import MemberRenewalForm
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, read_only_form
-from globals.enumerations import MembershipType
+from globals.enumerations import UserRole, PaymentMethod
 
 
 class MaintainMembers:
@@ -83,20 +83,29 @@ class MaintainMembers:
     @staticmethod
     def renew_member(member_number):
         # check current user is member member_number
-        if current_user.member_id != member_number:
+        if current_user.member_id != member_number and current_user.role != UserRole.super:
             return redirect('/members/{}/renewal'.format(current_user.member_id))
         form = MemberRenewalForm()
         if form.validate_on_submit():
             if form.submit.data:
-                card_payment, paypal_payment, member = form.save_member(member_number)
-                if card_payment and member:
+                payment_method, paypal_payment, dues, member_type, member = form.save_member(member_number)
+                if member:
                     flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
                           'success')
-                    return render_template('renewal_payment.html',
-                                           pp_name=paypal_payment.name.replace("_", " "),
-                                           pp_value=paypal_payment.value,
-                                           dt_number=member.dt_number(),
-                                           concession_type=member.concession_type())
+                    if paypal_payment:
+                        return render_template('renewal_paypal.html',
+                                               pp_name=paypal_payment.name.replace("_", " "),
+                                               pp_value=paypal_payment.value,
+                                               dt_number=member.dt_number(),
+                                               concession_type=member.concession_type())
+                    else:
+                        return render_template('renewal_acknowledge.html',
+                                               dt_number=member.dt_number(),
+                                               payment_method= payment_method.name,
+                                               dues='£' + str(dues),
+                                               renewal_type=member_type
+                                               )
+                form.populate_member(member_number, request.referrer)
         elif form.errors:
             flash_errors(form)
         if not form.is_submitted():

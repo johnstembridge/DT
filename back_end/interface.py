@@ -288,25 +288,12 @@ def save_member_contact_details(member_number, details):
     member.sex = Sex(details['sex']) if details['sex'] > 0 else None
 
     member.member_type = MembershipType(details['member_type'])
-    # member.status = MemberStatus(details['status'])
-    # member.start_date = details['start_date']
-    # member.end_date = details['end_date']
     member.birth_date = details['birth_date']
-
-    # role = UserRole.from_value(details['access'])
-    # if member.user:
-    #     member.user.role = role
-    # elif role != UserRole.none:
-    #     member.user = get_new_user(role)
-
-    # member.season_ticket_id = int(details['season_ticket']) if details['season_ticket'] else None
-    # member.external_access = ExternalAccess(details['external_access'])
 
     member.home_phone = details['home_phone']
     member.mobile_phone = details['mobile_phone']
     member.email = details['email']
     member.comms = CommsType(details['comms'])
-    # member.comms_status = CommsStatus(details['comms_status'])
 
     member.address.line_1 = details['line_1']
     member.address.line_2 = details['line_2']
@@ -320,6 +307,25 @@ def save_member_contact_details(member_number, details):
     if member.member_type == MembershipType.junior:
         member.junior.email = details['jd_mail']
         member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
+
+    #     item = first_or_default([p for p in member.payments if p.date == payment['date']], None)
+    #     if item:
+    #         item.date = payment['date']
+    #         item.type = PaymentType(payment['pay_type'])
+    #         item.amount = payment['amount']
+    #         item.method = PaymentMethod(payment['method']) if payment['method'] > 0 else None
+    #         item.comment = payment['comment']
+    #     else:
+    #         item = Payment(
+    #             member_id=member.id,
+    #             date=payment['date'],
+    #             type=PaymentType(payment['pay_type']),
+    #             amount=payment['amount'],
+    #             method=PaymentMethod(payment['method']) if payment['method'] > 0 else None,
+    #             comment=payment['comment']
+    #         )
+    #         payments.append(item)
+    # member.payments = payments
 
     if not details['comment'] in [None, '']:
         date = datetime.date.today()
@@ -338,12 +344,14 @@ def save_member_contact_details(member_number, details):
         comment = 'Upgrade to DT plus'
         item = first_or_default([c for c in member.actions if c.date == date], None)
         if item:
+            item.action = MemberAction.upgrade
             item.comment = comment
             item.status = ActionStatus.open
         else:
             item = Action(
                 member_id=member.id,
                 date=date,
+                action=MemberAction.upgrade,
                 comment=comment,
                 status=ActionStatus.open
             )

@@ -151,28 +151,39 @@ class MemberRenewalForm(FlaskForm):
             member['jd_gift'] = self.jd_gift.data
 
         member = save_member_contact_details(member_number, member)
-        card_payment = self.payment_method.data == 1
+        payment_method = PaymentMethod.from_value(self.payment_method.data)
         upgrade = self.upgrade.data
+        member_type = member.long_membership_type() + (' (DT Plus)' if upgrade else '')
         dues = member.dues() + (member.upgrade_dues() if upgrade else 0)
-        paypal_payment = self.get_paypal_payment(card_payment, member.member_type_next_renewal(), upgrade)
-        return card_payment, paypal_payment, member
+        paypal_payment = self.get_paypal_payment(payment_method, member, upgrade)
+        return payment_method, paypal_payment, dues, member_type, member
 
     @staticmethod
-    def get_paypal_payment(card_payment, member_type, upgrade):
-        if card_payment:
-            if member_type == MembershipType.junior:
-                return PayPalPayment.Junior_Dons_renewal
-            elif member_type in MembershipType.all_concessions(plus=True):
-                return PayPalPayment.Dons_Trust_Plus_Concession if upgrade else PayPalPayment.Concession
-            elif member_type == MembershipType.standard:
-                return PayPalPayment.Dons_Trust_Plus_Adult if upgrade else PayPalPayment.Adult
+    def get_paypal_payment(payment_method, member, upgrade):
+        if payment_method == PaymentMethod.cc:
+            member_type = member.member_type_next_renewal()
+            new_member = member.is_recent_new()
+            if new_member:
+                if member_type == MembershipType.junior:
+                    return None
+                elif member_type in MembershipType.all_concessions(plus=True):
+                    return PayPalPayment.Dons_Trust_Plus_Concession_upgrade if upgrade else None
+                elif member_type == MembershipType.standard:
+                    return PayPalPayment.Dons_Trust_Plus_Adult_upgrade if upgrade else None
+            else:
+                if member_type == MembershipType.junior:
+                    return PayPalPayment.Junior_Dons_renewal
+                elif member_type in MembershipType.all_concessions(plus=True):
+                    return PayPalPayment.Dons_Trust_Plus_Concession if upgrade else PayPalPayment.Concession
+                elif member_type == MembershipType.standard:
+                    return PayPalPayment.Dons_Trust_Plus_Adult if upgrade else PayPalPayment.Adult
         else:
             return None
 
     @staticmethod
     def renewal_notes(member):
         age = member.age_next_renewal(default=True)
-        new_member = member.start_date >= datetime.date(2020, 2, 1)
+        new_member = member.is_recent_new()
         renewal_dues = '£' + str(member.dues())
         renewal_cost = f"The renewal cost is {renewal_dues}. " if not new_member else ''
         upgrade_dues = '£' + str(member.upgrade_dues() if new_member else member.dues() + member.upgrade_dues())
