@@ -266,7 +266,8 @@ extract_fields_map = OrderedDict([
     ('certificate date', 'certificate_date()'),
     ('volatile concession', 'volatile_concession()'),
     ('last payment date', 'last_payment_date()'),
-    ('last updated', 'last_updated')
+    ('last updated', 'last_updated'),
+    ('renewal notes', 'renewal_notes_as_text()')
 ])
 
 

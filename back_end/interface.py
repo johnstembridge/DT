@@ -308,24 +308,25 @@ def save_member_contact_details(member_number, details):
         member.junior.email = details['jd_mail']
         member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
 
-    #     item = first_or_default([p for p in member.payments if p.date == payment['date']], None)
-    #     if item:
-    #         item.date = payment['date']
-    #         item.type = PaymentType(payment['pay_type'])
-    #         item.amount = payment['amount']
-    #         item.method = PaymentMethod(payment['method']) if payment['method'] > 0 else None
-    #         item.comment = payment['comment']
-    #     else:
-    #         item = Payment(
-    #             member_id=member.id,
-    #             date=payment['date'],
-    #             type=PaymentType(payment['pay_type']),
-    #             amount=payment['amount'],
-    #             method=PaymentMethod(payment['method']) if payment['method'] > 0 else None,
-    #             comment=payment['comment']
-    #         )
-    #         payments.append(item)
-    # member.payments = payments
+    dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
+    date = datetime.date.today()
+    item = first_or_default([p for p in member.payments if p.date == date], None)
+    if item:
+        item.date = date
+        item.type = PaymentType.pending
+        item.amount = dues
+        item.method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
+        item.comment = 'renewal payment due'
+    else:
+        item = Payment(
+            member_id=member.id,
+            date=date,
+            type=PaymentType.pending,
+            amount=dues,
+            method=PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None,
+            comment='renewal payment due'
+        )
+        member.payments.append(item)
 
     if not details['comment'] in [None, '']:
         date = datetime.date.today()
@@ -339,6 +340,7 @@ def save_member_contact_details(member_number, details):
                 comment=details['comment']
             )
             member.comments.append(item)
+
     if details['upgrade']:
         date = datetime.date.today()
         comment = 'Upgrade to DT plus'

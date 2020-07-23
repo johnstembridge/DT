@@ -19,6 +19,7 @@ class MemberRenewalForm(FlaskForm):
     member_number = HiddenField(label='Member Number')
     dt_number = StringField(label='Id')
     status = HiddenField(label='Member Status')
+    plus = HiddenField(label='DT plus')
     type = MySelectField(label='Type', choices=MembershipType.renewal_choices(), coerce=MembershipType.coerce)
     start_date = StringField(label='Start')
     birth_date = DateField(label='Date of Birth', validators=[InputRequired()])
@@ -66,6 +67,7 @@ class MemberRenewalForm(FlaskForm):
         self.member_number.data = str(member.number)
         self.dt_number.data = member.dt_number()
         self.status.data = member.status.name
+        self.plus.data = ' (Dons Trust Plus)' if member.status == MemberStatus.plus else ''
         self.type.data = member.member_type_next_renewal().value
 
         self.start_date.data = member.start_date
@@ -105,11 +107,10 @@ class MemberRenewalForm(FlaskForm):
         else:
             self.jd_email = self.jd_gift = None
 
-        # self.dues.data = '£' + str(member.dues())
         self.payment_method.data = self.last_payment_method.data = \
             member.last_payment_method.value if member.last_payment_method else ''
 
-        self.notes.data = self.renewal_notes(member)
+        self.notes.data = member.renewal_notes()
 
     def save_member(self, member_number):
         member = {
@@ -143,6 +144,7 @@ class MemberRenewalForm(FlaskForm):
             'county': get_county(self.county.data),
             'country': get_country(self.country.data),
 
+            'payment_method': self.payment_method.data,
             'comment': self.comment.data,
             'upgrade': self.upgrade.data
         }
@@ -151,6 +153,8 @@ class MemberRenewalForm(FlaskForm):
             member['jd_gift'] = self.jd_gift.data
 
         member = save_member_contact_details(member_number, member)
+
+        # return key info for save message
         payment_method = PaymentMethod.from_value(self.payment_method.data)
         upgrade = self.upgrade.data
         member_type = member.long_membership_type() + (' (DT Plus)' if upgrade else '')
@@ -179,72 +183,3 @@ class MemberRenewalForm(FlaskForm):
                     return PayPalPayment.Dons_Trust_Plus_Adult if upgrade else PayPalPayment.Adult
         else:
             return None
-
-    @staticmethod
-    def renewal_notes(member):
-        age = member.age_next_renewal(default=True)
-        new_member = member.is_recent_new()
-        renewal_dues = '£' + str(member.dues())
-        renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not new_member else ''
-        upgrade_dues = '£' + str(member.upgrade_dues() if new_member else member.dues() + member.upgrade_dues())
-        upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}. " \
-                       "See Payment below.".format(upgrade_dues)
-        member_type = member.member_type_next_renewal()
-        notes = []
-        if member.status == MemberStatus.life:
-            notes = [
-                "As you are a life member, there is no need to do anything further. " \
-                "We will send your new membership card in due course.", ]
-        else:
-            if member_type == MembershipType.intermediate:
-                if age == 21:
-                    notes = [
-                        "Young adult membership has been extended to age 21 in line with Season Tickets.", \
-                        "{}{}".format(renewal_cost, upgrade_para)]
-                else:
-                    notes = ["{}{}".format(renewal_cost, upgrade_para)]
-            elif member_type == MembershipType.junior:
-                if age in [16, 17]:
-                    notes = [
-                        "Junior Dons will now cover the age range from 0 to 17-year olds. 16 and 17-year olds will " \
-                        "still have full Dons Trust membership rights including voting rights.", \
-                        "The Junior Dons membership has been enhanced. Along with the package of benefits that JDs " \
-                        "used to receive, the new stadium gives the opportunity to increase the benefits offered.", \
-                        "{}".format(renewal_cost), ]
-                else:
-                    notes = [
-                        "The Junior Don membership has been enhanced. Along with the package of benefits that you " \
-                        "used to receive, the new stadium gives the opportunity to increase the benefits offered.", \
-                        "{}".format(renewal_cost), ]
-            elif member_type == MembershipType.senior:
-                notes = ["{}{}".format(renewal_cost, upgrade_para), ]
-            elif member_type in MembershipType.all_concessions():
-                notes = [
-                    "According to our records, you currently have a concessionary membership ({}).".format(member_type.name),
-                    "{}{}".format(renewal_cost, upgrade_para),
-                    "**If your circumstances have changed please choose the appropriate membership type."]
-            else:
-                if member_type == MembershipType.standard:
-                    if age < 60:
-                        notes = ["{}{}".format(renewal_cost, upgrade_para), ]
-                    elif age in range(60, 64):
-                        notes = [
-                            "To bring Dons Trust membership age range in line with the Club, we are moving the " \
-                            "age range for senior members from 60+ to 65+.", \
-                            "{}{}".format(renewal_cost,upgrade_para )]
-                    else:
-                        notes = ["{}{}".format(renewal_cost, upgrade_para), ]
-        if member.last_payment_method == PaymentMethod.dd:
-            up = "If you do not wish to upgrade to Dons Trust Plus, you need take no further action." \
-                if member_type != MembershipType.junior else ''
-            notes = [
-                        "According to our records you currently pay by direct debit. " + up,
-                        "Provided the payment is taken successfully, your membership will be automatically updated."
-                    ] + notes
-        elif new_member:
-            notes = [
-                        "As you joined relatively late during the membership year we will automatically extend " \
-                        "your membership until August 2021.", ] + notes
-
-        notes = notes + ['If you have any questions please contact membership@thedonstrust.org', ]
-        return notes

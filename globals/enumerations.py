@@ -103,7 +103,7 @@ class MemberStatus(FormEnum):
 
     @staticmethod
     def all_active():
-        return [MemberStatus.life, MemberStatus.founder, MemberStatus.current]
+        return [MemberStatus.life, MemberStatus.founder, MemberStatus.current, MemberStatus.plus]
 
     @staticmethod
     def all_including_lapsed():
