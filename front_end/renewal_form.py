@@ -185,10 +185,10 @@ class MemberRenewalForm(FlaskForm):
         age = member.age_next_renewal(default=True)
         new_member = member.is_recent_new()
         renewal_dues = '£' + str(member.dues())
-        renewal_cost = f"The renewal cost is {renewal_dues}. " if not new_member else ''
+        renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not new_member else ''
         upgrade_dues = '£' + str(member.upgrade_dues() if new_member else member.dues() + member.upgrade_dues())
-        upgrade_para = f"If you do not also have a season ticket, you may upgrade to Dons Trust Plus membership " \
-                       f"at a total cost of {upgrade_dues}. See Payment below."
+        upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}. " \
+                       "See Payment below.".format(upgrade_dues)
         member_type = member.member_type_next_renewal()
         notes = []
         if member.status == MemberStatus.life:
@@ -200,9 +200,9 @@ class MemberRenewalForm(FlaskForm):
                 if age == 21:
                     notes = [
                         "Young adult membership has been extended to age 21 in line with Season Tickets.", \
-                        f"{renewal_cost}{upgrade_para}"]
+                        "{}{}".format(renewal_cost, upgrade_para)]
                 else:
-                    notes = [f"{renewal_cost}{upgrade_para}"]
+                    notes = ["{}{}".format(renewal_cost, upgrade_para)]
             elif member_type == MembershipType.junior:
                 if age in [16, 17]:
                     notes = [
@@ -210,30 +210,30 @@ class MemberRenewalForm(FlaskForm):
                         "still have full Dons Trust membership rights including voting rights.", \
                         "The Junior Dons membership has been enhanced. Along with the package of benefits that JDs " \
                         "used to receive, the new stadium gives the opportunity to increase the benefits offered.", \
-                        f"{renewal_cost}", ]
+                        "{}".format(renewal_cost), ]
                 else:
                     notes = [
                         "The Junior Don membership has been enhanced. Along with the package of benefits that you " \
                         "used to receive, the new stadium gives the opportunity to increase the benefits offered.", \
-                        f"{renewal_cost}", ]
+                        "{}".format(renewal_cost), ]
             elif member_type == MembershipType.senior:
-                notes = [f"{renewal_cost}{upgrade_para}", ]
+                notes = ["{}{}".format(renewal_cost, upgrade_para), ]
             elif member_type in MembershipType.all_concessions():
                 notes = [
-                    f"According to our records, you currently have a concessionary membership ({member_type.name}).",
-                    f"{renewal_cost}{upgrade_para}",
+                    "According to our records, you currently have a concessionary membership ({}).".format(member_type.name),
+                    "{}{}".format(renewal_cost, upgrade_para),
                     "**If your circumstances have changed please choose the appropriate membership type."]
             else:
                 if member_type == MembershipType.standard:
                     if age < 60:
-                        notes = [f"{renewal_cost}{upgrade_para}", ]
+                        notes = ["{}{}".format(renewal_cost, upgrade_para), ]
                     elif age in range(60, 64):
                         notes = [
                             "To bring Dons Trust membership age range in line with the Club, we are moving the " \
                             "age range for senior members from 60+ to 65+.", \
-                            f"{renewal_cost}{upgrade_para}"]
+                            "{}{}".format(renewal_cost,upgrade_para )]
                     else:
-                        notes = [f"{renewal_cost}{upgrade_para}", ]
+                        notes = ["{}{}".format(renewal_cost, upgrade_para), ]
         if member.last_payment_method == PaymentMethod.dd:
             up = "If you do not wish to upgrade to Dons Trust Plus, you need take no further action." \
                 if member_type != MembershipType.junior else ''
