@@ -9,7 +9,6 @@ from front_end.form_helpers import MySelectField, read_only_form
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
     ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess, UserRole, PayPalPayment
 from back_end.data_utilities import fmt_date
-import datetime
 
 
 class MemberRenewalForm(FlaskForm):

@@ -7,7 +7,8 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess, UserRole
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
-from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, current_year_end
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, current_year_end, \
+    match_string
 
 
 def save_object(object):
@@ -178,6 +179,9 @@ def save_member_details(member_number, details):
         member.user.role = role
     elif role != UserRole.none:
         member.user = get_new_user(role)
+
+    if not match_string(member.address.post_code, details['post_code']):
+        member.user.password = User.member_password(details['post_code'])
 
     member.season_ticket_id = int(details['season_ticket']) if details['season_ticket'] else None
     member.external_access = ExternalAccess(details['external_access'])

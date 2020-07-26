@@ -83,8 +83,8 @@ class MaintainMembers:
     @staticmethod
     def renew_member(member_number):
         # check current user is member member_number
-        if current_user.member_id != member_number and current_user.role != UserRole.super:
-            return redirect('/members/{}/renewal'.format(current_user.member_id))
+        if current_user.user_name != str(member_number) and current_user.role != UserRole.super:
+            return redirect('/members/{}/renewal'.format(current_user.member_number))
         form = MemberRenewalForm()
         if form.validate_on_submit():
             if form.submit.data:
