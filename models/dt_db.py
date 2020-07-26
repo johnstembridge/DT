@@ -388,7 +388,7 @@ class Member(Base):
     def last_payment(self):
         dates = [p.date for p in self.payments]
         if len(dates) > 0:
-            latest = [p.type for p in self.payments if p.date == max(dates)][0]
+            latest = [p for p in self.payments if p.date == max(dates)][0]
         else:
             latest = None
         return latest
@@ -497,6 +497,17 @@ class Member(Base):
                         "As you joined relatively late during the membership year we will automatically extend " \
                         "your membership until August 2021.", ] + notes
         return notes
+
+    def renewal_activated(self):
+        last_payment = self.last_payment()
+        if last_payment.type.name == 'pending':
+            last_action = self.current_action()
+            if last_action.action == MemberAction.upgrade and last_action.status == ActionStatus.open:
+                return 'Renewal was activated {} ({})'.format(fmt_date(last_action.date), last_action.comment)
+            else:
+                return 'Renewal was activated {}'.format(fmt_date(Action.date))
+        else:
+            return None
 
     def __repr__(self):
         return '<Member: {} {}>'.format(self.dt_number(), self.full_name())

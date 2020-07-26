@@ -109,5 +109,7 @@ class MaintainMembers:
         elif form.errors:
             flash_errors(form)
         if not form.is_submitted():
-            form.populate_member(member_number, request.referrer)
+            message = form.populate_member(member_number, request.referrer)
+            if message:
+                flash(message, 'success')
         return render_template('renewal.html', form=form, render_link=render_link)

@@ -111,6 +111,8 @@ class MemberRenewalForm(FlaskForm):
 
         self.notes.data = member.renewal_notes()
 
+        return member.renewal_activated()
+
     def save_member(self, member_number):
         member = {
             'title': self.title.data,
