@@ -393,6 +393,14 @@ class Member(Base):
             latest = None
         return latest
 
+    def last_payment_type(self):
+        dates = [p.date for p in self.payments]
+        if len(dates) > 0:
+            latest = [p.type for p in self.payments if p.date == max(dates)][0].name
+        else:
+            latest = None
+        return latest
+
     def check_credentials(self, user_name, password):
         if not match_string(user_name, str(self.number)):
             return False, 'Email does not match', 'warning'
@@ -422,8 +430,7 @@ class Member(Base):
         renewal_dues = '£' + str(self.dues())
         renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not new_member else ''
         upgrade_dues = '£' + str(self.upgrade_dues() if new_member else self.dues() + self.upgrade_dues())
-        upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}. " \
-                       "See Payment below.".format(upgrade_dues)
+        upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(upgrade_dues)
         member_type = self.member_type_next_renewal()
         notes = []
         if self.status == MemberStatus.life:
@@ -455,7 +462,8 @@ class Member(Base):
                 notes = ["{}{}".format(renewal_cost, upgrade_para), ]
             elif member_type in MembershipType.all_concessions():
                 notes = [
-                    "According to our records, you currently have a concessionary membership ({}).".format(member_type.name),
+                    "According to our records, you currently have a concessionary membership ({}).".format(
+                        member_type.name),
                     "{}{}".format(renewal_cost, upgrade_para),
                     "**If your circumstances have changed please choose the appropriate membership type."]
             else:
@@ -466,7 +474,7 @@ class Member(Base):
                         notes = [
                             "To bring Dons Trust membership age range in line with the Club, we are moving the " \
                             "age range for senior members from 60+ to 65+.", \
-                            "{}{}".format(renewal_cost,upgrade_para )]
+                            "{}{}".format(renewal_cost, upgrade_para)]
                     else:
                         notes = ["{}{}".format(renewal_cost, upgrade_para), ]
         if self.last_payment_method == PaymentMethod.dd:
@@ -480,8 +488,6 @@ class Member(Base):
             notes = [
                         "As you joined relatively late during the membership year we will automatically extend " \
                         "your membership until August 2021.", ] + notes
-
-        notes = notes + ['If you have any questions please contact membership@thedonstrust.org', ]
         return notes
 
     def __repr__(self):

@@ -17,7 +17,7 @@
             </td>
         </tr>
         <tr>
-            <td width="60%">
+            <td width="80%">
                 <ul>
                 <b>
                     {% for line in form.notes.data %}
@@ -27,6 +27,7 @@
                     {% endfor %}
                 </b>
                 </ul>
+                <p>If you have any questions please contact membership@thedonstrust.org
             </td>
             <td></td>
         </tr>
@@ -67,15 +68,15 @@
     <table>
         <tr>
             <td>{{ form.line1.label }}</td>
-            <td colspan=5>{{ form.line1(size='60', required='required') }}</td>
+            <td colspan=4>{{ form.line1(size='60', required='required') }}</td>
         </tr>
         <tr>
             <td>{{ form.line2.label }}</td>
-            <td colspan=5>{{ form.line2(size='60') }}</td>
+            <td colspan=4>{{ form.line2(size='60') }}</td>
         </tr>
         <tr>
             <td>{{ form.line3.label }}</td>
-            <td colspan=5>{{ form.line3(size='60') }}</td>
+            <td colspan=4>{{ form.line3(size='60') }}</td>
         </tr>
         <tr>
             <td>{{ form.city.label }}</td>

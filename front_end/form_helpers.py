@@ -215,6 +215,7 @@ def select_fields_to_update(select_fields, default_table):
 
 extract_fields_map = OrderedDict([
     ('number', 'dt_number()'),
+    ('id_number', 'id'),
     ('full name', 'full_name()'),
     ('title', 'title.name'),
     ('first name', 'first_name'),
@@ -266,6 +267,7 @@ extract_fields_map = OrderedDict([
     ('certificate date', 'certificate_date()'),
     ('volatile concession', 'volatile_concession()'),
     ('last payment date', 'last_payment_date()'),
+    ('last payment status', 'last_payment_type()'),
     ('last updated', 'last_updated'),
     ('renewal notes', 'renewal_notes_as_text()')
 ])
