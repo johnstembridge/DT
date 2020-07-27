@@ -101,7 +101,8 @@ class MaintainMembers:
                     else:
                         return render_template('renewal_acknowledge.html',
                                                dt_number=member.dt_number(),
-                                               payment_method= payment_method.name,
+                                               member_status=member.status.name,
+                                               payment_method=payment_method.name if payment_method else None,
                                                dues='£' + str(dues),
                                                renewal_type=member_type
                                                )

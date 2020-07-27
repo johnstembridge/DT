@@ -250,6 +250,9 @@ class Member(Base):
     def is_life(self):
         return self.end_date == datetime(2100, 8, 1).date()
 
+    def is_plus(self):
+        return self.status == MemberStatus.plus
+
     def email_bounced(self):
         return self.comms_status == CommsStatus.email_fail
 
@@ -371,6 +374,8 @@ class Member(Base):
             extra = ' (life member)'
         elif self.is_founder():
             extra = ' (founder)'
+        elif self.is_plus():
+            extra = ' (plus)'
         else:
             extra = ''
         return str(self.start_date.year) + extra

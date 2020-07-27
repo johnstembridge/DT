@@ -167,6 +167,8 @@ class MemberRenewalForm(FlaskForm):
     def get_paypal_payment(payment_method, member, upgrade):
         if payment_method == PaymentMethod.cc:
             member_type = member.member_type_next_renewal()
+            if member.status == MemberStatus.life:
+                return None
             new_member = member.is_recent_new()
             if new_member:
                 if member_type == MembershipType.junior:

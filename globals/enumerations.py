@@ -33,7 +33,8 @@ class FormEnum(Enum):
 
     @classmethod
     def from_value(cls, value):
-        return [c for c in cls if c.value == value][0]
+        item = [c for c in cls if c.value == value]
+        return item[0]if len(item) > 0 else None
 
     def to_dict(self):
         return self.name

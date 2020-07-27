@@ -9,7 +9,7 @@
             <td>
                 <h2 class="widget-title">Season 2020/2021 membership renewal</h2>
                 <h3>{{ form.dt_number.data }} {{ form.full_name.data }}</h3>
-                <i><p>Please check all the details that we hold about you and amend if necessary. (Press Save to update)</p></i>
+                <i><p>Please check all the details that we hold about you and amend if necessary. (Press Renew to save any changes and register your renewal)</p></i>
             </td>
             <td class="top">
                 <img src="https://thedonstrust.org/files/Dons-Trust-Logo-2020-web.jpg" alt="" width="150"
@@ -148,12 +148,13 @@
         <br>As you currently pay by Direct Debit, your membership will be renewed automatically, taking into account any
         membership type change. Payment will be taken on September 11th.
         {% else %}
-        <br>If you opt to pay by Card, you will be taken to the payments page after pressing Save below.
+        <br>If you opt to pay by Card, you will be taken to the payments page after pressing Renew below.
         {% endif %}
     </i>
     <hr/>
     {% if current_user.has_write_access() %}
-    {{ form.submit(class="btn btn-primary") }}&nbsp;{{ form.last_updated.label }}{{ form.last_updated.data }}
+    {{ form.last_updated.label }}{{ form.last_updated.data }}
+    {{ form.submit(class="btn btn-primary", value="Renew") }} Press Renew to save any changes and register your renewal
     {% endif %}
 </form>
 {% endblock %}

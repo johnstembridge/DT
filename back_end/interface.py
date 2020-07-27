@@ -315,22 +315,23 @@ def save_member_contact_details(member_number, details):
     dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
     date = datetime.date.today()
     item = first_or_default([p for p in member.payments if p.date == date], None)
-    if item:
-        item.date = date
-        item.type = PaymentType.pending
-        item.amount = dues
-        item.method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
-        item.comment = 'renewal payment due'
-    else:
-        item = Payment(
-            member_id=member.id,
-            date=date,
-            type=PaymentType.pending,
-            amount=dues,
-            method=PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None,
-            comment='renewal payment due'
-        )
-        member.payments.append(item)
+    if member.status != MemberStatus.life:
+        if item:
+            item.date = date
+            item.type = PaymentType.pending
+            item.amount = dues
+            item.method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
+            item.comment = 'renewal payment due'
+        else:
+            item = Payment(
+                member_id=member.id,
+                date=date,
+                type=PaymentType.pending,
+                amount=dues,
+                method=PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None,
+                comment='renewal payment due'
+            )
+            member.payments.append(item)
 
     if not details['comment'] in [None, '']:
         date = datetime.date.today()
