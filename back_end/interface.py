@@ -180,7 +180,7 @@ def save_member_details(member_number, details):
     elif role != UserRole.none:
         member.user = get_new_user(role)
 
-    if not match_string(member.address.post_code, details['post_code']):
+    if member.user and (not match_string(member.address.post_code, details['post_code'])):
         member.user.password = User.member_password(details['post_code'])
 
     member.season_ticket_id = int(details['season_ticket']) if details['season_ticket'] else None

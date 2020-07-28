@@ -484,7 +484,7 @@ class Member(Base):
                         notes = ["{}{}".format(renewal_cost, upgrade_para), ]
                     elif age in range(60, 64):
                         notes = [
-                            "To bring Dons Trust membership age range in line with the Club, we are moving the " \
+                            "To bring Dons Trust membership age ranges in line with the Club, we are moving the " \
                             "age range for senior members from 60+ to 65+.", \
                             "{}{}".format(renewal_cost, upgrade_para)]
                     else:
