@@ -334,8 +334,6 @@ class Member(Base):
         if type in MembershipType.all_concessions():
             return Dues.concession.value
         if type == MembershipType.junior:
-            if self.start_date.year == self.end_date.year and as_of <= self.end_date:
-                return Dues.junior_new.value
             return Dues.junior.value
         if type == MembershipType.intermediate:
             return Dues.intermediate.value
@@ -445,6 +443,7 @@ class Member(Base):
         upgrade_dues = '£' + str(self.upgrade_dues() if new_member else self.dues() + self.upgrade_dues())
         upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(upgrade_dues)
         member_type = self.member_type_next_renewal()
+        junior = member_type == MembershipType.junior
         notes = []
         if self.status == MemberStatus.life:
             notes = [
@@ -458,7 +457,7 @@ class Member(Base):
                         "{}{}".format(renewal_cost, upgrade_para)]
                 else:
                     notes = ["{}{}".format(renewal_cost, upgrade_para)]
-            elif member_type == MembershipType.junior:
+            elif junior:
                 if age in [16, 17]:
                     notes = [
                         "Junior Dons will now cover the age range from 0 to 17-year olds. 16 and 17-year olds will " \
@@ -469,7 +468,7 @@ class Member(Base):
                 else:
                     notes = [
                         "The Junior Don membership has been enhanced. Along with the package of benefits that you " \
-                        "used to receive, the new stadium gives the opportunity to increase the benefits offered.", \
+                        "used to receive, the new stadium provides the opportunity to grant extra benefits.", \
                         "{}".format(renewal_cost), ]
             elif member_type == MembershipType.senior:
                 notes = ["{}{}".format(renewal_cost, upgrade_para), ]
@@ -490,14 +489,14 @@ class Member(Base):
                             "{}{}".format(renewal_cost, upgrade_para)]
                     else:
                         notes = ["{}{}".format(renewal_cost, upgrade_para), ]
-        if self.last_payment_method == PaymentMethod.dd:
+        if self.last_payment_method == PaymentMethod.dd and not new_member:
             up = "If you do not wish to upgrade to Dons Trust Plus, you need take no further action." \
-                if member_type != MembershipType.junior else ''
+                if not junior else ''
             notes = [
                         "According to our records you currently pay by direct debit. " + up,
                         "Provided the payment is taken successfully, your membership will be automatically updated."
                     ] + notes
-        elif new_member:
+        if new_member:
             notes = [
                         "As you joined relatively late during the membership year we will automatically extend " \
                         "your membership until August 2021.", ] + notes
