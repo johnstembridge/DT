@@ -123,6 +123,8 @@
         </tr>
         {% endif %}
     </table>
+    <br>{{ form.afcw_access.label }} {{ form.afcw_access }}</br>
+    <p>{{ form.third_pty_access.label }}{{ form.third_pty_access }}</p>
     <hr/>
     <h3>Payment</h3>
     {% if form.status.data != 'life' %}

@@ -24,8 +24,6 @@ class MemberRenewalForm(FlaskForm):
     birth_date = DateField(label='Date of Birth', validators=[InputRequired()])
     age = HiddenField(label='Age')
     season_ticket = StringField(label='Season Ticket')
-    external_access = MySelectField(label='External access', choices=ExternalAccess.choices(),
-                                    coerce=ExternalAccess.coerce)
     title = MySelectField(label='Title', choices=Title.choices(blank=True), coerce=Title.coerce)
     first_name = StringField(label='First', validators=[InputRequired()])
     last_name = StringField(label='Last', validators=[InputRequired()])
@@ -48,6 +46,9 @@ class MemberRenewalForm(FlaskForm):
 
     jd_email = StringField(label='JD Email ', validators=[Optional(), Email("Invalid email address")])
     jd_gift = MySelectField(label='JD Gift', choices=JuniorGift.choices(blank=True), coerce=JuniorGift.coerce)
+
+    afcw_access = BooleanField(label='Make my contact details available to AFC Wimbledon Limited')
+    third_pty_access = BooleanField(label='Make my contact details available to other organisations approved by the Trust ')
 
     # dues = StringField(label='Dues')
     upgrade = BooleanField(label='I wish to change my membership to Dons Trust Plus')
@@ -106,6 +107,9 @@ class MemberRenewalForm(FlaskForm):
         else:
             self.jd_email = self.jd_gift = None
 
+        self.afcw_access.data = member.afcw_has_access()
+        self.third_pty_access.data = member.third_pty_access()
+
         self.payment_method.data = self.last_payment_method.data = \
             member.last_payment_method.value if member.last_payment_method else ''
 
@@ -127,7 +131,6 @@ class MemberRenewalForm(FlaskForm):
             'birth_date': self.birth_date.data,
 
             # 'access': self.access.data,
-            # 'external_access': self.external_access.data,
             # 'season_ticket': self.season_ticket.data,
 
             'home_phone': self.home_phone.data.strip(),
@@ -144,6 +147,8 @@ class MemberRenewalForm(FlaskForm):
             'post_code': self.post_code.data.strip(),
             'county': get_county(self.county.data),
             'country': get_country(self.country.data),
+
+            'external_access': self.external_access(self.afcw_access.data, self.third_pty_access.data),
 
             'payment_method': self.payment_method.data,
             'comment': self.comment.data,
@@ -186,3 +191,12 @@ class MemberRenewalForm(FlaskForm):
                     return PayPalPayment.Dons_Trust_Plus_Adult if upgrade else PayPalPayment.Adult
         else:
             return None
+
+    @staticmethod
+    def external_access(afcw, third_pty):
+        access = ExternalAccess.none
+        if afcw:
+            access = ExternalAccess.AFCW
+        if third_pty:
+            access = ExternalAccess.all
+        return access

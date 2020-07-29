@@ -112,7 +112,8 @@ class Extracts:
         display_fields = \
             ['number', 'id number', 'full name', 'address (line 1)', 'address (line 2)', 'address (line 3)',
              'city', 'county', 'state', 'post code', 'country for post', 'status', 'member type', 'type next renewal',
-             'email', 'comms', 'payment method', 'renewal notes']
+             'email', 'comms', 'payment method', 'renewal notes', 'home phone', 'mobile phone', 'birth date',
+             'junior email', 'AFCW access', '3rd pty access']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod

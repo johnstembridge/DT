@@ -180,7 +180,6 @@ def save_member_details(member_number, details):
     elif role != UserRole.none:
         member.user = get_new_user(role)
 
-    if member.user and (not match_string(member.address.post_code, details['post_code'])):
         member.user.password = User.member_password(details['post_code'])
 
     member.season_ticket_id = int(details['season_ticket']) if details['season_ticket'] else None
@@ -298,7 +297,7 @@ def save_member_contact_details(member_number, details):
     member.mobile_phone = details['mobile_phone']
     member.email = details['email']
     member.comms = CommsType(details['comms'])
-
+    member.external_access = details['external_access']
     member.address.line_1 = details['line_1']
     member.address.line_2 = details['line_2']
     member.address.line_3 = details['line_3']
