@@ -53,7 +53,7 @@ class Extracts:
         display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment',
                           'last payment date', 'last payment amount', 'last payment type', 'last payment method',
                           'last payment comment']
-        return Query.show_found_do(query_clauses, display_fields, action='other', page=page)
+        return Query.show_found_do(query_clauses, display_fields, action='renewal', page=page)
 
     @staticmethod
     def extract_juniors():
