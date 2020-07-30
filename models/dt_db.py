@@ -388,10 +388,12 @@ class Member(Base):
         else:
             return None
 
-    def last_payment(self, item):
+    def last_payment(self, item=None):
         dates = [p.date for p in self.payments]
         if len(dates) > 0:
             latest = [p for p in self.payments if p.date == max(dates)][0]
+            if not item:
+                return latest
             if item == 'date':
                 return latest.date
             if item == 'type':
