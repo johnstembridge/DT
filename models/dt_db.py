@@ -506,10 +506,14 @@ class Member(Base):
         last_payment = self.last_payment()
         if last_payment and last_payment.type.name == 'pending':
             last_action = self.current_action()
-            if last_action.action == MemberAction.upgrade and last_action.status == ActionStatus.open:
-                return 'Renewal was activated {} ({})'.format(fmt_date(last_action.date), last_action.comment)
+            if last_action:
+                if last_action.action == MemberAction.upgrade and last_action.status == ActionStatus.open:
+                    return 'Renewal was activated {} ({})'.format(fmt_date(last_action.date), last_action.comment)
+                else:
+                    return 'Renewal was activated {}'.format(fmt_date(Action.date))
             else:
-                return 'Renewal was activated {}'.format(fmt_date(Action.date))
+                return None
+
         else:
             return None
 
