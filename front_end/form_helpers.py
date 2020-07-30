@@ -269,7 +269,7 @@ extract_fields_map = OrderedDict([
     ('last payment date', 'last_payment_date()'),
     ('last payment amount', 'last_payment_amount()'),
     ('last payment type', 'last_payment_type()'),
-    ('last payment method', 'last_payment_method()'),
+    ('last payment method', 'last_payment_method_()'),
     ('last payment comment', 'last_payment_comment()'),
     ('last updated', 'last_updated'),
     ('renewal notes', 'renewal_notes_as_text()')

@@ -388,53 +388,38 @@ class Member(Base):
         else:
             return None
 
-    def last_payment(self):
+    def last_payment(self, item):
         dates = [p.date for p in self.payments]
         if len(dates) > 0:
             latest = [p for p in self.payments if p.date == max(dates)][0]
+            if item == 'date':
+                return latest.date
+            if item == 'type':
+                return latest.type.name
+            if item == 'amount':
+                return latest.amount
+            if item == 'method':
+                return latest.method.name
+            if item == 'comment':
+                return latest.comment
         else:
             latest = None
         return latest
 
     def last_payment_date(self):
-        payment = self.last_payment()
-        if payment:
-            latest = payment.date
-        else:
-            latest = None
-        return latest
+        return self.last_payment('date')
 
     def last_payment_amount(self):
-        payment = self.last_payment()
-        if payment:
-            latest = payment.amount
-        else:
-            latest = None
-        return latest
+        return self.last_payment('amount')
 
     def last_payment_type(self):
-        payment = self.last_payment()
-        if payment:
-            latest = payment.type.name
-        else:
-            latest = None
-        return latest
+        return self.last_payment('type')
 
     def last_payment_comment(self):
-        payment = self.last_payment()
-        if payment:
-            latest = payment.comment
-        else:
-            latest = None
-        return latest
+        return self.last_payment('comment')
 
-    def last_payment_method(self):
-        payment = self.last_payment()
-        if payment:
-            latest = payment.method.name
-        else:
-            latest = None
-        return latest
+    def last_payment_method_(self):
+        return self.last_payment('method')
 
     def check_credentials(self, user_name, password):
         if not match_string(user_name, str(self.number)):
