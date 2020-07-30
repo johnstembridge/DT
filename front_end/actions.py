@@ -12,6 +12,8 @@ class MaintainActions:
             return Extracts.extract_cards(page)
         if action == 'other':
             return Extracts.extract_other_actions(page)
+        if action == 'renewal':
+            return Extracts.extract_pending_renewals(page)
 
     @staticmethod
     def clear_actions(query_clauses):

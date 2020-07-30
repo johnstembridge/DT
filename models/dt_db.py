@@ -404,10 +404,34 @@ class Member(Base):
             latest = None
         return latest
 
+    def last_payment_amount(self):
+        payment = self.last_payment()
+        if payment:
+            latest = payment.amount
+        else:
+            latest = None
+        return latest
+
     def last_payment_type(self):
         payment = self.last_payment()
         if payment:
             latest = payment.type.name
+        else:
+            latest = None
+        return latest
+
+    def last_payment_comment(self):
+        payment = self.last_payment()
+        if payment:
+            latest = payment.comment
+        else:
+            latest = None
+        return latest
+
+    def last_payment_method(self):
+        payment = self.last_payment()
+        if payment:
+            latest = payment.method.name
         else:
             latest = None
         return latest

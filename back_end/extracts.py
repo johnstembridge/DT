@@ -1,7 +1,7 @@
 from back_end.query import Query
 from back_end.data_utilities import fmt_date, current_year_end
 from globals.enumerations import MembershipType, MemberStatus, MemberAction, ActionStatus, PaymentMethod, CommsType, \
-    CommsStatus
+    CommsStatus, PaymentType
 import datetime
 
 
@@ -40,9 +40,19 @@ class Extracts:
             ('Action', 'action', [a.value for a in MemberAction.send_other()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None)
         ]
-        display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment', 'full name',
-                          'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state',
-                          'post code', 'country for post', 'card start year']
+        display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment']
+        return Query.show_found_do(query_clauses, display_fields, action='other', page=page)
+
+    @staticmethod
+    def extract_pending_renewals(page):
+        # pending renewals
+        query_clauses = [
+            ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+            ('Payment', 'type', PaymentType.pending.value, '=', None)
+        ]
+        display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment',
+                          'last payment date', 'last payment amount', 'last payment type', 'last payment method',
+                          'last payment comment']
         return Query.show_found_do(query_clauses, display_fields, action='other', page=page)
 
     @staticmethod
