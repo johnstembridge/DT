@@ -319,9 +319,9 @@ class Member(Base):
             return MembershipType.junior
         if age <= AgeBand.intermediate.upper:
             return MembershipType.intermediate
-        if age <= AgeBand.senior.lower:
+        if age < AgeBand.senior.lower:
             return MembershipType.standard
-        if age > AgeBand.senior.lower:
+        if age >= AgeBand.senior.lower:
             return MembershipType.senior
         return MembershipType.standard
 
