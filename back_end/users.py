@@ -4,7 +4,7 @@ from globals.enumerations import UserRole
 from globals.config import full_url_for
 from models.dt_db import User
 from back_end.interface import get_member, get_user, save_user
-
+from back_end.data_utilities import match_string
 
 def register_user(member_number, user_name, password, email=None, role=UserRole.member, two_phase=False, activate_url=None):
     user_id = 0
@@ -14,7 +14,7 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
             if not member.is_active():
                 ok, message, message_type = False, 'Sorry, you are not a current member', 'error'
             else:
-                if member.email != email:
+                if not match_string(member.email, email):
                     ok, message, message_type = False, 'Email does not match', 'warning'
                 else:
                     user = get_user(user_name=user_name)
