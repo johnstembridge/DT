@@ -1,5 +1,5 @@
 from flask import request, render_template, redirect, flash, url_for
-from flask_login import current_user
+from flask_login import current_user, logout_user
 
 from front_end.member_list_form import MemberListForm
 from front_end.member_details_form import MemberDetailsForm
@@ -92,6 +92,7 @@ class MaintainMembers:
                 if member:
                     flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
                           'success')
+                    logout_user()
                     if paypal_payment:
                         return render_template('renewal_paypal.html',
                                                pp_name=paypal_payment.name.replace("_", " "),
