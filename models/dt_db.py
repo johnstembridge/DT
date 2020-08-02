@@ -355,6 +355,13 @@ class Member(Base):
             return PlusUpgradeDues.senior.value
         return PlusUpgradeDues.standard.value
 
+    def dues_including_update(self, as_of=None, default=True):
+        dues = self.dues()
+        if self.last_payment('type') == PaymentType.pending.name:
+            amount = self.last_payment('amount')
+            dues = amount
+        return dues
+
     def use_email(self):
         return self.comms == CommsType.email and self.comms_status == CommsStatus.all_ok
 

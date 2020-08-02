@@ -238,6 +238,7 @@ extract_fields_map = OrderedDict([
     ('comms status', 'comms_status.name'),
     ('payment method', 'last_payment_method.name'),
     ('dues', 'dues()'),
+    ('dues pending', 'dues_including_update()'),
     ('full address', 'address.full()'),
     ('address (line 1)', 'address.line_1'),
     ('address (line 2)', 'address.line_2'),
