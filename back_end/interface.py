@@ -226,7 +226,7 @@ def save_member_details(member_number, details):
                 method=PaymentMethod(payment['method']) if payment['method'] > 0 else None,
                 comment=payment['comment']
             )
-            payments.append(item)
+        payments.append(item)
     member.payments = payments
 
     if len(payments) > 0:
@@ -250,7 +250,7 @@ def save_member_details(member_number, details):
                 comment=action['comment'],
                 status=ActionStatus(action['status'])
             )
-            actions.append(item)
+        actions.append(item)
     member.actions = actions
 
     comments = []
@@ -266,7 +266,7 @@ def save_member_details(member_number, details):
                 date=comment['date'],
                 comment=comment['comment']
             )
-            comments.append(item)
+        comments.append(item)
     member.comments = comments
 
     member.last_updated = datetime.date.today()
