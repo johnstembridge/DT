@@ -308,6 +308,8 @@ def save_member_contact_details(member_number, details):
     member.address.country = details['country']
 
     if member.member_type == MembershipType.junior:
+        if not member.junior:
+            member.junior = get_junior()
         member.junior.email = details['jd_mail']
         member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
 
@@ -334,6 +336,8 @@ def save_member_contact_details(member_number, details):
                 comment='renewal payment due'
             )
             member.payments.append(item)
+    if len(member.payments) > 0:
+        member.last_payment_method = [p.method for p in member.payments if p.date == max([p.date for p in member.payments])][0]
 
     if not details['comment'] in [None, '']:
         date = datetime.date.today()

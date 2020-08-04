@@ -83,16 +83,19 @@ class MemberDetailsForm(FlaskForm):
     def populate_member(self, member_number, return_url, copy=False):
         self.return_url.data = return_url
         new_member = member_number == 0
-        if new_member:
+        if new_member or copy:
             member = get_new_member()
         else:
             member = get_member(member_number)
         if copy:
+            base_member = get_member(member_number)
             new_member = True
-            member.number = 0
-            member.first_name = 'new'
-            member.payments = member.comments = member.actions = []
-            member.start_date = datetime.date.today()
+            member.last_name = base_member.last_name
+            member.address = base_member.address
+            member.home_phone = base_member.home_phone
+            member.mobile_phone = base_member.mobile_phone
+            member.email = base_member.email
+            member.comms = base_member.comms
         address = member.address
         self.member_number.data = str(member.number)
         self.dt_number.data = member.dt_number()

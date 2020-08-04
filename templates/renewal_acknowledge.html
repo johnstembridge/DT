@@ -11,18 +11,24 @@
     <p>Thank you for activating your renewal.</p>
     <p>
     {% if payment_method == 'dd' %}
-        As you pay by Direct Debit, we will collect {{ dues }} on 11th September.
-        Provided the payment is successful, we will update your membership and send a new membership card.
-
+        {% if dues != 0 %}
+            As you pay by Direct Debit, we will collect £{{ dues }} on 11th September.
+            Provided the payment is successful, we will update your membership and send a new membership card.
+        {% else %}
+            As a recent joiner, we will not take a renewal payment by Direct Debit this year.
+        {% endif %}
         <p><b>Membership Renewal Type</b>&nbsp;{{ renewal_type }}</p>
-        <p><b>Amount to be debited</b>&nbsp;{{ dues }}</p>
+        <p><b>Amount to be debited</b>&nbsp;£{{ dues }}</p>
 
     {% else %}
         <p><b>Membership Renewal Type</b>&nbsp;{{ renewal_type }}</p>
-        <p><b>Amount due</b>&nbsp;{{ dues }}</p>
-
-        When you make your payment, please provide your membership number and renewal type with the payment.
-        Once we have received the payment, we will update your membership and send a new membership card.
+        <p><b>Amount due</b> £{{ dues }}</p>
+        {% if dues != 0 %}
+            When you make your payment, please provide your membership number and renewal type with the payment.
+            Once we have received the payment, we will update your membership and send a new membership card.
+        {% else %}
+            As a recent joiner, you do not need to make a renewal payment this year.
+        {% endif %}
     {% endif %}
     </p>
 {% endif %}

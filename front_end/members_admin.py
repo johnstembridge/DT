@@ -104,7 +104,8 @@ class MaintainMembers:
                                                dt_number=member.dt_number(),
                                                member_status=member.status.name,
                                                payment_method=payment_method.name if payment_method else None,
-                                               dues='£' + str(dues),
+                                               # dues='£' + str(dues),
+                                               dues=dues,
                                                renewal_type=member_type
                                                )
                 form.populate_member(member_number, request.referrer)
