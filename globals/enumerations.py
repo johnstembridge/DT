@@ -177,7 +177,7 @@ class MemberAction(FormEnum):
 class PayPalPayment(Enum):
     Adult = "Adult £25.00 GBP"
     Concession = "Concession £10.00 GBP"
-    Junior_Dons_new = "Junior Dons new £10.00 GBP"
+    Junior_Dons_new = "Junior Dons (0-17) new £15.00 GBP"
     Junior_Dons_renewal = "Junior Dons renewal £5.00 GBP"
     Dons_Trust_Plus_Adult = "Dons Trust Plus (Adult) £45.00 GBP"
     Dons_Trust_Plus_Concession = "Dons Trust Plus (Concession) £30.00 GBP"

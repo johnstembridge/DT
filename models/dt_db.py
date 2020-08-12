@@ -404,11 +404,17 @@ class Member(Base):
             if item == 'date':
                 return latest.date
             if item == 'type':
-                return latest.type.name
+                if latest.type:
+                    return latest.type.name
+                else:
+                    return None
             if item == 'amount':
                 return latest.amount
             if item == 'method':
-                return latest.method.name
+                if latest.method:
+                    return latest.method.name
+                else:
+                    return None
             if item == 'comment':
                 return latest.comment
         else:
