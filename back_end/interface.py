@@ -318,7 +318,7 @@ def save_member_contact_details(member_number, details):
 
     dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
     date = datetime.date.today()
-    item = first_or_default([p for p in member.payments if p.date == date], None)
+    item = first_or_default([p for p in member.payments if p.type == PaymentType.pending], None)
     if member.status != MemberStatus.life:
         if item:
             item.date = date
@@ -337,7 +337,8 @@ def save_member_contact_details(member_number, details):
             )
             member.payments.append(item)
     if len(member.payments) > 0:
-        member.last_payment_method = [p.method for p in member.payments if p.date == max([p.date for p in member.payments])][0]
+        member.last_payment_method = \
+        [p.method for p in member.payments if p.date == max([p.date for p in member.payments])][0]
 
     if not details['comment'] in [None, '']:
         date = datetime.date.today()
@@ -352,10 +353,11 @@ def save_member_contact_details(member_number, details):
             )
             member.comments.append(item)
 
+    item = first_or_default(
+        [a for a in member.actions if a.action == MemberAction.upgrade and a.date > datetime.date(2020, 7, 20)], None)
     if details['upgrade']:
         date = datetime.date.today()
         comment = 'Upgrade to DT plus'
-        item = first_or_default([c for c in member.actions if c.date == date], None)
         if item:
             item.action = MemberAction.upgrade
             item.comment = comment
@@ -369,7 +371,8 @@ def save_member_contact_details(member_number, details):
                 status=ActionStatus.open
             )
             member.actions.append(item)
-
+    elif item:
+        member.actions.remove(item)
     member.last_updated = datetime.date.today()
 
     if member.number == 0:

@@ -4,9 +4,9 @@
 {% block page_content %}
     <h1>Dons Trust member login</h1>
     {% if not form.number.data %}
-        <p><i>Please give just the numeric part of your membership number e.g. for DT0-00123 enter 123</i></p>
+        <p><i>Give just the numeric part of your membership number e.g. for DT0-00123 enter 123</i></p>
     {% endif %}
-    <p><i>Please give your email address and post code as currently held by the Dons Trust</i></p>
+    <p><i>Give your email address and post code as currently held by the Dons Trust</i></p>
     <form action="" method="post">
         {{ form.hidden_tag() }}
         <table>

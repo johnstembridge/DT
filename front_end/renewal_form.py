@@ -7,7 +7,7 @@ from back_end.interface import get_member, save_member_contact_details, country_
     get_country, get_county, get_state, get_junior
 from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentMethod, Title, CommsStatus, \
-    JuniorGift, ExternalAccess, PayPalPayment
+    JuniorGift, ExternalAccess, PayPalPayment, MemberAction
 from back_end.data_utilities import fmt_date
 
 
@@ -113,6 +113,8 @@ class MemberRenewalForm(FlaskForm):
 
         self.payment_method.data = self.last_payment_method.data = \
             member.last_payment_method.value if member.last_payment_method else ''
+
+        self.upgrade.data = member.current_action() and member.current_action().action == MemberAction.upgrade
 
         self.notes.data = member.renewal_notes()
 
