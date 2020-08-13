@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for
 from flask_login import current_user, login_user, logout_user
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, IntegerField, HiddenField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 
 from globals.config import full_url
@@ -9,7 +9,8 @@ from globals.email import send_mail
 from models.dt_db import User
 from back_end.interface import get_member_by_email, get_user, save_user
 from back_end.users import register_user
-from back_end.data_utilities import get_digits
+from back_end.data_utilities import get_digits, match_string
+from front_end.form_helpers import ReadOnlyWidget
 
 
 class LoginForm(FlaskForm):
@@ -23,12 +24,19 @@ class LoginForm(FlaskForm):
 
 
 class MemberLoginForm(FlaskForm):
+    number = IntegerField('Membership number', validators=[DataRequired()])
+    hidden_number = HiddenField()
     email = StringField('Email address', validators=[DataRequired(), Email("Invalid email address")])
     post_code = StringField('Post code', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Sign In')
 
-    def populate(self):
+    def populate(self, member_number):
+        self.hidden_number.data = member_number
+        if member_number:
+            prop = getattr(self, 'number')
+            setattr(prop, 'widget', ReadOnlyWidget())
+            self.number.data = member_number
         pass
 
 
@@ -37,8 +45,12 @@ def login(next_page, app=None):
         return redirect(next_page)
     url_components = next_page.split('/')
     is_member_login = 'members' in url_components  and 'renewal' in url_components
+    with_number = len(url_components) == 4
     if is_member_login:
-        member_number = int(url_components[2])
+        if with_number:
+            member_number = int(url_components[2])
+        else:
+            member_number = None
         return member_login(next_page, member_number, app)
     else:
         return user_login(next_page, app)
@@ -64,11 +76,16 @@ def user_login(next_page, app=None):
     return render_template(form_name, title='Sign In', form=form)
 
 
-def member_login(next_page, member_number, app=None):
+def member_login(next_page, member_number=None, app=None):
     form_name = 'member_login.html'
     form = MemberLoginForm()
     if form.is_submitted():
+        if form.hidden_number.data:
+            form.number.data = int(form.hidden_number.data)
         if form.validate_on_submit():
+            no_number = not member_number
+            if no_number:
+                member_number = form.number.data
             user_name = str(member_number)
             password = User.member_password(form.post_code.data)
             user = get_user(user_name=user_name)
@@ -76,8 +93,17 @@ def member_login(next_page, member_number, app=None):
                 ok, id, message, message_type = member_register(member_number, user_name, password, form.email.data)
                 if ok:
                     user = get_user(id=id)
-            if user is None or not user.check_password(password):
-                flash('Email or post code do not match', 'danger')
+            message = None
+            if user is None:
+                message = 'Email or post code do not match the Membership number', 'danger'
+            elif not match_string(user.member.email, form.email.data):
+                message = 'Email does not match the Membership number'
+            elif not user.check_password(password):
+                message = 'Post code does not match the Membership number'
+            if message:
+                flash(message, 'danger')
+                if not no_number:
+                    form.populate(member_number)
                 return render_template(form_name, title='Sign In', form=form)
             login_user(user, remember=form.remember_me.data)
             if not next_page:
@@ -86,7 +112,7 @@ def member_login(next_page, member_number, app=None):
                 next_page = next_page
             return redirect(next_page)
     else:
-        form.populate()
+        form.populate(member_number)
     return render_template(form_name, title='Sign In', form=form)
 
 

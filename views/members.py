@@ -1,5 +1,6 @@
 from flask import request
-from flask_login import login_required
+from flask_login import login_required, current_user
+
 
 from globals.decorators import role_required
 from main import app
@@ -42,6 +43,14 @@ def copy_member(member_number):
 @role_required('member')
 def members_area():
     return None
+
+
+@app.route('/members/renewal', methods=['GET', 'POST'])
+@login_required
+@role_required('member')
+def renew_member_no_number():
+    member_number = current_user.member_id
+    return MaintainMembers.renew_member(member_number)
 
 
 @app.route('/members/<int:member_number>/renewal', methods=['GET', 'POST'])

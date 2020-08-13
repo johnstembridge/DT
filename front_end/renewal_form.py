@@ -5,9 +5,9 @@ from wtforms.fields.html5 import DateField
 
 from back_end.interface import get_member, save_member_contact_details, country_choices, county_choices, state_choices, \
     get_country, get_county, get_state, get_junior
-from front_end.form_helpers import MySelectField, read_only_form
-from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
-    ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess, UserRole, PayPalPayment
+from front_end.form_helpers import MySelectField
+from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentMethod, Title, CommsStatus, \
+    JuniorGift, ExternalAccess, PayPalPayment
 from back_end.data_utilities import fmt_date
 
 
@@ -48,7 +48,8 @@ class MemberRenewalForm(FlaskForm):
     jd_gift = MySelectField(label='JD Gift', choices=JuniorGift.choices(blank=True), coerce=JuniorGift.coerce)
 
     afcw_access = BooleanField(label='Make my contact details available to AFC Wimbledon Limited')
-    third_pty_access = BooleanField(label='Make my contact details available to other organisations approved by the Trust ')
+    third_pty_access = BooleanField(
+        label='Make my contact details available to other organisations approved by the Trust ')
 
     # dues = StringField(label='Dues')
     upgrade = BooleanField(label='I wish to change my membership to Dons Trust Plus')

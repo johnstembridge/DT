@@ -3,24 +3,39 @@
 
 {% block page_content %}
     <h1>Dons Trust member login</h1>
-    <i>Please give your email address and post code as currently held by the Dons Trust</i>
+    {% if not form.number.data %}
+        <p><i>Please give just the numeric part of your membership number e.g. for DT0-00123 enter 123</i></p>
+    {% endif %}
+    <p><i>Please give your email address and post code as currently held by the Dons Trust</i></p>
     <form action="" method="post">
         {{ form.hidden_tag() }}
-        <p>
-            {{ form.email.label }}<br>
-            {{ form.email(size=40) }}
+        <table>
+        <tr>
+            <td>{{ form.number.label }}</td>
+            <td>{{ form.number(size=32) }}</td>
+            {% for error in form.number.errors %}
+                <td><span style="color: red;">[{{ error }}]</span></td>
+            {% endfor %}
+        </tr>
+        <tr>
+            <td>{{ form.email.label }}</td>
+            <td>{{ form.email(size=40) }}</td>
             {% for error in form.email.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <td><span style="color: red;">[{{ error }}]</span></td>
             {% endfor %}
-        </p>
-        <p>
-            {{ form.post_code.label }}<br>
-            {{ form.post_code(size=32) }}
+        </tr>
+        <tr>
+            <td>{{ form.post_code.label }}</td>
+            <td>{{ form.post_code(size=32) }}</td>
             {% for error in form.post_code.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <td><span style="color: red;">[{{ error }}]</span></td>
             {% endfor %}
-        </p>
-        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        </tr>
+        <tr>
+            <td>{{ form.remember_me.label }}</td>
+            <td>{{ form.remember_me() }}</td>
+        </tr>
+        </table>
         <p>{{ form.submit(class="btn btn-primary") }}</p>
     </form>
 {% endblock %}

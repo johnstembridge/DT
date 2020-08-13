@@ -163,7 +163,7 @@ class MemberAction(FormEnum):
 
     @staticmethod
     def send_certificates():
-        return [MemberAction.certificate, MemberAction.upgrade, MemberAction.replacement]
+        return [MemberAction.certificate, MemberAction.replacement]
 
     @staticmethod
     def send_cards():
