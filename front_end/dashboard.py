@@ -78,14 +78,12 @@ class Dashboard(FlaskForm):
             return
 
         def add_action(member, action_totals):
-            action = member.current_action()
-            if action:
-                if action.action in MemberAction.send_cards():
-                    action_totals[MemberAction.card] += 1
-                elif action.action in MemberAction.send_certificates():
-                    action_totals[MemberAction.certificate] += 1
-                else:
-                    action_totals[MemberAction.other] += 1
+            if member.has_open_action(MemberAction.certificate):
+                action_totals[MemberAction.certificate] += 1
+            if member.has_open_action(MemberAction.card):
+                action_totals[MemberAction.card] += 1
+            if member.has_open_action(MemberAction.other):
+                action_totals[MemberAction.other] += 1
             return
 
         for member in query.all():

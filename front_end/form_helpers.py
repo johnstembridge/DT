@@ -102,9 +102,9 @@ def status_choices():
     choices = MemberStatus.choices(extra=[(99, 'all active (<lapsed)')] if lapsed else None, blank=True)
     limit = current_user.access_limit()
     if lapsed:
-        choices = [c for c in choices if c[0] <= limit or c[0] == 99]
+        choices = [c for c in choices if c[0] <= limit or c[0] in [8, 99]]
     else:
-        choices = [c for c in choices if c[0] <= limit]
+        choices = [c for c in choices if c[0] <= limit or c[0] == 8]
     return choices
 
 

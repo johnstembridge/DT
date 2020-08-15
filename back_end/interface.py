@@ -48,7 +48,7 @@ def get_new_member():
     member.member_type = MembershipType.standard
     member.sex = None
     member.start_date = datetime.date.today()
-    member.end_date = current_year_end()
+    member.end_date = datetime.date(2021, 8, 1) # current_year_end()
     member.comms = CommsType.email
 
     member.address = get_new_address()

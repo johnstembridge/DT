@@ -395,6 +395,10 @@ class Member(Base):
         else:
             return None
 
+    def has_open_action(self, action_type):
+        current = [a.action for a in self.actions if a.status == ActionStatus.open]
+        return action_type in current
+
     def last_payment(self, item=None):
         dates = [p.date for p in self.payments]
         if len(dates) > 0:
