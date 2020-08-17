@@ -24,7 +24,7 @@ class LoginForm(FlaskForm):
 
 
 class MemberLoginForm(FlaskForm):
-    number = IntegerField('Membership number', validators=[DataRequired()])
+    number = StringField('Membership number', validators=[DataRequired()])
     hidden_number = HiddenField()
     email = StringField('Email address', validators=[DataRequired(), Email("Invalid email address")])
     post_code = StringField('Post code', validators=[DataRequired()])
@@ -85,7 +85,7 @@ def member_login(next_page, member_number=None, app=None):
         if form.validate_on_submit():
             no_number = not member_number
             if no_number:
-                member_number = form.number.data
+                member_number = int('0' + get_digits(form.number.data))
             user_name = str(member_number)
             password = User.member_password(form.post_code.data)
             user = get_user(user_name=user_name)
@@ -95,7 +95,7 @@ def member_login(next_page, member_number=None, app=None):
                     user = get_user(id=id)
             message = None
             if user is None:
-                message = 'Email or post code do not match the Membership number', 'danger'
+                message = 'Email or post code do not match Membership number {}'.format(member_number)
             elif not match_string(user.member.email, form.email.data):
                 message = 'Email does not match the Membership number'
             elif not user.check_password(password):

@@ -244,6 +244,9 @@ class Member(Base):
     def is_recent_new(self):
         return self.start_date >= datetime(current_year_end().year, 2, 1).date()
 
+    def is_recent_renewal(self):
+        return self.end_date >= current_year_end() and self.last_payment_method != PaymentMethod.dd
+
     def is_founder(self):
         return self.number <= 1889
 
@@ -326,7 +329,7 @@ class Member(Base):
         return MembershipType.standard
 
     def dues(self, as_of=None, default=True):
-        if self.status == MemberStatus.life:
+        if self.status == MemberStatus.life or self.is_recent_renewal():
             return 0
         if not as_of:
             as_of = current_year_end()
@@ -466,9 +469,10 @@ class Member(Base):
     def renewal_notes(self):
         age = self.age_next_renewal(default=True)
         new_member = self.is_recent_new()
+        recent_renew = self.is_recent_renewal()
         renewal_dues = '£' + str(self.dues())
-        renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not new_member else ''
-        upgrade_dues = '£' + str(self.upgrade_dues() if new_member else self.dues() + self.upgrade_dues())
+        renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not (new_member or recent_renew) else ''
+        upgrade_dues = '£' + str(self.upgrade_dues() if (new_member or recent_renew) else self.dues() + self.upgrade_dues())
         upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(upgrade_dues)
         member_type = self.member_type_next_renewal()
         junior = member_type == MembershipType.junior
@@ -517,7 +521,7 @@ class Member(Base):
                             "{}{}".format(renewal_cost, upgrade_para)]
                     else:
                         notes = ["{}{}".format(renewal_cost, upgrade_para), ]
-        if self.last_payment_method == PaymentMethod.dd and not new_member:
+        if self.last_payment_method == PaymentMethod.dd and not (new_member or recent_renew):
             up = "If you do not wish to upgrade to Dons Trust Plus, you need take no further action." \
                 if not junior else ''
             notes = [
@@ -528,6 +532,10 @@ class Member(Base):
             notes = [
                         "As you joined relatively late during the membership year we will automatically extend " \
                         "your membership until August 2021.", ] + notes
+        if recent_renew and self.status not in [MemberStatus.life, MemberStatus.plus]:
+            notes = [
+                        "As you renewed your membership recently you can still upgrade to Dons Trust Plus" \
+                    , ] + notes
         return notes
 
     def renewal_activated(self):

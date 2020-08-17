@@ -167,6 +167,10 @@ class MemberRenewalForm(FlaskForm):
         payment_method = PaymentMethod.from_value(self.payment_method.data)
         upgrade = self.upgrade.data
         member_type = member.long_membership_type() + (' (DT Plus)' if upgrade else '')
+        dues = (member.dues() if not (member.is_recent_new() or member.is_recent_renewal()) else 0) + \
+               (member.upgrade_dues() if upgrade else 0)
+        if member.is_recent_renewal() and not upgrade:
+            dues = -1
         dues = (member.dues() if not member.is_recent_new() else 0) + (member.upgrade_dues() if upgrade else 0)
         paypal_payment = self.get_paypal_payment(payment_method, member, upgrade)
         return payment_method, paypal_payment, dues, member_type, member
@@ -177,7 +181,7 @@ class MemberRenewalForm(FlaskForm):
             member_type = member.member_type_next_renewal()
             if member.status == MemberStatus.life:
                 return None
-            new_member = member.is_recent_new()
+            new_member = member.is_recent_new() or member.is_recent_renewal()
             if new_member:
                 if member_type == MembershipType.junior:
                     return None
