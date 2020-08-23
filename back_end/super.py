@@ -86,6 +86,17 @@ def update_member(rec):
             comment='from PayPal'
         )
         member.payments.append(pending)
+    action = first_or_default(
+        [a for a in member.actions if a.action == MemberAction.card and a.status == ActionStatus.open], None)
+    if not action:
+        action = Action(
+            member_id=member.id,
+            date=datetime.date.today(),
+            action=MemberAction.card,
+            status=ActionStatus.open,
+            comment='from PayPal'
+        )
+        member.actions.append(action)
     upgrade = amount in [20.0, 30.0, 45.0]
     action = first_or_default(
         [a for a in member.actions if a.action == MemberAction.upgrade and a.status == ActionStatus.open], None)
