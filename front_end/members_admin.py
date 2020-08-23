@@ -92,7 +92,8 @@ class MaintainMembers:
                 if member:
                     flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
                           'success')
-                    logout_user()
+                    if current_user.role != UserRole.super:
+                        logout_user()
                     if paypal_payment:
                         return render_template('renewal_paypal.html',
                                                pp_name=paypal_payment.name.replace("_", " "),

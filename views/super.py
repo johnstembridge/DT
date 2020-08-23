@@ -17,3 +17,17 @@ def backup():
 @role_required('super')
 def restore():
     return Super.restore_database()
+
+
+@app.route('/super/renew_recent', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def renew_recent():
+    return Super.renew_recent()
+
+
+@app.route('/super/renew_paid', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def renew_paid():
+    return Super.renew_paid()

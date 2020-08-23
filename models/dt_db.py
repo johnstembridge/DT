@@ -245,7 +245,10 @@ class Member(Base):
         return self.start_date >= datetime(current_year_end().year, 2, 1).date()
 
     def is_recent_renewal(self):
-        return self.end_date >= current_year_end() and self.last_payment_method != PaymentMethod.dd
+        # last_payment = self.last_payment()
+        # if last_payment.type == PaymentType.pending and last_payment.amount == self.base_dues():
+        #     return True
+        return self.end_date > current_year_end() and self.last_payment_method != PaymentMethod.dd
 
     def is_founder(self):
         return self.number <= 1889
@@ -329,8 +332,11 @@ class Member(Base):
         return MembershipType.standard
 
     def dues(self, as_of=None, default=True):
-        if self.status == MemberStatus.life or self.is_recent_renewal():
+        if self.status == MemberStatus.life or self.is_recent_renewal() or self.is_recent_new():
             return 0
+        return self.base_dues(as_of)
+
+    def base_dues(self, as_of=None):
         if not as_of:
             as_of = current_year_end()
         type = self.member_type_next_renewal(as_of)

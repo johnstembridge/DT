@@ -213,6 +213,7 @@ def delete_file(file):
         os.remove(file)
 # endregion
 
+
 def get_digits(text):
     return ''.join(list(filter(str.isdigit, text)))
 
