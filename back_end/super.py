@@ -1,3 +1,4 @@
+from globals import config
 from globals.enumerations import MemberAction, MemberStatus, ActionStatus, PaymentType, PaymentMethod
 from back_end.interface import get_members_for_query, get_member, save_member
 from back_end.data_utilities import fmt_date, current_year_end, first_or_default, file_delimiter, parse_date
@@ -5,8 +6,10 @@ from models.dt_db import Action, Payment
 
 import datetime
 import csv
+from os import path
 
 new_end_date = datetime.date(current_year_end().year + 1, 8, 1)
+
 
 def renew_recent():
     start_date = fmt_date(datetime.date(current_year_end().year, 2, 1))
@@ -36,7 +39,7 @@ def renew_recent():
 
 
 def renew_paid():
-    file_name = r'D:\donstrust\renewals\renewals 2020\paypal_apply_19082020.txt'
+    file_name = path.join(config.get('locations')['import'], 'paypal_apply.txt')
     print('Importing ' + file_name)
     result = []
     with open(file_name, 'r', encoding='latin-1') as in_file:

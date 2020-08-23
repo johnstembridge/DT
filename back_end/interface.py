@@ -332,7 +332,7 @@ def save_member_contact_details(member_number, details):
             item.amount = dues
             item.method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
             item.comment = payment_comment
-        else:
+        elif dues > 0:
             item = Payment(
                 member_id=member.id,
                 date=date,

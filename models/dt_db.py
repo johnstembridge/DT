@@ -245,10 +245,9 @@ class Member(Base):
         return self.start_date >= datetime(current_year_end().year, 2, 1).date()
 
     def is_recent_renewal(self):
-        # last_payment = self.last_payment()
-        # if last_payment.type == PaymentType.pending and last_payment.amount == self.base_dues():
-        #     return True
-        return self.end_date > current_year_end() and self.last_payment_method != PaymentMethod.dd
+        if self.status == MemberStatus.life:
+            return False
+        return self.end_date > current_year_end()
 
     def is_founder(self):
         return self.number <= 1889
@@ -478,7 +477,8 @@ class Member(Base):
         recent_renew = self.is_recent_renewal()
         renewal_dues = '£' + str(self.dues())
         renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not (new_member or recent_renew) else ''
-        upgrade_dues = '£' + str(self.upgrade_dues() if (new_member or recent_renew) else self.dues() + self.upgrade_dues())
+        upgrade_dues = '£' + str(
+            self.upgrade_dues() if (new_member or recent_renew) else self.dues() + self.upgrade_dues())
         upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(upgrade_dues)
         member_type = self.member_type_next_renewal()
         junior = member_type == MembershipType.junior
@@ -541,7 +541,7 @@ class Member(Base):
         if recent_renew and self.status not in [MemberStatus.life, MemberStatus.plus]:
             notes = [
                         "As you renewed your membership recently you can still upgrade to Dons Trust Plus" \
-                    , ] + notes
+                        , ] + notes
         return notes
 
     def renewal_activated(self):
@@ -549,7 +549,7 @@ class Member(Base):
         if last_payment and last_payment.type.name == 'pending':
             last_action = self.current_action()
             if last_action and last_action.action == MemberAction.upgrade and last_action.status == ActionStatus.open:
-                    return 'Renewal was activated {} ({})'.format(fmt_date(last_action.date), last_action.comment)
+                return 'Renewal was activated {} ({})'.format(fmt_date(last_action.date), last_action.comment)
             else:
                 return 'Renewal was activated {}'.format(fmt_date(last_payment.date))
         else:
