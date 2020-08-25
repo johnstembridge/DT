@@ -9,6 +9,9 @@ class Dashboard(FlaskForm):
     adults = StringField(label='Standard adults')
     life_adults = StringField(label='Life adults')
     life_juniors = StringField(label='Life juniors')
+    plus_standard = StringField(label='DT plus (standard)')
+    plus_concession = StringField(label='DT plus (concession)')
+    plus_young_adult = StringField(label='DT plus (concession)')
     concessions = StringField(label='Concessions')
     seniors = StringField(label='Seniors')
     students = StringField(label='Students')
@@ -42,15 +45,18 @@ class Dashboard(FlaskForm):
             MembershipType.other_concession: 0,
             MembershipType.intermediate: 0,
             MembershipType.junior: 0,
-            100: 0,
-            101: 0
+            100: 0, # Life adult
+            101: 0, # Life Junior
+            102: 0, # DT plus standard
+            103: 0, # DT plus concession
+            104: 0  # DT plus young adult
         }
         payment_totals = {
             PaymentMethod.cash: 0,
             PaymentMethod.chq: 0,
             PaymentMethod.cc: 0,
             PaymentMethod.dd: 0,
-            100: 0
+            100: 0  # other
         }
         action_totals = {
             MemberAction.certificate: 0,
@@ -65,6 +71,13 @@ class Dashboard(FlaskForm):
                     member_totals[101] += 1
                 else:
                     member_totals[100] += 1
+            if member.status == MemberStatus.plus:
+                if member.member_type in (MembershipType.all_concessions() + [MembershipType.senior]):
+                    member_totals[103] += 1
+                elif member.member_type == MembershipType.intermediate:
+                    member_totals[104] += 1
+                else:
+                    member_totals[102] += 1
             return
 
         def add_payment(member, payment_totals):
@@ -93,6 +106,9 @@ class Dashboard(FlaskForm):
 
         self.adults.data = member_totals[MembershipType.standard]
         self.life_adults.data = member_totals[100]
+        self.plus_standard.data = member_totals[102]
+        self.plus_concession.data = member_totals[103]
+        self.plus_young_adult.data = member_totals[104]
         self.seniors.data = member_totals[MembershipType.senior]
         self.students.data = member_totals[MembershipType.student]
         self.job_seekers.data = member_totals[MembershipType.job_seeker]
