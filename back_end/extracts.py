@@ -50,9 +50,9 @@ class Extracts:
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Payment', 'type', PaymentType.pending.value, '=', None)
         ]
-        display_fields = ['number', 'member type', 'full name', 'action', 'action date', 'action comment',
-                          'last payment date', 'last payment amount', 'last payment type', 'last payment method',
-                          'last payment comment']
+        display_fields = ['number', 'member type', 'full name', 'use email', 'email', 'action', 'action date',
+                          'action comment', 'last payment date', 'last payment amount', 'last payment type',
+                           'last payment method', 'last payment comment']
         return Query.show_found_do(query_clauses, display_fields, action='renewal', page=page)
 
     @staticmethod
