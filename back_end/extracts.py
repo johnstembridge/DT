@@ -52,7 +52,7 @@ class Extracts:
         ]
         display_fields = ['number', 'member type', 'full name', 'use email', 'email', 'action', 'action date',
                           'action comment', 'last payment date', 'last payment amount', 'last payment type',
-                           'last payment method', 'last payment comment']
+                           'last payment method', 'last payment comment', 'end']
         return Query.show_found_do(query_clauses, display_fields, action='renewal', page=page)
 
     @staticmethod
@@ -108,7 +108,7 @@ class Extracts:
     def extract_cards_all():
         # annual replacement cards for printers
         query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)]
-        display_fields = ['type next renewal', 'number', 'full name', 'card start year']
+        display_fields = ['status at renewal', 'type at renewal', 'number at renewal', 'full name', 'card start year']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
@@ -121,7 +121,7 @@ class Extracts:
         ]
         display_fields = \
             ['number', 'id number', 'full name', 'address (line 1)', 'address (line 2)', 'address (line 3)',
-             'city', 'county', 'state', 'post code', 'country for post', 'status', 'member type', 'type next renewal',
+             'city', 'county', 'state', 'post code', 'country for post', 'status', 'member type', 'type at renewal',
              'email', 'comms', 'payment method', 'renewal notes', 'home phone', 'mobile phone', 'birth date',
              'junior email', 'AFCW access', '3rd pty access']
         return Query.show_found_do(query_clauses, display_fields)
@@ -135,6 +135,6 @@ class Extracts:
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = \
-            ['number', 'type next renewal', 'full name', 'dues pending', 'email', 'address (line 1)', 'address (line 2)',
+            ['number', 'type at renewal', 'full name', 'dues pending', 'email', 'address (line 1)', 'address (line 2)',
              'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)

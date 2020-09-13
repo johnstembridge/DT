@@ -69,7 +69,7 @@ class MemberRenewalForm(FlaskForm):
         self.dt_number.data = member.dt_number()
         self.status.data = member.status.name
         self.plus.data = ' (Dons Trust Plus)' if member.status == MemberStatus.plus else ''
-        self.type.data = member.member_type_next_renewal().value
+        self.type.data = member.member_type_at_renewal().value
 
         self.start_date.data = member.start_date
         self.birth_date.data = member.birth_date
@@ -100,7 +100,7 @@ class MemberRenewalForm(FlaskForm):
         self.comms.data = member.comms.value
         self.comms_status.data = member.comms_status.value if member.comms_status else CommsStatus.all_ok
 
-        if member.member_type_next_renewal() == MembershipType.junior:
+        if member.member_type_at_renewal() == MembershipType.junior:
             if not member.junior:
                 member.junior = get_junior()
             self.jd_email.data = member.junior.email or ''
@@ -176,7 +176,7 @@ class MemberRenewalForm(FlaskForm):
     @staticmethod
     def get_paypal_payment(payment_method, member, upgrade):
         if payment_method == PaymentMethod.cc:
-            member_type = member.member_type_next_renewal()
+            member_type = member.member_type_at_renewal()
             if member.status == MemberStatus.life:
                 return None
             new_member = member.is_recent_new() or member.is_recent_renewal()

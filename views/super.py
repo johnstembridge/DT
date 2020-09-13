@@ -1,5 +1,4 @@
 from flask_login import login_required
-from flask import request, flash, redirect, url_for, render_template
 from globals.decorators import role_required
 from main import app
 from front_end.super import Super
@@ -31,3 +30,10 @@ def renew_recent():
 @role_required('super')
 def renew_paid():
     return Super.renew_paid()
+
+
+@app.route('/super/update_by_age', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def change_member_type_by_age():
+    return Super.change_member_type_by_age()

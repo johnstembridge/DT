@@ -1,5 +1,5 @@
 from globals import config
-from globals.enumerations import MemberAction, MemberStatus, ActionStatus, PaymentType, PaymentMethod
+from globals.enumerations import MemberAction, MemberStatus, MembershipType, ActionStatus, PaymentType, PaymentMethod
 from back_end.interface import get_members_for_query, get_member, save_member
 from back_end.data_utilities import fmt_date, current_year_end, first_or_default, file_delimiter, parse_date
 from models.dt_db import Action, Payment
@@ -76,16 +76,22 @@ def update_member(rec):
         pending.amount = amount
         pending.comment = 'from PayPal'
     else:
-        message += ["no cc pending payment: adding one"]
-        pending = Payment(
-            member_id=member.id,
-            date=date,
-            amount=amount,
-            type=PaymentType.dues,
-            method=PaymentMethod.cc,
-            comment='from PayPal'
-        )
-        member.payments.append(pending)
+        dues = first_or_default(
+            [p for p in member.payments if p.type == PaymentType.dues and p.method == PaymentMethod.cc], None)
+        if dues and dues.amount == amount and dues.date == date and dues.comment == 'from PayPal':
+            message += ['Payment already processed']
+            return message
+        else:
+            message += ["no cc pending payment: adding one"]
+            pending = Payment(
+                member_id=member.id,
+                date=date,
+                amount=amount,
+                type=PaymentType.dues,
+                method=PaymentMethod.cc,
+                comment='from PayPal'
+            )
+            member.payments.append(pending)
     action = first_or_default(
         [a for a in member.actions if a.action == MemberAction.card and a.status == ActionStatus.open], None)
     if not action:
@@ -120,3 +126,31 @@ def update_member(rec):
     member.end_date = new_end_date
     save_member(member)
     return message
+
+
+def change_member_type_by_age():
+    #Seniors moved from 60+ to 65+
+    query_clauses = [
+        ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+        ('Member', 'member_type', MembershipType.senior, '=', None),
+        ('Member', 'birth_date', 65, '<', 'age()'),
+    ]
+    members = get_members_for_query(query_clauses)
+    count_senior = 0
+    for member in members:
+        count_senior += 1
+        member.member_type = MembershipType.standard
+        save_member(member)
+    #Juniors moved from <16 to <18
+    query_clauses = [
+        ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+        ('Member', 'member_type', MembershipType.intermediate, '=', None),
+        ('Member', 'birth_date', 18, '<', 'age()'),
+    ]
+    members = get_members_for_query(query_clauses)
+    count_junior = 0
+    for member in members:
+        count_junior += 1
+        member.member_type = MembershipType.junior
+        save_member(member)
+    return '{} senior records processed, {} junior'.format(count_senior, count_junior)

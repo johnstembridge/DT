@@ -314,7 +314,7 @@ def save_member_contact_details(member_number, details):
         member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
 
     if not member.member_type in MembershipType.all_concessions():
-        member.type = member.member_type_next_renewal()
+        member.type = member.member_type_at_renewal()
 
     dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
     date = datetime.date.today()

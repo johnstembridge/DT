@@ -217,9 +217,11 @@ class Member(Base):
                         value = data[field]
                     setattr(self, field, value)
 
-    def dt_number(self):
-        member_prefix = 'JD' if self.member_type == MembershipType.junior else 'DT'
-        return '{}0-{:05d}'.format(member_prefix, self.number or 0)
+    def dt_number(self, renewal=False):
+        type = self.member_type_at_renewal() if renewal else self.member_type
+        member_prefix = 'JD' if type == MembershipType.junior and self.age_at_renewal() < 16 else 'DT'
+        status = self.member_status_at_renewal() if renewal else self.status
+        return '{}0{}{:05d}'.format(member_prefix, '+' if status == MemberStatus.plus else '-',self.number or 0)
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
@@ -310,11 +312,26 @@ class Member(Base):
     def age_next_birthday(self):
         return self.age(self.next_birthday())
 
-    def age_next_renewal(self, default=False):
+    def dt_number_at_renewal(self):
+        return self.dt_number(renewal=True)
+
+    def age_at_renewal(self, default=False):
         next_renewal_date = current_year_end()
         return self.age(next_renewal_date, default)
 
-    def member_type_next_renewal(self, as_of=None):
+    def member_status_at_renewal(self):
+        status = self.status
+        if status not in [MemberStatus.life, MemberStatus.plus]:
+            upgrade=first_or_default([a for a in self.actions if
+                                a.action==MemberAction.upgrade and
+                                a.status==ActionStatus.open and
+                                a.comment=='Upgrade to DT plus'],
+            None)
+            if upgrade:
+                status = MemberStatus.plus
+        return status
+
+    def member_type_at_renewal(self, as_of=None):
         if self.member_type in MembershipType.all_concessions():
             return self.member_type
         if not as_of:
@@ -338,7 +355,7 @@ class Member(Base):
     def base_dues(self, as_of=None):
         if not as_of:
             as_of = current_year_end()
-        type = self.member_type_next_renewal(as_of)
+        type = self.member_type_at_renewal(as_of)
         if type in MembershipType.all_concessions():
             return Dues.concession.value
         if type == MembershipType.junior:
@@ -354,7 +371,7 @@ class Member(Base):
             return 0
         if not as_of:
             as_of = current_year_end()
-        type = self.member_type_next_renewal(as_of)
+        type = self.member_type_at_renewal(as_of)
         if type in MembershipType.all_concessions():
             return PlusUpgradeDues.concession.value
         if type == MembershipType.intermediate:
@@ -383,14 +400,13 @@ class Member(Base):
         return self.member_type in MembershipType.volatile_concessions()
 
     def start_year_for_card(self):
+        extra = ''
+        if self.is_founder():
+            extra += ' founder'
         if self.is_life():
-            extra = ' (life member)'
-        elif self.is_founder():
-            extra = ' (founder)'
-        elif self.is_plus():
-            extra = ' (plus)'
-        else:
-            extra = ''
+            extra += ' life member'
+        if len(extra) > 0:
+            extra = ' (' + extra[1:] + ')'
         return str(self.start_date.year) + extra
 
     def certificate_date(self):
@@ -464,7 +480,7 @@ class Member(Base):
         return long
 
     def long_membership_type(self):
-        plus = '' if self.status == MemberStatus.current \
+        plus = '' if self.status in [MemberStatus.current, MemberStatus.lapsed] \
             else ' (' + [c for c in MemberStatus.renewal_choices() if c[0] == self.status.value][0][1] + ')'
         return [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1] + plus
 
@@ -472,7 +488,7 @@ class Member(Base):
         return '\n'.join(self.renewal_notes())
 
     def renewal_notes(self):
-        age = self.age_next_renewal(default=True)
+        age = self.age_at_renewal(default=True)
         new_member = self.is_recent_new()
         recent_renew = self.is_recent_renewal()
         renewal_dues = '£' + str(self.dues())
@@ -480,7 +496,7 @@ class Member(Base):
         upgrade_dues = '£' + str(
             self.upgrade_dues() if (new_member or recent_renew) else self.dues() + self.upgrade_dues())
         upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(upgrade_dues)
-        member_type = self.member_type_next_renewal()
+        member_type = self.member_type_at_renewal()
         junior = member_type == MembershipType.junior
         notes = []
         if self.status == MemberStatus.life:

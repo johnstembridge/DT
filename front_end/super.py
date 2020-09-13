@@ -2,7 +2,7 @@ import subprocess
 from flask import flash, render_template
 
 from scripts import scripts
-from back_end.super import renew_recent, renew_paid
+from back_end.super import renew_recent, renew_paid, change_member_type_by_age
 
 
 class Super:
@@ -15,13 +15,19 @@ class Super:
     @staticmethod
     def restore_database():
         res = subprocess.run([scripts.file_name("restore")], stderr=subprocess.PIPE, universal_newlines=True, shell=True)
-        return Super.return_result('Restore', res)
+        return Super.return_result('Restore backup', res)
 
     @staticmethod
     def renew_recent():
         # auto renew members who joined on or after 1st Feb of previous membership year
         res = renew_recent()
         return Super.return_result('Renew recent', res)
+
+    @staticmethod
+    def change_member_type_by_age():
+        # auto renew members who joined on or after 1st Feb of previous membership year
+        res = change_member_type_by_age()
+        return Super.return_result('Update member type', res)
 
     @staticmethod
     def renew_paid():
@@ -42,5 +48,5 @@ class Super:
             flash(mode + ' successful', 'success')
         else:
             flash(mode + ' errored', 'danger')
-        return render_template('backup_result.html', result_text=text)
+        return render_template('bulk_update_result.html', mode=mode, result_text=text)
 

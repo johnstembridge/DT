@@ -65,16 +65,17 @@ class Dashboard(FlaskForm):
         }
 
         def add_member(member, member_totals):
-            member_totals[member.member_type] += 1
+            member_type = member.member_type_at_renewal()
+            member_totals[member_type] += 1
             if member.status == MemberStatus.life:
-                if member.member_type == MembershipType.junior:
+                if member_type == MembershipType.junior:
                     member_totals[101] += 1
                 else:
                     member_totals[100] += 1
             if member.status == MemberStatus.plus:
-                if member.member_type in (MembershipType.all_concessions() + [MembershipType.senior]):
+                if member_type in (MembershipType.all_concessions() + [MembershipType.senior]):
                     member_totals[103] += 1
-                elif member.member_type == MembershipType.intermediate:
+                elif member_type == MembershipType.intermediate:
                     member_totals[104] += 1
                 else:
                     member_totals[102] += 1

@@ -6,6 +6,7 @@ from models.dt_db import User
 from back_end.interface import get_member, get_user, save_user
 from back_end.data_utilities import match_string
 
+
 def register_user(member_number, user_name, password, email=None, role=UserRole.member, two_phase=False, activate_url=None):
     user_id = 0
     if user_name and password:
