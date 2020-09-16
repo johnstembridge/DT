@@ -38,8 +38,10 @@ def renew_recent():
     return '{} new members updated'.format(count)
 
 
-def renew_paid():
-    file_name = path.join(config.get('locations')['import'], 'paypal_apply.txt')
+def renew_paid(payment_method):
+    file_name = path.join(config.get('locations')['import'],
+                          'paypal_apply.txt' if payment_method == 'cc' else 'dd_apply.txt')
+    payment_method = PaymentMethod.cc if payment_method == 'cc' else PaymentMethod.dd
     print('Importing ' + file_name)
     result = []
     with open(file_name, 'r', encoding='latin-1') as in_file:
@@ -50,7 +52,7 @@ def renew_paid():
             if count % 50 == 0:
                 if 'id' in row.keys():
                     print('Processing ' + row['id'])
-            message = update_member(row)
+            message = update_member(row, payment_method)
             if len(message) > 0:
                 result.append('***' + row['id'] + ': ' + '\n'.join(message))
         if len(result) > 0:
@@ -59,7 +61,7 @@ def renew_paid():
             return '{} records processed'.format(count)
 
 
-def update_member(rec):
+def update_member(rec, payment_method):
     # rec is line of payments file with keys id, date, amount and note
     message = []
     number = int(rec['id'][4:])
@@ -67,29 +69,30 @@ def update_member(rec):
     amount = float(rec['amount'])
     member = get_member(number)
     pending = first_or_default(
-        [p for p in member.payments if p.type == PaymentType.pending and p.method == PaymentMethod.cc], None)
+        [p for p in member.payments if p.type == PaymentType.pending and p.method == payment_method], None)
+    payment_comment = 'from payments file'
     if pending:
         if pending.amount != amount:
             message += ["Expected amount {}, got {}".format(pending.amount, amount)]
         pending.type = PaymentType.dues
         pending.date = date
         pending.amount = amount
-        pending.comment = 'from PayPal'
+        pending.comment = payment_comment
     else:
         dues = first_or_default(
-            [p for p in member.payments if p.type == PaymentType.dues and p.method == PaymentMethod.cc], None)
-        if dues and dues.amount == amount and dues.date == date and dues.comment == 'from PayPal':
+            [p for p in member.payments if p.type == PaymentType.dues and p.method == payment_method], None)
+        if dues and dues.amount == amount and dues.date == date and dues.comment in ['from PayPal', payment_comment]:
             message += ['Payment already processed']
             return message
         else:
-            message += ["no cc pending payment: adding one"]
+            message += ["no pending payment: adding one"]
             pending = Payment(
                 member_id=member.id,
                 date=date,
                 amount=amount,
                 type=PaymentType.dues,
-                method=PaymentMethod.cc,
-                comment='from PayPal'
+                method=payment_method,
+                comment=payment_comment
             )
             member.payments.append(pending)
     action = first_or_default(
@@ -100,7 +103,7 @@ def update_member(rec):
             date=datetime.date.today(),
             action=MemberAction.card,
             status=ActionStatus.open,
-            comment='from PayPal'
+            comment=payment_comment
         )
         member.actions.append(action)
     upgrade = amount in [20.0, 30.0, 45.0]
@@ -110,9 +113,9 @@ def update_member(rec):
         if upgrade:
             member.status = MemberStatus.plus
             action.status = ActionStatus.closed
-        else:
-            message += ['expected an upgrade payment, upgrade action removed']
-            member.actions.remove(action)
+        # else:
+        #     message += ['expected an upgrade payment, upgrade action removed']
+        #     member.actions.remove(action)
     else:
         if upgrade:
             action = Action(
@@ -120,7 +123,7 @@ def update_member(rec):
                 date=date,
                 action=MemberAction.upgrade,
                 status=ActionStatus.closed,
-                comment='from PayPal'
+                comment=payment_comment
             )
             member.actions.append(action)
     member.end_date = new_end_date
@@ -129,7 +132,7 @@ def update_member(rec):
 
 
 def change_member_type_by_age():
-    #Seniors moved from 60+ to 65+
+    # Seniors moved from 60+ to 65+
     query_clauses = [
         ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
         ('Member', 'member_type', MembershipType.senior, '=', None),
@@ -141,7 +144,7 @@ def change_member_type_by_age():
         count_senior += 1
         member.member_type = MembershipType.standard
         save_member(member)
-    #Juniors moved from <16 to <18
+    # Juniors moved from <16 to <18
     query_clauses = [
         ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
         ('Member', 'member_type', MembershipType.intermediate, '=', None),

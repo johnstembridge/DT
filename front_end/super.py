@@ -30,9 +30,9 @@ class Super:
         return Super.return_result('Update member type', res)
 
     @staticmethod
-    def renew_paid():
-        # auto renew members who joined on or after 1st Feb of previous membership year
-        res = renew_paid()
+    def renew_paid(payment_method):
+        # renew members who have paid according to payment file
+        res = renew_paid(payment_method)
         return Super.return_result('Renew paid', res)
 
     @staticmethod

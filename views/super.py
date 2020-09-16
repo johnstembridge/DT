@@ -25,11 +25,18 @@ def renew_recent():
     return Super.renew_recent()
 
 
-@app.route('/super/renew_paid', methods=['GET', 'POST'])
+@app.route('/super/renew_paid_cc', methods=['GET', 'POST'])
 @login_required
 @role_required('super')
-def renew_paid():
-    return Super.renew_paid()
+def renew_paid_cc():
+    return Super.renew_paid('cc')
+
+
+@app.route('/super/renew_paid_dd', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def renew_paid_dd():
+    return Super.renew_paid('dd')
 
 
 @app.route('/super/update_by_age', methods=['GET', 'POST'])
