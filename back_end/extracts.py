@@ -52,7 +52,7 @@ class Extracts:
         ]
         display_fields = ['number', 'member type', 'full name', 'use email', 'email', 'action', 'action date',
                           'action comment', 'last payment date', 'last payment amount', 'last payment type',
-                           'last payment method', 'last payment comment', 'end']
+                          'last payment method', 'last payment comment', 'end']
         return Query.show_found_do(query_clauses, display_fields, action='renewal', page=page)
 
     @staticmethod
@@ -98,10 +98,9 @@ class Extracts:
         query_clauses = [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
-        display_fields = ['number', 'member type', 'use email', 'email', 'full name', 'address (line 1)',
-                          'address (line 2)',
-                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'first name',
-                          'last name']
+        display_fields = ['number', 'full name', 'member type', 'use email', 'email', 'mobile phone', 'home phone',
+                          'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state',
+                          'post code', 'country for post', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
