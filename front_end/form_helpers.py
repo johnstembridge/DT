@@ -226,6 +226,7 @@ extract_fields_map = OrderedDict([
     ('status at renewal', 'member_status_at_renewal().name'),
     ('member type', 'member_type.name'),
     ('type at renewal', 'member_type_at_renewal().name'),
+    ('voter', 'voter()'),
     ('start', 'start_date'),
     ('end', 'end_date'),
     ('birth date', 'birth_date'),

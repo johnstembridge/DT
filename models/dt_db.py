@@ -219,9 +219,12 @@ class Member(Base):
 
     def dt_number(self, renewal=False):
         type = self.member_type_at_renewal() if renewal else self.member_type
-        member_prefix = 'JD' if type == MembershipType.junior and self.age_at_renewal() < 16 else 'DT'
+        member_prefix = 'JD' if not self.voter() else 'DT'
         status = self.member_status_at_renewal() if renewal else self.status
         return '{}0{}{:05d}'.format(member_prefix, '+' if status == MemberStatus.plus else '-',self.number or 0)
+
+    def voter(self):
+        return not (type == MembershipType.junior and self.age_at_renewal() < 16)
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name

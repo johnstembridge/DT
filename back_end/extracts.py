@@ -100,7 +100,7 @@ class Extracts:
         ]
         display_fields = ['number', 'full name', 'member type', 'use email', 'email', 'mobile phone', 'home phone',
                           'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state',
-                          'post code', 'country for post', 'first name', 'last name']
+                          'post code', 'country for post', 'voter', 'AFCW access', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
