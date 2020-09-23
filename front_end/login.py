@@ -89,17 +89,18 @@ def member_login(next_page, member_number=None, app=None):
             user_name = str(member_number)
             password = User.member_password(form.post_code.data)
             user = get_user(user_name=user_name)
+            message = None
             if user is None:
                 ok, id, message, message_type = member_register(member_number, user_name, password, form.email.data)
                 if ok:
                     user = get_user(id=id)
-            message = None
-            if user is None:
-                message = 'Email or post code do not match Membership number {}'.format(member_number)
-            elif not match_string(user.member.email, form.email.data):
-                message = 'Email does not match the Membership number'
-            elif not user.check_password(password):
-                message = 'Post code does not match the Membership number'
+            if not message:
+                if user is None:
+                    message = 'Email or post code do not match Membership number {}'.format(member_number)
+                elif not match_string(user.member.email, form.email.data):
+                    message = 'Email does not match the Membership number'
+                elif not user.check_password(password):
+                    message = 'Post code does not match the Membership number'
             if message:
                 flash(message, 'danger')
                 if not no_number:
