@@ -21,29 +21,32 @@
             <td>{{ form.status }}</td>
             <td>{{ form.type.label }}</td>
             <td>{{ form.type }}</td>
-            <td>{{ form.access.label }}</td>
-            <td>{{ form.access }}</td>
-        </tr>
-    </table>
-    <table>
-        <tr>
-            <td>{{ form.start_date.label }}</td>
-            <td>{{ form.start_date }}</td>
-            <td>{{ form.end_date.label }}</td>
-            <td>{{ form.end_date }}</td>
-            <td>{{ form.birth_date.label }}</td>
-            <td>{{ form.birth_date }}{%if form.age.data != None %} ({{ form.age.data }}){% endif %}</td>
+            <td>{{ form.last_updated.label }}</td>
+            <td>{{ form.last_updated.data }}</td>
         </tr>
     </table>
     <table>
         <tr><td>&nbsp;</td></tr>
         <tr>
+            <td>{{ form.start_date.label }}</td>
+            <td>{{ form.start_date(size=8) }}</td>
+            <td>{{ form.end_date.label }}</td>
+            <td>{{ form.end_date(size=8) }}</td>
+            <td>{{ form.birth_date.label }}</td>
+            <td>{{ form.birth_date(size=8) }}{%if form.age.data != None %} ({{ form.age.data }}){% endif %}</td>
+        </tr>
+    </table>
+    <table>
+        <tr><td>&nbsp;</td></tr>
+        <tr>
+            <td>{{ form.access.label }}</td>
+            <td>{{ form.access }}</td>
             <td>{{ form.external_access.label }}</td>
             <td>{{ form.external_access }}</td>
             <td>{{ form.season_ticket.label }}</td>
-            <td>{{ form.season_ticket(size=10) }}</td>
-            <td>{{ form.last_updated.label }}</td>
-            <td>{{ form.last_updated.data }}</td>
+            <td>{{ form.season_ticket(size=4) }}</td>
+            <td>{{ form.payment_method.label }}</td>
+            <td>{{ form.payment_method }}</td>
         </tr>
     </table>
     <hr/>

@@ -7,7 +7,7 @@ import pickle
 from collections import OrderedDict
 
 from back_end.data_utilities import first_or_default, last_or_default, fmt_date, remove
-from globals.enumerations import MemberStatus, MembershipType, UserRole
+from globals.enumerations import MemberStatus, MembershipType, UserRole, MemberAction
 
 
 class MyStringField(StringField):
@@ -273,11 +273,33 @@ extract_fields_map = OrderedDict([
     ('last payment date', 'last_payment_date()'),
     ('last payment amount', 'last_payment_amount()'),
     ('last payment type', 'last_payment_type()'),
+    ('payment type', 'payments[].type.name'),
     ('last payment method', 'last_payment_method_()'),
     ('last payment comment', 'last_payment_comment()'),
     ('last updated', 'last_updated'),
     ('renewal notes', 'renewal_notes_as_text()')
 ])
+
+
+def extract_fields_action(fields, action):
+    for field in fields:
+        if 'action' in field:
+            fields[field] = fields[field].replace('[]', '[' + action + ']')
+    return fields
+
+
+def extract_fields_payment(fields, payment):
+    for field in fields:
+        if 'payment type' in field:
+            fields[field] = fields[field].replace('[]', '[' + payment + ']')
+    return fields
+
+
+def query_fields_action(query_clauses):
+    action = first_or_default([q for q in query_clauses if q[1] == 'action'], None)
+    if action:
+        action = MemberAction.from_value(action[2]).name
+    return action
 
 
 def split_condition_and_value(value):

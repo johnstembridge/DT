@@ -15,9 +15,8 @@ class ExtractForm(FlaskForm):
     close_url = StringField(label='close')
     action_type = HiddenField(label='action type')
 
-    def populate_result(self, clauses, fields, query, page_number=1, action=None):
+    def populate_result(self, clauses, fields, query, action, show_fn, page_number):
         page = query.paginate(page=page_number, per_page=15)
-        show_fn = 'show_actions' if action else 'extracts_show'
         self.total.data = page.total
         self.current_page.data = page_number
         self.total_pages.data = page.pages

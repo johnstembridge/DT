@@ -29,7 +29,7 @@ class Extracts:
         ]
         display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'recent new',
-                          'email bounced', 'card start year', 'first name', 'last name']
+                          'email', 'use email', 'email bounced', 'card start year', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields, action='card', page=page)
 
     @staticmethod
@@ -51,9 +51,9 @@ class Extracts:
             ('Payment', 'type', PaymentType.pending.value, '=', None)
         ]
         display_fields = ['number', 'member type', 'full name', 'use email', 'email', 'action', 'action date',
-                          'action comment', 'last payment date', 'last payment amount', 'last payment type',
+                          'action comment', 'last payment date', 'last payment amount', 'last payment type', 'payment type',
                           'last payment method', 'last payment comment', 'end']
-        return Query.show_found_do(query_clauses, display_fields, action='renewal', page=page)
+        return Query.show_found_do(query_clauses, display_fields, action='renewal', payment='pending', page=page)
 
     @staticmethod
     def extract_juniors():

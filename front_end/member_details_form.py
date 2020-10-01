@@ -42,15 +42,15 @@ class MemberDetailsForm(FlaskForm):
     type = MySelectField(label='Type', choices=MembershipType.choices(), coerce=MembershipType.coerce)
     start_date = DateField(label='Start')
     end_date = DateField(label='End')
-    birth_date = DateField(label='Birth', validators=[Optional()])
+    birth_date = DateField(label='DoB', validators=[Optional()])
     age = HiddenField(label='Age')
+    last_updated = StringField(label='Updated')
     access = MySelectField(label='Access', choices=UserRole.choices(blank=False, ),
                            coerce=UserRole.coerce)
     season_ticket = StringField(label='Season Ticket')
     external_access = MySelectField(label='External access', choices=ExternalAccess.choices(),
                                     coerce=ExternalAccess.coerce)
-    last_updated = StringField(label='Last Update')
-
+    payment_method = MySelectField(label='Pay method', choices=PaymentMethod.choices(blank=True), coerce=PaymentMethod.coerce)
     title = MySelectField(label='Title', choices=Title.choices(blank=True), coerce=Title.coerce)
     first_name = StringField(label='First', validators=[InputRequired()])
     last_name = StringField(label='Last', validators=[InputRequired()])
@@ -105,11 +105,12 @@ class MemberDetailsForm(FlaskForm):
         self.end_date.data = member.end_date
         self.birth_date.data = member.birth_date
         self.age.data = str(member.age()) if member.age() is not None else None
+        self.last_updated.data = fmt_date(member.last_updated)
         self.access.data = member.user.role.value if member.user else 0
 
         self.season_ticket.data = member.season_ticket_id if member.season_ticket_id else ''
         self.external_access.data = (member.external_access or ExternalAccess.none).value
-        self.last_updated.data = fmt_date(member.last_updated)
+        self.payment_method.data = member.last_payment_method.value if member.last_payment_method else ''
 
         self.full_name.data = member.full_name()
         self.title.data = member.title.value if member.title else ''
@@ -194,6 +195,7 @@ class MemberDetailsForm(FlaskForm):
             'access': self.access.data,
             'external_access': self.external_access.data,
             'season_ticket': self.season_ticket.data,
+            'payment_method': self.payment_method.data,
 
             'home_phone': self.home_phone.data.strip(),
             'mobile_phone': self.mobile_phone.data.strip(),

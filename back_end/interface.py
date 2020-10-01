@@ -99,6 +99,9 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
             else:
                 s = '{}.{} {} "{}"'.format(table, column, condition, value)
         elif type == 'enum':
+            if field_name == 'status' and condition == '<' and value == 4: # status = all active
+                condition = 'in'
+                value = [s.value for s in MemberStatus.all_active()]
             s = '{}.{} {} {}'.format(table, column, condition, value)
         elif type == 'date':
             if not func:
@@ -184,6 +187,7 @@ def save_member_details(member_number, details):
 
     member.season_ticket_id = int(details['season_ticket']) if details['season_ticket'] else None
     member.external_access = ExternalAccess(details['external_access'])
+    member.last_payment_method = PaymentMethod(details['payment_method']) if details['payment_method'] > 0 else None
 
     member.home_phone = details['home_phone']
     member.mobile_phone = details['mobile_phone']
@@ -228,9 +232,6 @@ def save_member_details(member_number, details):
             )
         payments.append(item)
     member.payments = payments
-
-    if len(payments) > 0:
-        member.last_payment_method = [p.method for p in payments if p.date == max([p.date for p in payments])][0]
 
     actions = []
     for action in details['actions']:
@@ -342,9 +343,6 @@ def save_member_contact_details(member_number, details):
                 comment=payment_comment
             )
             member.payments.append(item)
-    if len(member.payments) > 0:
-        member.last_payment_method = \
-        [p.method for p in member.payments if p.date == max([p.date for p in member.payments])][0]
 
     if not details['comment'] in [None, '']:
         date = datetime.date.today()
@@ -520,6 +518,12 @@ def get_attr(obj, spec):
         res = getattr(obj, attr)
     elif '[]' in attr:  # list - get first
         res = first_or_default(getattr(obj, attr.replace('[]', '')), None)
+    elif 'actions[' in attr:  # list - get specific
+        (name, type) = attr.split('[')
+        res = first_or_default([a for a in getattr(obj, name) if a.action.name == type[:-1]], None)
+    elif 'payments[' in attr:  # list - get specific
+        (name, type) = attr.split('[')
+        res = first_or_default([a for a in getattr(obj, name) if a.type.name == type[:-1]], None)
     else:  # property
         res = getattr(obj, attr)
     if res and tail:

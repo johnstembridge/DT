@@ -1,7 +1,8 @@
 from flask import render_template, redirect, url_for, request
 from collections import OrderedDict
 
-from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, extract_fields_map
+from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, extract_fields_map, \
+    extract_fields_action, query_fields_action, extract_fields_payment
 from front_end.query_form import QueryForm
 from front_end.extract_form import ExtractForm
 from back_end.interface import get_attr, get_members_for_query, reset_member_actions_for_query
@@ -33,15 +34,20 @@ class Query:
         page = request.args.get('page', 1, int)
         query_clauses = url_pickle_load(request.args.get('query_clauses'))
         display_fields = url_pickle_load(request.args.get('display_fields'))
-        return Query.show_found_do(query_clauses, display_fields, page)
+        action = query_fields_action(query_clauses)
+        return Query.show_found_do(query_clauses, display_fields, page, action=action, show_fn='extracts_show')
 
     @staticmethod
-    def show_found_do(query_clauses, display_fields, page=1, action=None):
+    def show_found_do(query_clauses, display_fields, page=1, action=None, payment=None, show_fn='show_actions'):
         query = get_members_for_query(query_clauses)
         form = ExtractForm()
-        page = form.populate_result(clauses=url_pickle_dump(query_clauses), fields=url_pickle_dump(display_fields),
-                                    query=query, page_number=page, action=action)
+        page = form.populate_result(url_pickle_dump(query_clauses), url_pickle_dump(display_fields),
+                                    query, action, show_fn, page)
         fields = OrderedDict([(k, extract_fields_map[k]) for k in display_fields])
+        if action:
+            fields = extract_fields_action(fields, action)
+        if payment:
+            fields = extract_fields_payment(fields, payment)
         return render_template('extract.html', form=form, render_link=render_link, data=page.items, fields=fields,
                                get_attr=get_attr)
 

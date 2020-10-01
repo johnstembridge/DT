@@ -127,7 +127,7 @@ class Action(Base):
     member = relationship('Member', back_populates='actions')
 
     def __repr__(self):
-        return '<Action {} {} {} {}>'.format(self.member_id, self.date, self.action, self.status)
+        return '<Action {} {} {} {}>'.format(self.member_id, self.date, self.action.name, self.status.name)
 
 
 class Comment(Base):
