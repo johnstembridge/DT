@@ -127,6 +127,7 @@ def update_member(rec, payment_method):
             )
             member.actions.append(action)
     member.end_date = new_end_date
+    member.last_payment_method = payment_method
     save_member(member)
     return message
 
