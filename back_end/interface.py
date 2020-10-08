@@ -221,6 +221,8 @@ def save_member_details(member_number, details):
             item.amount = payment['amount']
             item.method = PaymentMethod(payment['method']) if payment['method'] > 0 else None
             item.comment = payment['comment']
+            if not member.last_payment_method:
+                member.last_payment_method = item.method
         else:
             item = Payment(
                 member_id=member.id,
