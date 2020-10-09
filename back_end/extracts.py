@@ -11,6 +11,7 @@ class Extracts:
     def extract_certificates(page):
         # new member packs
         query_clauses = [
+            ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None),
             ('Action', 'action', [a.value for a in MemberAction.send_certificates()], 'in', None)
         ]
@@ -24,6 +25,7 @@ class Extracts:
     def extract_cards(page):
         # renewal acknowledgement
         query_clauses = [
+            ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None),
             ('Action', 'action', [a.value for a in MemberAction.send_cards()], 'in', None)
         ]
