@@ -165,7 +165,7 @@ class MemberEditForm(FlaskForm):
             member['jd_mail'] = self.jd_email.data.strip()
             member['jd_gift'] = self.jd_gift.data
 
-        member = save_member_contact_details(member_number, member)
+        member = save_member_contact_details(member_number, member, self.renewal.data)
 
         # return key info for save message
         payment_method = PaymentMethod.from_value(self.payment_method.data)
