@@ -3,9 +3,9 @@ from flask_login import current_user, logout_user
 
 from front_end.member_list_form import MemberListForm
 from front_end.member_details_form import MemberDetailsForm
-from front_end.renewal_form import MemberRenewalForm
+from front_end.renewal_form import MemberEditForm
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, read_only_form
-from globals.enumerations import UserRole, PaymentMethod
+from globals.enumerations import UserRole, MembershipType, PaymentMethod
 
 
 class MaintainMembers:
@@ -81,11 +81,34 @@ class MaintainMembers:
         return render_template('member_details.html', form=form, render_link=render_link)
 
     @staticmethod
+    def edit_member(member_number):
+        # check current user is member member_number
+        if current_user.user_name != str(member_number) and current_user.role != UserRole.super:
+            return redirect('/members/{}/edit'.format(current_user.member.number))
+        form = MemberEditForm()
+        if form.validate_on_submit():
+            if form.submit.data:
+                payment_method, paypal_payment, dues, member_type, member = form.save_member(member_number)
+                if member:
+                    flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
+                          'success')
+                    if current_user.role != UserRole.super:
+                        logout_user()
+                form.populate_member(member_number, request.referrer, renewal=False)
+        elif form.errors:
+            flash_errors(form)
+        if not form.is_submitted():
+            message = form.populate_member(member_number, request.referrer, renewal=False)
+            if message:
+                flash(message, 'success')
+        return render_template('renewal.html', form=form, MembershipType=MembershipType, render_link=render_link)
+
+    @staticmethod
     def renew_member(member_number):
         # check current user is member member_number
         if current_user.user_name != str(member_number) and current_user.role != UserRole.super:
-            return redirect('/members/{}/renewal'.format(current_user.member.number))
-        form = MemberRenewalForm()
+            return redirect('/members/{}/edit'.format(current_user.member.number))
+        form = MemberEditForm()
         if form.validate_on_submit():
             if form.submit.data:
                 payment_method, paypal_payment, dues, member_type, member = form.save_member(member_number)
@@ -109,11 +132,11 @@ class MaintainMembers:
                                                dues=dues,
                                                renewal_type=member_type
                                                )
-                form.populate_member(member_number, request.referrer)
+                form.populate_member(member_number, request.referrer, renewal=True)
         elif form.errors:
             flash_errors(form)
         if not form.is_submitted():
-            message = form.populate_member(member_number, request.referrer)
+            message = form.populate_member(member_number, request.referrer, renewal=True)
             if message:
                 flash(message, 'success')
-        return render_template('renewal.html', form=form, render_link=render_link)
+        return render_template('renewal.html', form=form, MembershipType=MembershipType, render_link=render_link)

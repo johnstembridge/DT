@@ -7,9 +7,15 @@
     <table>
         <tr>
             <td>
+            {% if form.renewal.data %}
                 <h2 class="widget-title">Season 2020/2021 membership renewal</h2>
-                <h3>{{ form.dt_number.data }} {{ form.full_name.data }}</h3>
-                <i><p>Please check all the details that we hold about you and amend if necessary. (Press Renew to save any changes and register your renewal)</p></i>
+                <h3>{{ form.dt_number.data }} {{ form.full_name.data }} (joined {{form.start_date.data}})</h3>
+                <i><p>Please check all the details that we hold about you and amend if necessary. <br>(Press Renew to save any changes and register your renewal)</p></i>
+            {% else %}
+                <h2 class="widget-title">Edit membership details</h2>
+                <h3>{{ form.dt_number.data }} {{ form.full_name.data }} (joined {{form.start_date.data}})</h3>
+                <i><p>Please check all the details that we hold about you and amend if necessary. <br>(Press Save to save any changes)</p></i>
+            {% endif %}
             </td>
             <td class="top">
                 <img src="https://thedonstrust.org/files/Dons-Trust-Logo-2020-web.jpg" alt="" width="150"
@@ -18,23 +24,23 @@
         </tr>
         <tr>
             <td width="80%">
-                <ul>
-                <b>
+                <ul><b>
                     {% for line in form.notes.data %}
                     {% if line.startswith("**") %}<i>{% endif %}
                     <li>{{ line.replace("**", "") }}</li>
                     {% if line.startswith("**") %}</i>{% endif %}
                     {% endfor %}
-                </b>
-                </ul>
+                </b></ul>
                 <p>If you have any questions please contact membership@thedonstrust.org
             </td>
             <td></td>
         </tr>
     </table>
+    {% if renewal %}
     <p><b>For more details see <a
             href="https://thedonstrust.org/2020/07/18/dt_membership_renewals/"
             target="_blank"> here</a></b>
+    {% endif %}
 </div>
 <form method="POST">
     {{ form.csrf_token }}
@@ -57,9 +63,13 @@
             <td>{{ form.birth_date.label }}</td>
             <td>{{ form.birth_date }}{%if form.age.data != None %} ({{ form.age.data }}){% endif %}</td>
             <td>{{ form.type.label }}</td>
-            <td>{{ form.type() }}</td>
+            {% if form.renewal.data %}
+                <td>{{ form.type() }}</td>
+            {% else %}
+                <td>{{ MembershipType.from_value(form.type.data).name }}</td>
+            {% endif %}
             <td>&nbsp;</td>
-            <td><b>{{ form.plus.data }}</b></td>
+            <td>{{ form.plus.data }}</td>
         </tr>
         <tr>
             <td>&nbsp;</td>
@@ -126,37 +136,39 @@
     <br>{{ form.afcw_access.label }} {{ form.afcw_access }}</br>
     <p>{{ form.third_pty_access.label }}{{ form.third_pty_access }}</p>
     <hr/>
-    <h3>Payment</h3>
-    {% if form.status.data != 'life' %}
-    <table>
-        <tr>
-            <td>{{ form.payment_method.label }}</td>
-            <td>{{ form.payment_method() }}</td>
-            {% if form.type.data != 3 %}
-            <td>{{ form.upgrade.label }}</td>
-            <td>{{ form.upgrade }}</td>
-            {% else %}
-            <td></td>
-            <td></td>
-            {% endif %}
-        </tr>
-    </table>
-    {% endif %}
-    {{ form.comment.label }}<br>{{ form.comment(rows=2, cols=80) }}
-    <i>
-        {% if form.status.data == 'life' %}
-        <br>As you are a Life Member, no payment is needed.
-        {% elif form.last_payment_method.data == 2 %}
-        <br>As you currently pay by Direct Debit, your membership will be renewed automatically, taking into account any
-        membership type change. Payment will be taken on September 11th.
-        {% else %}
-        <br>If you opt to pay by Card, you will be taken to the payments page after pressing Renew below.
+    {% if form.renewal.data %}
+        <h3>Payment</h3>
+        {% if form.status.data != 'life' %}
+        <table>
+            <tr>
+                <td>{{ form.payment_method.label }}</td>
+                <td>{{ form.payment_method() }}</td>
+                {% if form.type.data != 3 %}
+                <td>{{ form.upgrade.label }}</td>
+                <td>{{ form.upgrade }}</td>
+                {% else %}
+                <td></td>
+                <td></td>
+                {% endif %}
+            </tr>
+        </table>
         {% endif %}
-    </i>
-    <hr/>
-    {% if current_user.has_write_access() %}
-    {{ form.last_updated.label }}{{ form.last_updated.data }}
-    {{ form.submit(class="btn btn-primary", value="Renew") }} Press Renew to save any changes and register your renewal
+        {{ form.comment.label }}<br>{{ form.comment(rows=2, cols=80) }}
+        <i>
+            {% if form.status.data == 'life' %}
+            <br>As you are a Life Member, no payment is needed.
+            {% elif form.last_payment_method.data == 2 %}
+            <br>As you currently pay by Direct Debit, your membership will be renewed automatically, taking into account any
+            membership type change. Payment will be taken on September 11th.
+            {% else %}
+            <br>If you opt to pay by Card, you will be taken to the payments page after pressing Renew below.
+            {% endif %}
+        </i>
+        <hr/>
+        {{ form.last_updated.label }}{{ form.last_updated.data }}
+        {{ form.submit(class="btn btn-primary", value="Renew") }} Press Renew to save any changes and register your renewal
+    {% else %}
+        {{ form.submit(class="btn btn-primary", value="Save") }} Press Save to save any changes
     {% endif %}
 </form>
 {% endblock %}

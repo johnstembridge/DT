@@ -11,16 +11,15 @@ from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, P
 from back_end.data_utilities import fmt_date
 
 
-class MemberRenewalForm(FlaskForm):
+class MemberEditForm(FlaskForm):
+    renewal = HiddenField(label='Renewal')
     last_updated = StringField(label='Last Update')
     full_name = StringField(label='Full Name')
     return_url = HiddenField(label='Return URL')
     member_number = HiddenField(label='Member Number')
     dt_number = StringField(label='Id')
-    status = HiddenField(label='Member Status')
-    plus = HiddenField(label='DT plus')
-    type = MySelectField(label='Type', choices=MembershipType.renewal_choices(), coerce=MembershipType.coerce)
-    start_date = StringField(label='Start')
+
+    start_date = StringField(label='Joined')
     birth_date = DateField(label='Date of Birth', validators=[InputRequired()])
     age = HiddenField(label='Age')
     season_ticket = StringField(label='Season Ticket')
@@ -59,10 +58,15 @@ class MemberRenewalForm(FlaskForm):
     last_payment_method = HiddenField(label='Last Payment Method')
     notes = HiddenField(label='Notes')
 
+    status = HiddenField(label='Member Status')
+    plus = HiddenField(label='DT plus')
+    type = MySelectField(label='Member Type', choices=MembershipType.renewal_choices(), coerce=MembershipType.coerce)
+
     submit = SubmitField(label='Save')
 
-    def populate_member(self, member_number, return_url):
+    def populate_member(self, member_number, return_url, renewal):
         self.return_url.data = return_url
+        self.renewal.data = renewal
         member = get_member(member_number)
         address = member.address
         self.member_number.data = str(member.number)
@@ -71,7 +75,7 @@ class MemberRenewalForm(FlaskForm):
         self.plus.data = ' (Dons Trust Plus)' if member.status == MemberStatus.plus else ''
         self.type.data = member.member_type_at_renewal().value
 
-        self.start_date.data = member.start_date
+        self.start_date.data = fmt_date(member.start_date)
         self.birth_date.data = member.birth_date
         self.age.data = str(member.age()) if member.age() is not None else None
 
@@ -116,7 +120,7 @@ class MemberRenewalForm(FlaskForm):
 
         self.upgrade.data = member.current_action() and member.current_action().action == MemberAction.upgrade
 
-        self.notes.data = member.renewal_notes()
+        self.notes.data = member.edit_notes()
 
         return member.renewal_activated()
 

@@ -220,7 +220,7 @@ class Member(Base):
     def dt_number(self, renewal=False):
         member_prefix = 'JD' if not self.voter(renewal) else 'DT'
         status = self.member_status_at_renewal() if renewal else self.status
-        return '{}0{}{:05d}'.format(member_prefix, '+' if status == MemberStatus.plus else '-',self.number or 0)
+        return '{}0{}{:05d}'.format(member_prefix, '+' if status == MemberStatus.plus else '-', self.number or 0)
 
     def voter(self, renewal=False):
         type = self.member_type_at_renewal() if renewal else self.member_type
@@ -325,11 +325,11 @@ class Member(Base):
     def member_status_at_renewal(self):
         status = self.status
         if status not in [MemberStatus.life, MemberStatus.plus]:
-            upgrade=first_or_default([a for a in self.actions if
-                                a.action==MemberAction.upgrade and
-                                a.status==ActionStatus.open and
-                                a.comment=='Upgrade to DT plus'],
-            None)
+            upgrade = first_or_default([a for a in self.actions if
+                                        a.action == MemberAction.upgrade and
+                                        a.status == ActionStatus.open and
+                                        a.comment == 'Upgrade to DT plus'],
+                                       None)
             if upgrade:
                 status = MemberStatus.plus
         return status
@@ -391,7 +391,7 @@ class Member(Base):
         return dues
 
     def use_email(self):
-        return self.comms == CommsType.email and self.comms_status == CommsStatus.all_ok
+        return self.comms == CommsType.email and self.comms_status != CommsStatus.email_fail
 
     def afcw_has_access(self):
         return (self.external_access or ExternalAccess.AFCW).value > ExternalAccess.none.value
@@ -486,6 +486,14 @@ class Member(Base):
         plus = '' if self.status in [MemberStatus.current, MemberStatus.lapsed] \
             else ' (' + [c for c in MemberStatus.renewal_choices() if c[0] == self.status.value][0][1] + ')'
         return [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1] + plus
+
+    def edit_notes(self):
+        notes = []
+        if self.comms == CommsType.email and self.email_bounced():
+            notes = [
+                'We have tried to use the email address that we have for you but emails have been returned ' \
+                'undeliverable. Please check your email address.', ]
+        return notes
 
     def renewal_notes_as_text(self):
         return '\n'.join(self.renewal_notes())

@@ -293,7 +293,8 @@ def save_member_contact_details(member_number, details):
     member.last_name = details['last_name']
     member.sex = Sex(details['sex']) if details['sex'] > 0 else None
 
-    member.member_type = MembershipType(details['member_type'])
+    if details['member_type']:
+        member.member_type = MembershipType(details['member_type'])
     member.birth_date = details['birth_date']
 
     member.home_phone = details['home_phone']
