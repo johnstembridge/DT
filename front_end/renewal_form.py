@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, HiddenField, BooleanField, TextAreaField
 from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
+from flask import current_app
 
 from back_end.interface import get_member, save_member_contact_details, country_choices, county_choices, state_choices, \
     get_country, get_county, get_state, get_junior
@@ -9,6 +10,7 @@ from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentMethod, Title, CommsStatus, \
     JuniorGift, ExternalAccess, PayPalPayment, MemberAction
 from back_end.data_utilities import fmt_date
+import logging
 
 
 class MemberEditForm(FlaskForm):
@@ -164,7 +166,7 @@ class MemberEditForm(FlaskForm):
         if self.type.data == MembershipType.junior.value:
             member['jd_mail'] = self.jd_email.data.strip()
             member['jd_gift'] = self.jd_gift.data
-
+        current_app.logger.error('renewal.data is {}'.format(self.renewal.data))
         member = save_member_contact_details(member_number, member, self.renewal.data)
 
         # return key info for save message
