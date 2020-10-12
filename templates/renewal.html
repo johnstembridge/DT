@@ -7,7 +7,7 @@
     <table>
         <tr>
             <td>
-            {% if form.renewal.data %}
+            {% if form.form_type.data == 'renewal' %}
                 <h2 class="widget-title">Season 2020/2021 membership renewal</h2>
                 <h3>{{ form.dt_number.data }} {{ form.full_name.data }} (joined {{form.start_date.data}})</h3>
                 <i><p>Please check all the details that we hold about you and amend if necessary. <br>(Press Renew to save any changes and register your renewal)</p></i>
@@ -36,7 +36,7 @@
             <td></td>
         </tr>
     </table>
-    {% if renewal %}
+    {% if form.form_type.data == 'renewal' %}
     <p><b>For more details see <a
             href="https://thedonstrust.org/2020/07/18/dt_membership_renewals/"
             target="_blank"> here</a></b>
@@ -63,7 +63,7 @@
             <td>{{ form.birth_date.label }}</td>
             <td>{{ form.birth_date }}{%if form.age.data != None %} ({{ form.age.data }}){% endif %}</td>
             <td>{{ form.type.label }}</td>
-            {% if form.renewal.data %}
+            {% if form.form_type.data == 'renewal' %}
                 <td>{{ form.type() }}</td>
             {% else %}
                 <td>{{ MembershipType.from_value(form.type.data).name }}</td>
@@ -136,7 +136,7 @@
     <br>{{ form.afcw_access.label }} {{ form.afcw_access }}</br>
     <p>{{ form.third_pty_access.label }}{{ form.third_pty_access }}</p>
     <hr/>
-    {% if form.renewal.data %}
+    {% if form.form_type.data == 'renewal' %}
         <h3>Payment</h3>
         {% if form.status.data != 'life' %}
         <table>

@@ -2,7 +2,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, HiddenField, BooleanField, TextAreaField
 from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
-from flask import current_app
 
 from back_end.interface import get_member, save_member_contact_details, country_choices, county_choices, state_choices, \
     get_country, get_county, get_state, get_junior
@@ -13,7 +12,7 @@ from back_end.data_utilities import fmt_date
 
 
 class MemberEditForm(FlaskForm):
-    renewal = HiddenField(label='Renewal')
+    form_type = HiddenField(label='Form Type')
     last_updated = StringField(label='Last Update')
     full_name = StringField(label='Full Name')
     return_url = HiddenField(label='Return URL')
@@ -67,7 +66,7 @@ class MemberEditForm(FlaskForm):
 
     def populate_member(self, member_number, return_url, renewal):
         self.return_url.data = return_url
-        self.renewal.data = renewal
+        self.form_type.data = 'renewal' if renewal else 'details'
         member = get_member(member_number)
         address = member.address
         self.member_number.data = str(member.number)
@@ -165,7 +164,7 @@ class MemberEditForm(FlaskForm):
         if self.type.data == MembershipType.junior.value:
             member['jd_mail'] = self.jd_email.data.strip()
             member['jd_gift'] = self.jd_gift.data
-        member = save_member_contact_details(member_number, member, self.renewal.data)
+        member = save_member_contact_details(member_number, member, self.form_type.data == 'renewal')
 
         # return key info for save message
         payment_method = PaymentMethod.from_value(self.payment_method.data)
