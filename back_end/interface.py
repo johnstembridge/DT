@@ -319,7 +319,7 @@ def save_member_contact_details(member_number, details, renewal):
 
     if not member.member_type in MembershipType.all_concessions():
         member.type = member.member_type_at_renewal()
-    current_app.logger.error('**** renewal is {}'.format(renewal))
+    current_app.logger.error('**** type of renewal is {}'.format(type(renewal)))
     if renewal:
         dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
         date = datetime.date.today()
