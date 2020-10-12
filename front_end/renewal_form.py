@@ -10,7 +10,6 @@ from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentMethod, Title, CommsStatus, \
     JuniorGift, ExternalAccess, PayPalPayment, MemberAction
 from back_end.data_utilities import fmt_date
-import logging
 
 
 class MemberEditForm(FlaskForm):
@@ -166,7 +165,7 @@ class MemberEditForm(FlaskForm):
         if self.type.data == MembershipType.junior.value:
             member['jd_mail'] = self.jd_email.data.strip()
             member['jd_gift'] = self.jd_gift.data
-        current_app.logger.error('renewal.data is {}'.format(self.renewal.data))
+        current_app.logger.error('**** renewal.data is {}'.format(self.renewal.data))
         member = save_member_contact_details(member_number, member, self.renewal.data)
 
         # return key info for save message

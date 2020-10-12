@@ -1,6 +1,6 @@
 from sqlalchemy import text, and_, func
 import datetime
-from flask import send_file
+from flask import send_file, current_app
 import io, csv
 
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
@@ -319,6 +319,7 @@ def save_member_contact_details(member_number, details, renewal):
 
     if not member.member_type in MembershipType.all_concessions():
         member.type = member.member_type_at_renewal()
+    current_app.logger.error('**** renewal is {}'.format(renewal))
     if renewal:
         dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
         date = datetime.date.today()

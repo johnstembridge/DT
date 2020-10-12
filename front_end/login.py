@@ -43,6 +43,8 @@ class MemberLoginForm(FlaskForm):
 def login(next_page, app=None):
     if current_user.is_authenticated:
         return redirect(next_page)
+    if not next_page:
+        return redirect('/')
     url_components = next_page.split('/')
     is_member_login = 'members' in url_components and ('renewal' in url_components or 'details' in url_components)
     with_number = len(url_components) == 4
