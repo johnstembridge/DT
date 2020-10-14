@@ -49,7 +49,7 @@ def members_area():
 @login_required
 @role_required('member')
 def renew_member_no_number():
-    member_number = current_user.member_id
+    member_number = current_user.member.number
     return MaintainMembers.renew_member(member_number)
 
 
@@ -64,7 +64,7 @@ def renew_member(member_number):
 @login_required
 @role_required('member')
 def edit_member_no_number():
-    member_number = current_user.member_id
+    member_number = current_user.member.number
     return MaintainMembers.edit_member(member_number)
 
 
