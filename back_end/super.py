@@ -38,6 +38,20 @@ def renew_recent():
     return '{} new members updated'.format(count)
 
 
+def lapse_expired():
+    query_clauses = [
+        ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+        ('Member', 'end_date', fmt_date(current_year_end()), '=', None)
+    ]
+    members = get_members_for_query(query_clauses)
+    count = 0
+    for member in members:
+        member.status = MemberStatus.lapsed
+        save_member(member)
+        count += 1
+    return '{} records processed'.format(count)
+
+
 def renew_paid(payment_method):
     file_name = path.join(config.get('locations')['import'],
                           'paypal_apply.txt' if payment_method == 'cc' else 'dd_apply.txt')

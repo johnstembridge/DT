@@ -44,3 +44,10 @@ def renew_paid_dd():
 @role_required('super')
 def change_member_type_by_age():
     return Super.change_member_type_by_age()
+
+
+@app.route('/super/lapse_expired', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def lapse_expired():
+    return Super.lapse_expired()

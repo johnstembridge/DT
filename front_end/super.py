@@ -2,7 +2,7 @@ import subprocess
 from flask import flash, render_template
 
 from scripts import scripts
-from back_end.super import renew_recent, renew_paid, change_member_type_by_age
+from back_end.super import renew_recent, renew_paid, change_member_type_by_age, lapse_expired
 
 
 class Super:
@@ -34,6 +34,12 @@ class Super:
         # renew members who have paid according to payment file
         res = renew_paid(payment_method)
         return Super.return_result('Renew paid', res)
+
+    @staticmethod
+    def lapse_expired():
+        # renew members who have paid according to payment file
+        res = lapse_expired()
+        return Super.return_result('Expired members lapsed', res)
 
     @staticmethod
     def return_result(mode, res):
