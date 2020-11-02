@@ -14,6 +14,8 @@ class MaintainActions:
             return Extracts.extract_other_actions(page)
         if action == 'renewal':
             return Extracts.extract_pending_renewals(page)
+        if action == 'query':
+            return Query.show_found()
 
     @staticmethod
     def clear_actions(query_clauses):

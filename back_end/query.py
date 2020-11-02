@@ -21,6 +21,7 @@ class Query:
                 display_fields = [c[1] for c in form.display_fields.choices if c[0] in form.display_fields.data]
                 return redirect(url_for(
                     'extracts_show',
+                    type='query',
                     page=1,
                     query_clauses=url_pickle_dump(query_clauses),
                     display_fields=url_pickle_dump(display_fields))
