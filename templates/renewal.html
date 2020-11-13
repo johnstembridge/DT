@@ -170,5 +170,6 @@
     {% else %}
         {{ form.submit(class="btn btn-primary", value="Save") }} Press Save to save any changes
     {% endif %}
+    <a class='button' href="{{ url_for('user_logout') }}">Log out</a> Log out from session
 </form>
 {% endblock %}

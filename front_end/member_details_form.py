@@ -180,7 +180,7 @@ class MemberDetailsForm(FlaskForm):
         return result
 
     def save_member(self, member_number):
-        member = {
+        member_details = {
             'title': self.title.data,
             'first_name': self.first_name.data.strip(),
             'last_name': self.last_name.data.strip(),
@@ -217,19 +217,19 @@ class MemberDetailsForm(FlaskForm):
             'comments': []
         }
         if self.type.data == MembershipType.junior.value:
-            member['jd_mail'] = self.jd_email.data.strip()
-            member['jd_gift'] = self.jd_gift.data
+            member_details['jd_mail'] = self.jd_email.data.strip()
+            member_details['jd_gift'] = self.jd_gift.data
 
         for payment in self.payment_list.data:
             if payment['amount']:
-                member['payments'].append(payment)
+                member_details['payments'].append(payment)
 
         for action in self.action_list.data:
             if action['action'] > 0:
-                member['actions'].append(action)
+                member_details['actions'].append(action)
 
         for comment in self.comment_list.data:
             if comment['comment']:
-                member['comments'].append(comment)
+                member_details['comments'].append(comment)
 
-        return save_member_details(member_number, member)
+        return save_member_details(member_number, member_details)

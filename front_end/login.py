@@ -11,6 +11,7 @@ from back_end.interface import get_member_by_email, get_user, save_user
 from back_end.users import register_user
 from back_end.data_utilities import get_digits, match_string
 from front_end.form_helpers import ReadOnlyWidget
+from globals.enumerations import UserRole
 
 
 class LoginForm(FlaskForm):
@@ -92,6 +93,7 @@ def member_login(next_page, member_number=None, app=None):
             password = User.member_password(form.post_code.data)
             user = get_user(user_name=user_name)
             message = None
+            message_type = 'danger'
             if user is None:
                 ok, id, message, message_type = member_register(member_number, user_name, password, form.email.data)
                 if ok:
@@ -104,15 +106,14 @@ def member_login(next_page, member_number=None, app=None):
                 elif not user.check_password(password):
                     message = 'Post code does not match the Membership number'
             if message:
-                flash(message, 'danger')
+                flash(message, message_type)
                 if not no_number:
                     form.populate(member_number)
-                return render_template(form_name, title='Sign In', form=form)
+                if message_type != 'success':
+                    return render_template(form_name, title='Sign In', form=form)
             login_user(user, remember=form.remember_me.data)
             if not next_page:
                 next_page = 'index'
-            else:
-                next_page = next_page
             return redirect(next_page)
     else:
         form.populate(member_number)
@@ -173,7 +174,10 @@ def member_register(member_number, user_name, post_code, email, new=True):
 
 
 def user_logout():
+    role = current_user.role
     logout_user()
+    if role == UserRole.member:
+        return redirect(full_url('members/details'))
     return redirect(full_url('index'))
 
 

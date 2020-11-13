@@ -92,8 +92,6 @@ class MaintainMembers:
                 if member:
                     flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
                           'success')
-                    if current_user.role != UserRole.super:
-                        logout_user()
                 form.populate_member(member_number, request.referrer, renewal=False)
         elif form.errors:
             flash_errors(form)

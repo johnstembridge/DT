@@ -59,6 +59,7 @@ class MemberEditForm(FlaskForm):
     notes = HiddenField(label='Notes')
 
     status = HiddenField(label='Member Status')
+    access = HiddenField(label='User Access')
     plus = HiddenField(label='DT plus')
     type = MySelectField(label='Member Type', choices=MembershipType.renewal_choices(), coerce=MembershipType.coerce)
 
@@ -71,6 +72,7 @@ class MemberEditForm(FlaskForm):
         address = member.address
         self.member_number.data = str(member.number)
         self.dt_number.data = member.dt_number()
+        self.access.data = member.user.role.value if member.user else 0
         self.status.data = member.status.name
         self.plus.data = ' (Dons Trust Plus)' if member.status == MemberStatus.plus else ''
         self.type.data = member.member_type_at_renewal().value
@@ -125,26 +127,22 @@ class MemberEditForm(FlaskForm):
         return member.renewal_activated()
 
     def save_member(self, member_number):
-        member = {
+        member_details = {
             'title': self.title.data,
             'first_name': self.first_name.data.strip(),
             'last_name': self.last_name.data.strip(),
             'sex': self.sex.data,
 
             'member_type': self.type.data,
-            # 'status': self.status.data,
-            # 'start_date': self.start_date.data,
-            # 'end_date': self.end_date.data,
             'birth_date': self.birth_date.data,
 
-            # 'access': self.access.data,
+            'access': int(self.access.data),
             # 'season_ticket': self.season_ticket.data,
 
             'home_phone': self.home_phone.data.strip(),
             'mobile_phone': self.mobile_phone.data.strip(),
             'email': self.email.data.strip(),
             'comms': self.comms.data,
-            # 'comms_status': self.comms_status.data,
 
             'line_1': self.line1.data.strip(),
             'line_2': self.line2.data.strip(),
@@ -162,9 +160,9 @@ class MemberEditForm(FlaskForm):
             'upgrade': self.upgrade.data
         }
         if self.type.data == MembershipType.junior.value:
-            member['jd_mail'] = self.jd_email.data.strip()
-            member['jd_gift'] = self.jd_gift.data
-        member = save_member_contact_details(member_number, member, self.form_type.data == 'renewal')
+            member_details['jd_mail'] = self.jd_email.data.strip()
+            member_details['jd_gift'] = self.jd_gift.data
+        member = save_member_contact_details(member_number, member_details, self.form_type.data == 'renewal')
 
         # return key info for save message
         payment_method = PaymentMethod.from_value(self.payment_method.data)

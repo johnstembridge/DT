@@ -165,36 +165,52 @@ def save_member_details(member_number, details):
         member = get_member(member_number)
     else:
         member = get_new_member()
+    update_member_details(member, details)
+    member.status = MemberStatus(details['status'])
+    member.start_date = details['start_date']
+    member.end_date = details['end_date']
+    update_member_payments(member, details)
+    update_member_actions(member, details)
+    update_member_comments(member, details)
 
+    member.last_payment_method = PaymentMethod(details['payment_method']) if details['payment_method'] > 0 else None
+
+    member.last_updated = datetime.date.today()
+
+    if member.number == 0:
+        member.number = next_member_number()
+        db.session.add(member)
+
+    db.session.commit()
+    return member
+
+
+def save_member_contact_details(member_number, details, renewal):
+    member = get_member(member_number)
+    update_member_details(member, details)
+    member.user.set_password(User.member_password(details['post_code']))
+
+    member.type = member.member_type_at_renewal()
+    if renewal:
+        update_member_renewal(member, details)
+
+    member.last_updated = datetime.date.today()
+
+    db.session.commit()
+    return member
+
+
+def update_member_details(member, details):
     member.title = Title(details['title']) if details['title'] > 0 else None
     member.first_name = details['first_name']
     member.last_name = details['last_name']
     member.sex = Sex(details['sex']) if details['sex'] > 0 else None
-
-    member.member_type = MembershipType(details['member_type'])
-    member.status = MemberStatus(details['status'])
-    member.start_date = details['start_date']
-    member.end_date = details['end_date']
     member.birth_date = details['birth_date']
-
-    role = UserRole.from_value(details['access'])
-    if member.user:
-        member.user.role = role
-    elif role != UserRole.none:
-        member.user = get_new_user(role)
-
-        member.user.password = User.member_password(details['post_code'])
-
-    member.season_ticket_id = int(details['season_ticket']) if details['season_ticket'] else None
-    member.external_access = ExternalAccess(details['external_access'])
-    member.last_payment_method = PaymentMethod(details['payment_method']) if details['payment_method'] > 0 else None
-
     member.home_phone = details['home_phone']
     member.mobile_phone = details['mobile_phone']
     member.email = details['email']
     member.comms = CommsType(details['comms'])
-    member.comms_status = CommsStatus(details['comms_status'])
-
+    member.external_access = ExternalAccess(details['external_access'])
     member.address.line_1 = details['line_1']
     member.address.line_2 = details['line_2']
     member.address.line_3 = details['line_3']
@@ -204,12 +220,25 @@ def save_member_details(member_number, details):
     member.address.county = details['county']
     member.address.country = details['country']
 
+    if 'season_ticket' in details and len(details['season_ticket']) > 0:
+        member.season_ticket_id = int(details['season_ticket'])
+    if 'member_type' in details and details['member_type']:
+        member.member_type = MembershipType(details['member_type'])
+
+    role = UserRole.from_value(details['access'])
+    if member.user:
+        member.user.role = role
+    elif role != UserRole.none:
+        member.user = get_new_user(role)
+
     if member.member_type == MembershipType.junior:
         if not member.junior:
-            member.junior = Junior()
+            member.junior = get_junior()
         member.junior.email = details['jd_mail']
         member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
 
+
+def update_member_payments(member, details):
     payments = []
     for payment in details['payments']:
         if payment['amount'] is None:
@@ -235,6 +264,8 @@ def save_member_details(member_number, details):
         payments.append(item)
     member.payments = payments
 
+
+def update_member_actions(member, details):
     actions = []
     for action in details['actions']:
         if action['action'] == 0:
@@ -256,6 +287,8 @@ def save_member_details(member_number, details):
         actions.append(item)
     member.actions = actions
 
+
+def update_member_comments(member, details):
     comments = []
     for comment in details['comments']:
         if comment['comment'] in [None, '']:
@@ -272,123 +305,68 @@ def save_member_details(member_number, details):
         comments.append(item)
     member.comments = comments
 
-    member.last_updated = datetime.date.today()
 
-    if member.number == 0:
-        member.number = next_member_number()
-        db.session.add(member)
+def update_member_renewal(member, details):
+    dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
+    date = datetime.date.today()
+    item = first_or_default([p for p in member.payments if p.type == PaymentType.pending], None)
+    if member.status != MemberStatus.life:
+        if details['upgrade'] and (member.is_recent_new() or member.is_recent_renewal()):
+            item = None
+            dues = member.upgrade_dues()
+            payment_comment = 'upgrade only'
+        else:
+            payment_comment = 'renewal payment due'
+        if item:
+            item.date = date
+            item.type = PaymentType.pending
+            item.amount = dues
+            item.method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
+            item.comment = payment_comment
+        elif dues > 0:
+            item = Payment(
+                member_id=member.id,
+                date=date,
+                type=PaymentType.pending,
+                amount=dues,
+                method=PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None,
+                comment=payment_comment
+            )
+            member.payments.append(item)
 
-    db.session.commit()
-    return member
-
-
-def save_member_contact_details(member_number, details, renewal):
-    if member_number > 0:
-        member = get_member(member_number)
-    else:
-        member = get_new_member()
-
-    member.title = Title(details['title']) if details['title'] > 0 else None
-    member.first_name = details['first_name']
-    member.last_name = details['last_name']
-    member.sex = Sex(details['sex']) if details['sex'] > 0 else None
-
-    if details['member_type']:
-        member.member_type = MembershipType(details['member_type'])
-    member.birth_date = details['birth_date']
-
-    member.home_phone = details['home_phone']
-    member.mobile_phone = details['mobile_phone']
-    member.email = details['email']
-    member.comms = CommsType(details['comms'])
-    member.external_access = details['external_access']
-    member.address.line_1 = details['line_1']
-    member.address.line_2 = details['line_2']
-    member.address.line_3 = details['line_3']
-    member.address.city = details['city']
-    member.address.state = details['state']
-    member.address.post_code = details['post_code']
-    member.address.county = details['county']
-    member.address.country = details['country']
-
-    if member.member_type == MembershipType.junior:
-        if not member.junior:
-            member.junior = get_junior()
-        member.junior.email = details['jd_mail']
-        member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
-
-    if not member.member_type in MembershipType.all_concessions():
-        member.type = member.member_type_at_renewal()
-    if renewal:
-        dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
+    item = first_or_default(
+        [a for a in member.actions if a.action == MemberAction.upgrade and a.date > datetime.date(2020, 7, 20)], None)
+    if details['upgrade']:
         date = datetime.date.today()
-        item = first_or_default([p for p in member.payments if p.type == PaymentType.pending], None)
-        if member.status != MemberStatus.life:
-            if details['upgrade'] and (member.is_recent_new() or member.is_recent_renewal()):
-                item = None
-                dues = member.upgrade_dues()
-                payment_comment = 'upgrade only'
-            else:
-                payment_comment = 'renewal payment due'
-            if item:
-                item.date = date
-                item.type = PaymentType.pending
-                item.amount = dues
-                item.method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
-                item.comment = payment_comment
-            elif dues > 0:
-                item = Payment(
-                    member_id=member.id,
-                    date=date,
-                    type=PaymentType.pending,
-                    amount=dues,
-                    method=PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None,
-                    comment=payment_comment
-                )
-                member.payments.append(item)
+        comment = 'Upgrade to DT plus'
+        if item:
+            item.action = MemberAction.upgrade
+            item.comment = comment
+            item.status = ActionStatus.open
+        else:
+            item = Action(
+                member_id=member.id,
+                date=date,
+                action=MemberAction.upgrade,
+                comment=comment,
+                status=ActionStatus.open
+            )
+            member.actions.append(item)
+    elif item:
+        member.actions.remove(item)
 
-        if not details['comment'] in [None, '']:
-            date = datetime.date.today()
-            item = first_or_default([c for c in member.comments if c.date == date], None)
-            if item:
-                item.comment = details['comment']
-            else:
-                item = Comment(
-                    member_id=member.id,
-                    date=date,
-                    comment=details['comment']
-                )
-                member.comments.append(item)
-
-        item = first_or_default(
-            [a for a in member.actions if a.action == MemberAction.upgrade and a.date > datetime.date(2020, 7, 20)], None)
-        if details['upgrade']:
-            date = datetime.date.today()
-            comment = 'Upgrade to DT plus'
-            if item:
-                item.action = MemberAction.upgrade
-                item.comment = comment
-                item.status = ActionStatus.open
-            else:
-                item = Action(
-                    member_id=member.id,
-                    date=date,
-                    action=MemberAction.upgrade,
-                    comment=comment,
-                    status=ActionStatus.open
-                )
-                member.actions.append(item)
-        elif item:
-            member.actions.remove(item)
-
-    member.last_updated = datetime.date.today()
-
-    if member.number == 0:
-        member.number = next_member_number()
-        db.session.add(member)
-
-    db.session.commit()
-    return member
+    if not details['comment'] in [None, '']:
+        date = datetime.date.today()
+        item = first_or_default([c for c in member.comments if c.date == date], None)
+        if item:
+            item.comment = details['comment']
+        else:
+            item = Comment(
+                member_id=member.id,
+                date=date,
+                comment=details['comment']
+            )
+            member.comments.append(item)
 
 
 def next_member_number():
