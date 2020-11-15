@@ -159,6 +159,7 @@ def change_member_type_by_age():
         count_senior += 1
         member.member_type = MembershipType.standard
         save_member(member)
+
     # Juniors moved from <16 to <18
     query_clauses = [
         ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
@@ -171,4 +172,18 @@ def change_member_type_by_age():
         count_junior += 1
         member.member_type = MembershipType.junior
         save_member(member)
-    return '{} senior records processed, {} junior'.format(count_senior, count_junior)
+
+    # Intermediates >21
+    query_clauses = [
+        ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+        ('Member', 'member_type', MembershipType.intermediate, '=', None),
+        ('Member', 'birth_date', 21, '>', 'age()'),
+    ]
+    members = get_members_for_query(query_clauses)
+    count_intermediate = 0
+    for member in members:
+        count_intermediate += 1
+        member.member_type = MembershipType.standard
+        save_member(member)
+
+    return '{} senior records processed, {} junior, {} intermediate'.format(count_senior, count_junior, count_intermediate)

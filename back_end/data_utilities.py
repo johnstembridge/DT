@@ -89,6 +89,10 @@ def fmt_date(date, fmt='%d/%m/%Y'):
     return date.strftime(fmt)
 
 
+def sql_fmt_date(date):
+    return '"' + fmt_date(date,'%Y-%m-%d') + '"'
+
+
 def parse_date(ymd, sep='/', reverse=False, default=datetime.datetime.now().date()):
     if type(ymd) is datetime.date:
         return ymd

@@ -39,7 +39,7 @@ class Query:
         return Query.show_found_do(query_clauses, display_fields, page, action=action, show_fn='extracts_show')
 
     @staticmethod
-    def show_found_do(query_clauses, display_fields, page=1, action=None, payment=None, show_fn='show_actions'):
+    def show_found_do(query_clauses, display_fields, page=1, action='query', payment=None, show_fn='show_actions'):
         query = get_members_for_query(query_clauses)
         form = ExtractForm()
         page = form.populate_result(url_pickle_dump(query_clauses), url_pickle_dump(display_fields),

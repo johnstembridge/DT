@@ -7,8 +7,8 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess, UserRole
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
-from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, current_year_end, \
-    match_string
+from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, sql_fmt_date, \
+    current_year_end, parse_date
 
 
 def save_object(object):
@@ -48,7 +48,7 @@ def get_new_member():
     member.member_type = MembershipType.standard
     member.sex = None
     member.start_date = datetime.date.today()
-    member.end_date = datetime.date(2021, 8, 1) # current_year_end()
+    member.end_date = datetime.date(2021, 8, 1)  # current_year_end()
     member.comms = CommsType.email
 
     member.address = get_new_address()
@@ -99,14 +99,14 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
             else:
                 s = '{}.{} {} "{}"'.format(table, column, condition, value)
         elif type == 'enum':
-            if field_name == 'status' and condition == '<' and value == 4: # status = all active
+            if field_name == 'status' and condition == '<' and value == 4:  # status = all active
                 condition = 'in'
                 value = [s.value for s in MemberStatus.all_active()]
             s = '{}.{} {} {}'.format(table, column, condition, value)
         elif type == 'date':
             if not func:
-                date = datetime.datetime.strptime(value, '%d/%m/%Y').date()
-                s = '{}.{} {} "{}"'.format(table, column, condition, date)
+                date = sql_fmt_date(parse_date(value, reverse=True))
+                s = '{}.{} {} {}'.format(table, column, condition, date)
             if func == 'birth_month()':
                 if engine == 'sqlite':
                     s = 'strftime("%m", {}.{}){} "{:02}"'.format(table, column, condition, value)
@@ -114,7 +114,11 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
                     s = 'MONTH({}.{}){}{}'.format(table, column, condition, value)
                 else:
                     s = 'Unknown engine: ' + engine
-            if func == 'age()':
+            if func in ['age()', 'age_at_renewal()']:
+                if func == 'age()':
+                    date = 'current_date()'
+                else:
+                    date = sql_fmt_date(current_year_end())
                 if '>' in condition:
                     condition = condition.replace('>', '<')
                 elif '<' in condition:
@@ -122,7 +126,7 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
                 if engine == 'sqlite':
                     s = '{}.{} {} date("now", "-{} years")'.format(table, column, condition, value)
                 elif engine == 'mysql':
-                    s = '{}.{} {} date_add(current_date(), interval -{} year)'.format(table, column, condition, value)
+                    s = '{}.{} {} date_add({}, interval -{} year)'.format(table, column, condition, date, value)
                 else:
                     s = 'Unknown engine: ' + engine
         else:
