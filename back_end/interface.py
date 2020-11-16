@@ -177,8 +177,6 @@ def save_member_details(member_number, details):
     update_member_actions(member, details)
     update_member_comments(member, details)
 
-    member.last_payment_method = PaymentMethod(details['payment_method']) if details['payment_method'] > 0 else None
-
     member.last_updated = datetime.date.today()
 
     if member.number == 0:
@@ -254,8 +252,6 @@ def update_member_payments(member, details):
             item.amount = payment['amount']
             item.method = PaymentMethod(payment['method']) if payment['method'] > 0 else None
             item.comment = payment['comment']
-            if not member.last_payment_method:
-                member.last_payment_method = item.method
         else:
             item = Payment(
                 member_id=member.id,
@@ -266,6 +262,9 @@ def update_member_payments(member, details):
                 comment=payment['comment']
             )
         payments.append(item)
+    if not member.last_payment_method:
+        last = first_or_default(sorted(payments, key=lambda x: x.date, reverse=True), None)
+        member.last_payment_method = last.method
     member.payments = payments
 
 
