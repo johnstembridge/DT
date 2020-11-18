@@ -264,7 +264,8 @@ def update_member_payments(member, details):
         payments.append(item)
     if not member.last_payment_method:
         last = first_or_default(sorted(payments, key=lambda x: x.date, reverse=True), None)
-        member.last_payment_method = last.method
+        if last:
+            member.last_payment_method = last.method
     member.payments = payments
 
 
