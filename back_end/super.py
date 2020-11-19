@@ -66,7 +66,7 @@ def renew_paid(payment_method):
             if count % 50 == 0:
                 if 'id' in row.keys():
                     print('Processing ' + row['id'])
-            message = update_member(row, payment_method)
+            message = update_member_payment(row, payment_method)
             if len(message) > 0:
                 result.append('***' + row['id'] + ': ' + '\n'.join(message))
         if len(result) > 0:
@@ -75,7 +75,7 @@ def renew_paid(payment_method):
             return '{} records processed'.format(count)
 
 
-def update_member(rec, payment_method):
+def update_member_payment(rec, payment_method):
     # rec is line of payments file with keys id, date, amount and note
     message = []
     number = int(rec['id'][4:])
@@ -187,3 +187,36 @@ def change_member_type_by_age():
         save_member(member)
 
     return '{} senior records processed, {} junior, {} intermediate'.format(count_senior, count_junior, count_intermediate)
+
+
+def season_tickets():
+    file_name = path.join(config.get('locations')['import'], 'jd season tickets.txt')
+    print('Importing ' + file_name)
+    result = []
+    with open(file_name, 'r', encoding='latin-1') as in_file:
+        reader = csv.DictReader(in_file, delimiter=file_delimiter(file_name))
+        count = 0
+        for row in reader:
+            count += 1
+            if count % 50 == 0:
+                if 'dt id' in row.keys():
+                    print('Processing ' + row['dt id'])
+            message = update_member_season_ticket(row)
+            if len(message) > 0:
+                result.append('***' + row['dt id'] + ': ' + '\n'.join(message))
+        if len(result) > 0:
+            return '\n'.join(result)
+        else:
+            return '{} records processed'.format(count)
+
+
+def update_member_season_ticket(rec):
+    # rec is line of payments file with keys dt id, afcw id
+    message = []
+    number = int(rec['dt id'][4:])
+    season_ticket = rec['afcw id']
+    member = get_member(number)
+    member.season_ticket_id = season_ticket
+    message += ['Season ticket updated: {}'.format(season_ticket)]
+    save_member(member)
+    return message
