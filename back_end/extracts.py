@@ -139,3 +139,14 @@ class Extracts:
             ['number', 'type at renewal', 'full name', 'dues pending', 'email', 'address (line 1)', 'address (line 2)',
              'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
+
+    @staticmethod
+    def extract_for_afcw():
+        query_clauses = [
+            ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
+        ]
+        display_fields = ['number', 'title', 'first name', 'last name', 'sex', 'status', 'member type', 'start', 'end',
+                          'birth date', 'email', 'home phone', 'mobile phone', 'comms', 'payment method',
+                          'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state',
+                          'post code', 'country code', 'use email', 'season ticket', 'last updated']
+        return Query.show_found_do(query_clauses, display_fields, action='query')

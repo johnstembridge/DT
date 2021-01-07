@@ -45,6 +45,13 @@ def extracts_junior_birthdays_for_month(month=None):
     return Extracts.extract_junior_birthdays(month)
 
 
+@app.route('/extracts/afcw', methods=['GET', 'POST'])
+@login_required
+@role_required('extract')
+def extracts_for_afcw():
+    return Extracts.extract_for_afcw()
+
+
 @app.route('/extracts/email', methods=['GET', 'POST'])
 @login_required
 @role_required('extract')
