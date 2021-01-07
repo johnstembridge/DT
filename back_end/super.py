@@ -190,7 +190,7 @@ def change_member_type_by_age():
 
 
 def season_tickets():
-    file_name = path.join(config.get('locations')['import'], 'jd season tickets.txt')
+    file_name = path.join(config.get('locations')['import'], 'season tickets.csv')
     print('Importing ' + file_name)
     result = []
     with open(file_name, 'r', encoding='latin-1') as in_file:
@@ -213,8 +213,12 @@ def season_tickets():
 def update_member_season_ticket(rec):
     # rec is line of payments file with keys dt id, afcw id
     message = []
-    number = int(rec['dt id'][4:])
-    season_ticket = rec['afcw id']
+    dt_id = rec['dt id']
+    if dt_id in ['D', 'J']:
+        number = int(dt_id[4:])
+    else:
+        number = int(dt_id)
+    season_ticket = int(rec['afcw id'])
     member = get_member(number)
     member.season_ticket_id = season_ticket
     message += ['Season ticket updated: {}'.format(season_ticket)]
