@@ -212,6 +212,8 @@ def update_member_details(member, details):
     member.mobile_phone = details['mobile_phone']
     member.email = details['email']
     member.comms = CommsType(details['comms'])
+    if 'comms_status' in details:
+        member.comms_status = CommsStatus(details['comms_status'])
     member.external_access = ExternalAccess(details['external_access'])
     member.address.line_1 = details['line_1']
     member.address.line_2 = details['line_2']
@@ -266,6 +268,10 @@ def update_member_payments(member, details):
         last = first_or_default(sorted(payments, key=lambda x: x.date, reverse=True), None)
         if last:
             member.last_payment_method = last.method
+    else:
+        last = PaymentMethod.from_value(details['payment_method'])
+        if member.last_payment_method != last:
+            member.last_payment_method = last
     member.payments = payments
 
 

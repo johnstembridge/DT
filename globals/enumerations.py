@@ -209,6 +209,7 @@ class PaymentMethod(FormEnum):
     cash = 4
     xfer = 5
     so = 6
+    dd_cancelled = 7
 
     @staticmethod
     def renewal_choices():

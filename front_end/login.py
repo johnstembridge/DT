@@ -174,7 +174,11 @@ def member_register(member_number, user_name, post_code, email, new=True):
 
 
 def user_logout():
-    role = current_user.role
+    user = current_user
+    if user.is_active:
+        role = user.role
+    else:
+        role = UserRole.member
     logout_user()
     if role == UserRole.member:
         return redirect(full_url('members/details'))
