@@ -52,11 +52,18 @@ def extracts_for_afcw():
     return Extracts.extract_for_afcw()
 
 
-@app.route('/extracts/email', methods=['GET', 'POST'])
+@app.route('/extracts/email_senior', methods=['GET', 'POST'])
 @login_required
 @role_required('extract')
-def extracts_email():
-    return Extracts.extract_email()
+def extracts_email_senior():
+    return Extracts.extract_email_senior()
+
+
+@app.route('/extracts/email_junior', methods=['GET', 'POST'])
+@login_required
+@role_required('extract')
+def extracts_email_junior():
+    return Extracts.extract_email_junior()
 
 
 @app.route('/extracts/comms', methods=['GET', 'POST'])

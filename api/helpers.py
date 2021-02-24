@@ -27,3 +27,11 @@ def id_is_current_user(current_user, id):
     if current_user.role in UserRole.admin_access():
         return True
     return current_user.id == id
+
+
+def get_caller_ip():
+    if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+        return request.environ['REMOTE_ADDR']
+    else:
+        # proxy
+        return request.environ['HTTP_X_FORWARDED_FOR']

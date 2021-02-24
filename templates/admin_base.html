@@ -42,10 +42,11 @@
                             <li class="dropdown-submenu">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="nav-label">Standard (regular)</span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="{{ url_for('extracts_email') }}">Email</a></li>
-                                    <li><a href="{{ url_for('extracts_comms') }}">Comms</a></li>
-                                    <li><a href="{{ url_for('extracts_juniors') }}">Junior Comms</a></li>
-                                    <li><a href="{{ url_for('extracts_junior_birthdays') }}">Juniors (birthday)</a></li>
+                                    <li><a href="{{ url_for('extracts_email_senior') }}">Email - Seniors</a></li>
+                                    <li><a href="{{ url_for('extracts_email_junior') }}">Email - Juniors</a></li>
+                                    <li><a href="{{ url_for('extracts_comms') }}">Comms - all</a></li>
+                                    <li><a href="{{ url_for('extracts_juniors') }}">Comms - Juniors</a></li>
+                                    <li><a href="{{ url_for('extracts_junior_birthdays') }}">Juniors birthday list</a></li>
                                     <li><a href="{{ url_for('extracts_for_afcw') }}">For AFCW</a></li>
                                 </ul>
                             </li>

@@ -335,7 +335,7 @@ class Member(Base):
         return status
 
     def member_type_at_renewal(self, as_of=None):
-        if self.member_type in MembershipType.all_concessions():
+        if self.member_type in MembershipType.concessions():
             return self.member_type
         if not as_of:
             as_of = current_year_end()
@@ -359,7 +359,7 @@ class Member(Base):
         if not as_of:
             as_of = current_year_end()
         type = self.member_type_at_renewal(as_of)
-        if type in MembershipType.all_concessions():
+        if type in MembershipType.concessions():
             return Dues.concession.value
         if type == MembershipType.junior:
             return Dues.junior.value
@@ -375,7 +375,7 @@ class Member(Base):
         if not as_of:
             as_of = current_year_end()
         type = self.member_type_at_renewal(as_of)
-        if type in MembershipType.all_concessions():
+        if type in MembershipType.concessions():
             return PlusUpgradeDues.concession.value
         if type == MembershipType.intermediate:
             return PlusUpgradeDues.intermediate.value
@@ -476,7 +476,7 @@ class Member(Base):
         return True, '', ''
 
     def concession_type(self):
-        if self.member_type in MembershipType.all_concessions(plus=True):
+        if self.member_type in MembershipType.concessions(all=True):
             long = [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1]
         else:
             long = ''
@@ -537,7 +537,7 @@ class Member(Base):
                         "{}".format(renewal_cost), ]
             elif member_type == MembershipType.senior:
                 notes = ["{}{}".format(renewal_cost, upgrade_para), ]
-            elif member_type in MembershipType.all_concessions():
+            elif member_type in MembershipType.concessions():
                 notes = [
                     "According to our records, you currently have a concessionary membership ({}).".format(
                         member_type.name),

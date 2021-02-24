@@ -6,11 +6,10 @@ from wtforms.fields.html5 import DateField
 from back_end.interface import get_new_member, get_member, save_member_details, get_new_comment, get_new_payment, \
     get_members_by_name, get_new_action, country_choices, county_choices, state_choices, get_country, get_county, \
     get_state, get_junior
-from front_end.form_helpers import MySelectField, read_only_form
+from front_end.form_helpers import MySelectField
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentType, PaymentMethod, MemberAction, \
     ActionStatus, Title, CommsStatus, JuniorGift, ExternalAccess, UserRole
 from back_end.data_utilities import fmt_date
-import datetime
 
 
 class PaymentItemForm(FlaskForm):

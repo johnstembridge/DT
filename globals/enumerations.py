@@ -133,8 +133,8 @@ class MembershipType(FormEnum):
         return result
 
     @staticmethod
-    def all_concessions(plus=False):
-        if plus:
+    def concessions(all=False):
+        if all:
             extra = [MembershipType.senior, MembershipType.intermediate]
         else:
             extra = []
@@ -172,6 +172,45 @@ class MemberAction(FormEnum):
     @staticmethod
     def send_other():
         return [MemberAction.gift, MemberAction.other]
+
+
+class Dues(FormEnum):
+    junior_new = 15
+    junior = 5
+    intermediate = 10
+    concession = 10
+    standard = 25
+    senior = 10
+    plus = 45
+
+
+class PlusUpgradeDues(FormEnum):
+    intermediate = 20
+    concession = 20
+    standard = 20
+    senior = 20
+
+
+class AgeBand(FormEnum):
+    junior = (0, 17)        # was (0, 15)
+    intermediate = (18, 21) # was (16, 20)
+    adult = (22, 64)        # was (21, 59)
+    senior = (65, 200)      # was (60, 200)
+
+    def __init__(self, lower, upper):
+        self.lower = lower
+        self.upper = upper
+
+
+class OldAgeBand(FormEnum):
+    junior = (0, 15)
+    intermediate = (16, 20)
+    adult = (21, 59)
+    senior = (60, 200)
+
+    def __init__(self, lower, upper):
+        self.lower = lower
+        self.upper = upper
 
 
 class PayPalPayment(Enum):
@@ -243,45 +282,6 @@ class ExternalAccess(FormEnum):
 class Sex(FormEnum):
     male = 1
     female = 2
-
-
-class Dues(FormEnum):
-    junior_new = 10
-    junior = 5
-    intermediate = 10
-    concession = 10
-    standard = 25
-    senior = 10
-    plus = 45
-
-
-class PlusUpgradeDues(FormEnum):
-    intermediate = 20
-    concession = 20
-    standard = 20
-    senior = 20
-
-
-class AgeBand(FormEnum):
-    junior = (0, 17)        # was (0, 15)
-    intermediate = (18, 21) # was (16, 20)
-    adult = (22, 64)        # was (21, 59)
-    senior = (65, 200)      # was (60, 200)
-
-    def __init__(self, lower, upper):
-        self.lower = lower
-        self.upper = upper
-
-
-class OldAgeBand(FormEnum):
-    junior = (0, 15)
-    intermediate = (16, 20)
-    adult = (21, 59)
-    senior = (60, 200)
-
-    def __init__(self, lower, upper):
-        self.lower = lower
-        self.upper = upper
 
 
 class Months(FormEnum):

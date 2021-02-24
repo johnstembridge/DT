@@ -184,14 +184,14 @@ class MemberEditForm(FlaskForm):
             if new_member:
                 if member_type == MembershipType.junior:
                     return None
-                elif member_type in MembershipType.all_concessions(plus=True):
+                elif member_type in MembershipType.concessions(all=True):
                     return PayPalPayment.Dons_Trust_Plus_Concession_upgrade if upgrade else None
                 elif member_type == MembershipType.standard:
                     return PayPalPayment.Dons_Trust_Plus_Adult_upgrade if upgrade else None
             else:
                 if member_type == MembershipType.junior:
                     return PayPalPayment.Junior_Dons_renewal
-                elif member_type in MembershipType.all_concessions(plus=True):
+                elif member_type in MembershipType.concessions(all=True):
                     return PayPalPayment.Dons_Trust_Plus_Concession if upgrade else PayPalPayment.Concession
                 elif member_type == MembershipType.standard:
                     return PayPalPayment.Dons_Trust_Plus_Adult if upgrade else PayPalPayment.Adult

@@ -86,13 +86,25 @@ class Extracts:
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
-    def extract_email():
+    def extract_email_senior():
         query_clauses = [
+            ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+            ('Member', 'member_type', [s.value for s in MembershipType.adult()], 'in', None),
+            ('Member', 'comms', CommsType.email.value, '=', None),
+            ('Member', 'comms_status', CommsStatus.all_ok.value, '=', None)
+        ]
+        display_fields = ['number', 'first name', 'email']
+        return Query.show_found_do(query_clauses, display_fields)
+
+    @staticmethod
+    def extract_email_junior():
+        query_clauses = [
+            ('Member', 'member_type', MembershipType.junior.value, '=', None),
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Member', 'comms', CommsType.email.value, '=', None),
             ('Member', 'comms_status', CommsStatus.all_ok.value, '=', None)
         ]
-        display_fields = ['number', 'member type', 'first name', 'last name', 'email']
+        display_fields = ['number', 'first name', 'email', 'junior email']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod

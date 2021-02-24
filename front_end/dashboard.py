@@ -73,7 +73,7 @@ class Dashboard(FlaskForm):
                 else:
                     member_totals[100] += 1
             if member.status == MemberStatus.plus:
-                if member_type in (MembershipType.all_concessions() + [MembershipType.senior]):
+                if member_type in (MembershipType.concessions() + [MembershipType.senior]):
                     member_totals[103] += 1
                 elif member_type == MembershipType.intermediate:
                     member_totals[104] += 1
