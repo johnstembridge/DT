@@ -75,4 +75,8 @@ def edit_member(member_number):
     return MaintainMembers.edit_member(member_number)
 
 
-
+@app.route('/members/<int:member_number>/debit', methods=['GET', 'POST'])
+@login_required
+@role_required('member')
+def dd_mandate(member_number):
+    return MaintainMembers.dd_mandate(member_number)

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<body onload=document.post.submit()>
+<h3>Pay your Dons Trust subscription by Direct Debit</h3>
+<form name="post" method="post"
+action="https://uat.emandates.co.uk/Pages/Registration.aspx?.Client=3795aaf9-caed-4324-aab9-f087b50b0663&.PaymentPlans=e6fba0e8-1ac1-435f-a8af-259f6e0dbb67">
+
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+    <table>
+        <tr>
+            <td>{{ form.txtTitle(size=4) }}</td>
+            <td>{{ form.txtFirstName() }}</td>
+            <td>{{ form.txtSurname() }}</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td>{{ form.addr1.label }}</td>
+            <td colspan=5>{{ form.addr1() }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.addr2.label }}</td>
+            <td colspan=5>{{ form.addr2() }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.addr3.label }}</td>
+            <td colspan=5>{{ form.addr3() }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.addr4.label }}</td>
+            <td colspan=5>{{ form.addr4() }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.txtAddressTown.label }}</td>
+            <td colspan=5>{{ form.txtAddressTown() }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.searchPostCode.label }}</td>
+            <td colspan=5>{{ form.searchPostCode() }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.txtEmail.label }}</td>
+            <td colspan=5>{{ form.txtEmail() }}</td>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <td>{{ form.txtPhone.label }}</td>
+            <td>{{ form.txtPhone() }}</td>
+            <td>{{ form.txtMobile.label }}</td>
+            <td>{{ form.txtMobile() }}</td>
+        </tr>
+     </table>
+    <table>
+        <tr>
+            <td>{{ form.txtAccNumArr.label }}</td>
+            <td>{{ form.txtAccNumArr }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.txtSortArr.label }}</td>
+            <td>{{ form.txtSortArr }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.txtAccountHolders.label }}</td>
+            <td>{{ form.txtAccountHolders }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.txtRegularAmount.label }}</td>
+            <td>{{ form.txtRegularAmount() }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.txtQuestion1.label }}</td>
+            <td>{{ form.txtQuestion1() }}</td>
+        </tr>
+        <tr>
+            <td><b>First Payment</b></td>
+            <td>
+                <input type="text" size="1" name="lstPaymentDay" value="1"/>/
+                <input type="text" size="1" name="PaymentMonth" value="8"/>/
+                <input type="text" size="4" name="PaymentYear" value="2021"/>
+            </td>
+            <td>
+                <input type="text"  name="end" value="until_notice"/>
+           </td>
+        </tr>
+    </table>
+    <input class="hidden" type=”hidden” name=”arrayvars” value="{{ form.arrayvars.data }}">
+<!--    {{ form.submit(class="btn btn-primary", value="Save") }}-->
+</form>
+</body>
+{% endblock %}

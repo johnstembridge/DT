@@ -229,6 +229,20 @@ class PayPalPayment(Enum):
         return result
 
 
+class EmandatePaymentPlan(Enum):
+    Adult = "93346a7b-09b2-44bf-b50b-8b24d6f7d259"
+    Concession = "3c60ea5-655c-4d83-81e9-d871d643817d"
+    Junior_Dons_new = "f917f19b-ed94-4822-8b3e-8e80a026e0f2"
+    Junior_Dons_renewal = "62f200d4-2e3e-460d-9aa9-36ce052ea126"
+    Dons_Trust_Plus_Adult = "b25bc6a8-2c4d-45f3-8be7-f67d773a202e"
+    Dons_Trust_Plus_Concession = "573fbdde-e8d8-4097-b2c8-960a520a1a96"
+
+    @classmethod
+    def choices(cls):
+        result = [(choice.name.replace('_', ' '), choice.value) for choice in cls]
+        return result
+
+
 class ActionStatus(FormEnum):
     open = 1
     closed = 2

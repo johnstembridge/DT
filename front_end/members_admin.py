@@ -4,8 +4,9 @@ from flask_login import current_user, logout_user
 from front_end.member_list_form import MemberListForm
 from front_end.member_details_form import MemberDetailsForm
 from front_end.renewal_form import MemberEditForm
+from front_end.dd_form import MemberDebitForm
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, read_only_form
-from globals.enumerations import UserRole, MembershipType, PaymentMethod
+from globals.enumerations import UserRole, MembershipType
 
 
 class MaintainMembers:
@@ -82,9 +83,9 @@ class MaintainMembers:
 
     @staticmethod
     def edit_member(member_number):
-        # check current user is member member_number
-        if current_user.user_name != str(member_number) and current_user.role != UserRole.super:
-            return redirect('/members/{}/edit'.format(current_user.member.number))
+        redirect = MaintainMembers.current_user_is_member(member_number)
+        if redirect:
+            return redirect
         form = MemberEditForm()
         if form.validate_on_submit():
             if form.submit.data:
@@ -103,9 +104,9 @@ class MaintainMembers:
 
     @staticmethod
     def renew_member(member_number):
-        # check current user is member member_number
-        if current_user.user_name != str(member_number) and current_user.role != UserRole.super:
-            return redirect('/members/{}/details'.format(current_user.member.number))
+        redirect = MaintainMembers.current_user_is_member(member_number)
+        if redirect:
+            return redirect
         form = MemberEditForm()
         if form.validate_on_submit():
             if form.submit.data:
@@ -138,3 +139,22 @@ class MaintainMembers:
             if message:
                 flash(message, 'success')
         return render_template('renewal.html', form=form, MembershipType=MembershipType, render_link=render_link)
+
+    @staticmethod
+    def dd_mandate(member_number):
+        redirect = MaintainMembers.current_user_is_member(member_number)
+        if redirect:
+            return redirect
+        form = MemberDebitForm()
+        message = form.populate_member(member_number, request.referrer, upgrade=False)
+        if message:
+            flash(message, 'success')
+        return render_template('emandate.html', form=form)
+
+    @staticmethod
+    def current_user_is_member(member_number):
+        # check current user is member member_number
+        if current_user.user_name != str(member_number) and current_user.role != UserRole.super:
+            return redirect('/members/{}/edit'.format(current_user.member.number))
+        else:
+            return None

@@ -23,6 +23,7 @@ from views.super import *
 from views.extracts import *
 from views.help import *
 from views.testing import *
+from views.emandates import *
 from views.others import page_not_found, internal_error, unauthorised, csrf_error
 from api.endpoints import *
 from api.helpers import wants_json_response, api_error_response
