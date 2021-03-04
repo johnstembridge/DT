@@ -5,7 +5,7 @@
 <body onload=document.post.submit()>
 <h3>Pay your Dons Trust subscription by Direct Debit</h3>
 <form name="post" method="post"
-action="https://uat.emandates.co.uk/Pages/Registration.aspx?.Client=3795aaf9-caed-4324-aab9-f087b50b0663&.PaymentPlans=e6fba0e8-1ac1-435f-a8af-259f6e0dbb67">
+action="https://uat.emandates.co.uk/Pages/Registration.aspx?.Client=3795aaf9-caed-4324-aab9-f087b50b0663&.PaymentPlans={{ form.payment_plan.data }}">
 
     {{ form.csrf_token }}
     {{ form.hidden_tag() }}

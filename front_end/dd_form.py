@@ -39,7 +39,7 @@ class MemberDebitForm(FlaskForm):
         self.return_url.data = return_url
         member = get_member(member_number)
         dues = member.base_dues() + (member.upgrade_dues() if upgrade else 0)
-        self.payment_plan = self.get_dd_payment_plan(PaymentMethod.dd, member, upgrade).value
+        self.payment_plan.data = self.get_dd_payment_plan(PaymentMethod.dd, member, upgrade).value
         self.txtQuestion1.data = member.dt_number()
         self.txtRegularAmount.data = fmt_curr(dues)[1:]
 
@@ -58,7 +58,7 @@ class MemberDebitForm(FlaskForm):
         self.txtMobile.data = member.mobile_phone
         self.txtEmail.data = member.email
 
-        self.arrayvars = "dt_number={}|amount={}".format(member.dt_number(), fmt_curr(dues)[1:])
+        self.arrayvars.data = "dt_number={}|amount={}".format(member.dt_number(), fmt_curr(dues)[1:])
 
         return ''  # member.renewal_activated()
 

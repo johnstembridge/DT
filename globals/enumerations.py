@@ -230,7 +230,8 @@ class PayPalPayment(Enum):
 
 
 class EmandatePaymentPlan(Enum):
-    Adult = "93346a7b-09b2-44bf-b50b-8b24d6f7d259"
+    # Adult = "93346a7b-09b2-44bf-b50b-8b24d6f7d259"
+    Adult = "e6fba0e8-1ac1-435f-a8af-259f6e0dbb67"
     Concession = "3c60ea5-655c-4d83-81e9-d871d643817d"
     Junior_Dons_new = "f917f19b-ed94-4822-8b3e-8e80a026e0f2"
     Junior_Dons_renewal = "62f200d4-2e3e-460d-9aa9-36ce052ea126"

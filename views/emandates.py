@@ -8,6 +8,7 @@ from front_end.emandates import Emandates
 def emandates_confirm():
     app.logger.info(request)
     app.logger.info(request.args)
+    app.logger.info(request.form)
     app.logger.info("confirmed")
     return Emandates.emandates_confirm(request.args)
 
