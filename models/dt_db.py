@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime, Enum
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
-    Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues
+    Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, PlusDues
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
     match_string
 from datetime import datetime, date
@@ -353,7 +353,11 @@ class Member(Base):
     def dues(self, as_of=None, default=True):
         if self.status == MemberStatus.life or self.is_recent_renewal() or self.is_recent_new():
             return 0
-        return self.base_dues(as_of)
+        status = self.member_status_at_renewal()
+        if status == MemberStatus.plus:
+            return self.plus_dues(as_of)
+        else:
+            return self.base_dues(as_of)
 
     def base_dues(self, as_of=None):
         if not as_of:
@@ -368,6 +372,20 @@ class Member(Base):
         if type == MembershipType.senior:
             return Dues.senior.value
         return Dues.standard.value
+
+    def plus_dues(self, as_of=None):
+        if self.status == MemberStatus.life:
+            return 0
+        if not as_of:
+            as_of = current_year_end()
+        type = self.member_type_at_renewal(as_of)
+        if type in MembershipType.concessions():
+            return PlusDues.concession.value
+        if type == MembershipType.intermediate:
+            return PlusDues.intermediate.value
+        if type == MembershipType.senior:
+            return PlusDues.senior.value
+        return PlusDues.standard.value
 
     def upgrade_dues(self, as_of=None):
         if self.status == MemberStatus.life:

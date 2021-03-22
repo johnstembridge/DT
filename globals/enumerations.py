@@ -184,6 +184,13 @@ class Dues(FormEnum):
     plus = 45
 
 
+class PlusDues(FormEnum):
+    intermediate = 30
+    concession = 30
+    standard = 45
+    senior = 30
+
+
 class PlusUpgradeDues(FormEnum):
     intermediate = 20
     concession = 20
@@ -264,6 +271,7 @@ class PaymentMethod(FormEnum):
     xfer = 5
     so = 6
     dd_cancelled = 7
+    dd_pending = 8
 
     @staticmethod
     def renewal_choices():

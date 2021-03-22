@@ -58,7 +58,7 @@ class MemberDebitForm(FlaskForm):
         self.txtMobile.data = member.mobile_phone
         self.txtEmail.data = member.email
 
-        self.arrayvars.data = "dt_number={}|amount={}".format(member.dt_number(), fmt_curr(dues)[1:])
+        self.arrayvars.data = "dt_number*|*{}*|*amount*|*{}".format(member.dt_number(), fmt_curr(dues)[1:])
 
         return ''  # member.renewal_activated()
 
