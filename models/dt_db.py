@@ -9,7 +9,7 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
     Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, PlusDues
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
-    match_string
+    previous_year_end, match_string
 from datetime import datetime, date
 from time import time, localtime, strftime
 
@@ -223,8 +223,11 @@ class Member(Base):
         return '{}0{}{:05d}'.format(member_prefix, '+' if status == MemberStatus.plus else '-', self.number or 0)
 
     def voter(self, renewal=False):
-        type = self.member_type_at_renewal() if renewal else self.member_type
-        return type == MembershipType.junior and renewal and self.age_at_renewal() >= 16
+        if self.start_date > previous_year_end():
+            age = self.age(self.start_date)
+        else:
+            age = self.age_last_renewal(default=True)
+        return age >= 16
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
@@ -297,20 +300,23 @@ class Member(Base):
                 years -= 1
             return years
         else:
-            # defaults
-            if not default:
+            if default:
+                return self.default_age()
+            else:
                 return None
-            elif self.member_type:
-                if self.member_type == MembershipType.junior:
-                    return AgeBand.junior.lower
-                elif self.member_type == MembershipType.intermediate:
-                    return AgeBand.intermediate.lower
-                elif self.member_type == MembershipType.senior:
-                    return AgeBand.senior.lower
-                else:
-                    return AgeBand.adult.lower
+
+    def default_age(self):
+        if self.member_type:
+            if self.member_type == MembershipType.junior:
+                return AgeBand.junior.lower
+            elif self.member_type == MembershipType.intermediate:
+                return AgeBand.intermediate.lower
+            elif self.member_type == MembershipType.senior:
+                return AgeBand.senior.lower
             else:
                 return AgeBand.adult.lower
+        else:
+            return AgeBand.adult.lower
 
     def age_next_birthday(self):
         return self.age(self.next_birthday())
@@ -321,6 +327,10 @@ class Member(Base):
     def age_at_renewal(self, default=False):
         next_renewal_date = current_year_end()
         return self.age(next_renewal_date, default)
+
+    def age_last_renewal(self, default=False):
+        last_renewal_date = previous_year_end()
+        return self.age(last_renewal_date, default)
 
     def member_status_at_renewal(self):
         status = self.status

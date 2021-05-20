@@ -130,6 +130,11 @@ def current_year_end():
     date = config.get('next_renewal_date')
     return parse_date(date, reverse=True)
 
+
+def previous_year_end():
+    cye = current_year_end()
+    return cye.replace(year=cye.year - 1)
+
 # endregion
 
 
