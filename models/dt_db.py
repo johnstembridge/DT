@@ -224,7 +224,7 @@ class Member(Base):
 
     def voter(self, renewal=False):
         if self.start_date > previous_year_end():
-            age = self.age(self.start_date)
+            age = self.age(self.start_date, default=True)
         else:
             age = self.age_last_renewal(default=True)
         return age >= 16
