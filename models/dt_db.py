@@ -224,7 +224,7 @@ class Member(Base):
 
     def voter(self, renewal=False):
         type = self.member_type_at_renewal() if renewal else self.member_type
-        return not (type == MembershipType.junior and self.age_at_renewal() < 16)
+        return type == MembershipType.junior and renewal and self.age_at_renewal() >= 16
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
