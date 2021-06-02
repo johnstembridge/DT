@@ -66,7 +66,8 @@ def validate_date_format(form, field):
     if field.data:
         try:
             date = split_condition_and_value(field.data)[1]
-            datetime.strptime(date, '%d/%m/%Y').date()
+            if date != 'null':
+                datetime.strptime(date, '%d/%m/%Y').date()
         except:
             field.message = 'Date must be in format dd/mm/yyyy'
             raise ValidationError('Date must be in format dd/mm/yyyy')
@@ -235,6 +236,7 @@ extract_fields_map = OrderedDict([
     ('age next bday', 'age_next_birthday()'),
     ('age at renewal', 'age_at_renewal()'),
     ('email', 'email'),
+    ('phone', 'phone()'),
     ('home phone', 'home_phone'),
     ('mobile phone', 'mobile_phone'),
     ('comms', 'comms.name'),

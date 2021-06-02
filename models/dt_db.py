@@ -9,7 +9,7 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
     Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, PlusDues
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
-    previous_year_end, match_string
+    previous_year_end, match_string, fmt_phone
 from datetime import datetime, date
 from time import time, localtime, strftime
 
@@ -320,6 +320,13 @@ class Member(Base):
 
     def age_next_birthday(self):
         return self.age(self.next_birthday())
+
+    def phone(self):
+        if self.mobile_phone:
+            ret = self.mobile_phone
+        else:
+            ret = self.home_phone
+        return fmt_phone(ret, self.address.country.code)
 
     def dt_number_at_renewal(self):
         return self.dt_number(renewal=True)

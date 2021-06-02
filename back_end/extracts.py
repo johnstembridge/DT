@@ -53,7 +53,8 @@ class Extracts:
             ('Payment', 'type', PaymentType.pending.value, '=', None)
         ]
         display_fields = ['number', 'member type', 'full name', 'use email', 'email', 'action', 'action date',
-                          'action comment', 'last payment date', 'last payment amount', 'last payment type', 'payment type',
+                          'action comment', 'last payment date', 'last payment amount', 'last payment type',
+                          'payment type',
                           'last payment method', 'last payment comment', 'end']
         return Query.show_found_do(query_clauses, display_fields, action='renewal', payment='pending', page=page)
 
@@ -148,8 +149,9 @@ class Extracts:
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = \
-            ['number', 'type at renewal', 'full name', 'dues pending', 'email', 'address (line 1)', 'address (line 2)',
-             'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'first name', 'last name']
+            ['number', 'type at renewal', 'full name', 'dues pending', 'email', 'phone',
+             'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state', 'post code',
+             'country for post', 'title', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod

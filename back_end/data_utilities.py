@@ -361,3 +361,10 @@ def match_string(a, b):
     a = remove(a.lower(), ' ')
     b = remove(b.lower(), ' ')
     return a == b
+
+
+def fmt_phone(value, country_code):
+    if country_code == 'UK':
+        if '0' == first_or_default(value, ' '):
+            value = '+44 (0) ' + value[1:].replace(' ', '')
+    return value
