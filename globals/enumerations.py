@@ -333,6 +333,7 @@ class Title(FormEnum):
     Sir = 8
     Lord = 9
     Lady = 10
+    Mx = 11
 
 
 class JuniorGift(FormEnum):

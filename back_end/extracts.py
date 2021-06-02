@@ -144,7 +144,7 @@ class Extracts:
         end_date = fmt_date(current_year_end())
         query_clauses = [
             ('Member', 'end_date', end_date, '=', None),
-            ('Member', 'last_payment_method', PaymentMethod.dd, '=', None),
+            ('Member', 'last_payment_method', [PaymentMethod.dd.value, PaymentMethod.dd_pending.value], 'in', None),
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = \
