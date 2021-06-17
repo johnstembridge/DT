@@ -94,6 +94,13 @@ def extracts_debits():
     return Extracts.extract_debits()
 
 
+@app.route('/extracts/debits_ptx', methods=['GET', 'POST'])
+@login_required
+@role_required('admin')
+def extracts_debits_for_ptx():
+    return Extracts.extract_debits_for_ptx()
+
+
 @app.route('/extracts/custom', methods=['GET', 'POST'])
 @login_required
 @role_required('extract')

@@ -155,6 +155,53 @@ class Extracts:
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
+    def extract_debits_for_ptx():
+        end_date = fmt_date(current_year_end())
+        query_clauses = [
+            ('Member', 'end_date', end_date, '=', None),
+            ('Member', 'last_payment_method', [PaymentMethod.dd.value, PaymentMethod.dd_pending.value], 'in', None),
+            ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
+        ]
+        display_fields = [
+            (None, 'Contact Reference'),
+            ('fmt id number', 'Mandate Reference'),
+            (None, 'Mandate Status'),
+            ('title for ptx', 'Title'),
+            ('first name', 'First Name'),
+            ('last name', 'Last Name'),
+            (None, 'Company'),
+            ('address (line 1)', 'Street1'),
+            ('address (line 2)', 'Street2'),
+            ('address (line 3)', 'Street3'),
+            ('city', 'City'),
+            ('post code', 'Post Code'),
+            ('county', 'County'),
+            ('country for post', 'Country'),
+            ('phone', 'Telephone'),
+            ('email', 'Email'),
+            ('number at renewal', 'Alternative Reference'),
+            (None, 'Account Name'),
+            (None, 'Sort Code'),
+            (None, 'Account Number'),
+            (None, 'Plan Index'),
+            (None, 'Frequency Type', '{YEARLY}'),
+            (None, 'Start Date', '{2021-08-11}'),
+            (None, 'End Date'),
+            (None, 'Number of Occurrences'),
+            (None, 'Recurrence'),
+            (None, 'Frequency Details1', '{DAY11}'),
+            (None, 'Frequency Details2', '{AUGUST}'),
+            ('fmt dues pending', 'Regular Amount'),
+            (None, 'First Amount'),
+            (None, 'Last Amount'),
+            (None, 'Total Amount'),
+            ('extended type at renewal', 'Comments'),
+            (None, 'Profile Name'),
+            ('comms for ptx', 'Communication Preference')
+        ]
+        return Query.show_found_do(query_clauses, display_fields)
+
+    @staticmethod
     def extract_for_afcw():
         query_clauses = [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)

@@ -501,6 +501,8 @@ def get_attr(obj, spec):
     # extract data for attr spec from populated database object
     # e.g. get_attr(member, 'address.line_1')
     # or get_attr(member, 'address.country_for_mail()') - invoke a method
+    if not spec:
+        return ''
     if '=' == first_or_default(spec, ' '):
         return eval(spec[1:])
     attr, tail = pop_next(spec, '.')
@@ -516,6 +518,8 @@ def get_attr(obj, spec):
     elif 'payments[' in attr:  # list - get specific
         (name, type) = attr.split('[')
         res = first_or_default([a for a in getattr(obj, name) if a.type.name == type[:-1]], None)
+    elif '{' in attr:  # literal - return as value
+        res = attr.replace('{', '').replace('}', '')
     else:  # property
         res = getattr(obj, attr)
     if res and tail:

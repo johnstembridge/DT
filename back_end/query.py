@@ -2,7 +2,7 @@ from flask import render_template, redirect, url_for, request
 from collections import OrderedDict
 
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, extract_fields_map, \
-    extract_fields_action, query_fields_action, extract_fields_payment
+    extract_fields_action, query_fields_action, extract_fields_payment, map_extract_field, extract_heading
 from front_end.query_form import QueryForm
 from front_end.extract_form import ExtractForm
 from back_end.interface import get_attr, get_members_for_query, reset_member_actions_for_query
@@ -44,7 +44,7 @@ class Query:
         form = ExtractForm()
         page = form.populate_result(url_pickle_dump(query_clauses), url_pickle_dump(display_fields),
                                     query, action, show_fn, page)
-        fields = OrderedDict([(k, extract_fields_map[k]) for k in display_fields])
+        fields = OrderedDict([map_extract_field(k) for k in display_fields])
         if action:
             fields = extract_fields_action(fields, action)
         if payment:
@@ -62,8 +62,8 @@ class Query:
     def extract_do(query_clauses, display_fields):
         members = get_members_for_query(query_clauses)
         csv = []
-        head = display_fields
-        fields = [extract_fields_map[k] for k in display_fields]
+        head = [extract_heading(f) for f in display_fields]
+        fields = [map_extract_field(k)[1] for k in display_fields]
         csv.append(head)
         for member in members:
             row = [get_attr(member, field) for field in fields]

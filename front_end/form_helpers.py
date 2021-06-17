@@ -214,12 +214,39 @@ def select_fields_to_update(select_fields, default_table):
     return updates
 
 
+def map_extract_field(display_field):
+    has_heading = type(display_field) is tuple
+    if has_heading:
+        if len(display_field) == 3:
+            (field, heading, default) = display_field
+        else:
+            (field, heading) = display_field
+            default = ''
+    else:
+        field = heading = display_field
+    if field in extract_fields_map:
+        mapped = extract_fields_map[field]
+    else:
+        mapped = default
+    if has_heading:
+        field = heading
+
+    return (field, mapped)
+
+def extract_heading(display_field):
+    if type(display_field) is tuple:
+        heading = display_field[1]
+    else:
+        heading = display_field
+    return heading
+
 extract_fields_map = OrderedDict([
     ('number', 'dt_number()'),
     ('number at renewal', 'dt_number_at_renewal()'),
+    ('fmt id number', 'fmt_id_number()'),
     ('id number', 'number'),
     ('full name', 'full_name()'),
-    ('title', 'title.name'),
+    ('title for ptx', 'title_for_ptx()'),
     ('first name', 'first_name'),
     ('last name', 'last_name'),
     ('sex', 'sex.name'),
@@ -227,6 +254,7 @@ extract_fields_map = OrderedDict([
     ('status at renewal', 'member_status_at_renewal().name'),
     ('member type', 'member_type.name'),
     ('type at renewal', 'member_type_at_renewal().name'),
+    ('extended type at renewal', 'extended_member_type_at_renewal()'),
     ('voter', 'voter()'),
     ('start', 'start_date'),
     ('end', 'end_date'),
@@ -241,9 +269,11 @@ extract_fields_map = OrderedDict([
     ('mobile phone', 'mobile_phone'),
     ('comms', 'comms.name'),
     ('comms status', 'comms_status.name'),
+    ('comms for ptx', 'comms_ptx()'),
     ('payment method', 'last_payment_method.name'),
     ('dues', 'dues()'),
     ('dues pending', 'dues_including_update()'),
+    ('fmt dues pending', 'fmt_dues_including_update()'),
     ('full address', 'address.full()'),
     ('address (line 1)', 'address.line_1'),
     ('address (line 2)', 'address.line_2'),
@@ -252,6 +282,8 @@ extract_fields_map = OrderedDict([
     ('county', 'address.county.name'),
     ('state', 'address.state.code'),
     ('post code', 'address.post_code'),
+    ('district', 'address.region.district'),
+    ('region', 'address.region.region'),
     ('country', 'address.country.name'),
     ('country for post', 'address.country_for_mail()'),
     ('country code', 'address.country.code'),

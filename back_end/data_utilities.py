@@ -288,9 +288,9 @@ def parse_float(num, default=None):
         return default
 
 
-def fmt_curr(num):
+def fmt_curr(num, symbol='£'):
     if num:
-        res = '£{:,.2f}'.format(abs(num))
+        res = symbol + '{:,.2f}'.format(abs(num))
         if num < 0:
             res = '({})'.format(res)
     else:

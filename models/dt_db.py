@@ -9,7 +9,7 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
     Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, PlusDues
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
-    previous_year_end, match_string, fmt_phone
+    previous_year_end, match_string, fmt_phone, fmt_curr
 from datetime import datetime, date
 from time import time, localtime, strftime
 
@@ -222,12 +222,24 @@ class Member(Base):
         status = self.member_status_at_renewal() if renewal else self.status
         return '{}0{}{:05d}'.format(member_prefix, '+' if status == MemberStatus.plus else '-', self.number or 0)
 
+    def fmt_id_number(self):
+        return '{:05d}'.format(self.number)
+
     def voter(self, renewal=False):
         if self.start_date > previous_year_end():
             age = self.age(self.start_date, default=True)
         else:
             age = self.age_last_renewal(default=True)
         return age >= 16
+
+    def title_for_ptx(self):
+        if self.title:
+            title = self.title.name
+            if title not in ['Mr', 'Mrs', 'Miss', 'Dr']:
+                title = ''
+        else:
+            title = ''
+        return title
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
@@ -367,6 +379,13 @@ class Member(Base):
             return MembershipType.senior
         return MembershipType.standard
 
+    def extended_member_type_at_renewal(self, as_of=None):
+        type = self.member_type_at_renewal().name
+        if self.is_plus():
+            return type + ', plus'
+        else:
+            return type
+
     def dues(self, as_of=None, default=True):
         if self.status == MemberStatus.life or self.is_recent_renewal() or self.is_recent_new():
             return 0
@@ -418,6 +437,9 @@ class Member(Base):
             return PlusUpgradeDues.senior.value
         return PlusUpgradeDues.standard.value
 
+    def fmt_dues_including_update(self, as_of=None, default=True):
+        return fmt_curr(self.dues_including_update(as_of, default), '')
+
     def dues_including_update(self, as_of=None, default=True):
         dues = self.dues()
         if self.last_payment('type') == PaymentType.pending.name:
@@ -427,6 +449,9 @@ class Member(Base):
 
     def use_email(self):
         return self.comms == CommsType.email and self.comms_status != CommsStatus.email_fail
+
+    def comms_ptx(self):
+        return 'EMAIL' if self.email else ''
 
     def afcw_has_access(self):
         return (self.external_access or ExternalAccess.AFCW).value > ExternalAccess.none.value
@@ -553,14 +578,14 @@ class Member(Base):
             if member_type == MembershipType.intermediate:
                 if age == 21:
                     notes = [
-                        "Young adult membership has been extended to age 21 in line with Season Tickets.", \
+                        "Young adult membership was extended last year to age 21 in line with Season Tickets.", \
                         "{}{}".format(renewal_cost, upgrade_para)]
                 else:
                     notes = ["{}{}".format(renewal_cost, upgrade_para)]
             elif junior:
                 if age in [16, 17]:
                     notes = [
-                        "Junior Dons will now cover the age range from 0 to 17-year olds. 16 and 17-year olds will " \
+                        "Junior Dons now cover the age range from 0 to 17-year olds. 16 and 17-year olds will " \
                         "still have full Dons Trust membership rights including voting rights.", \
                         "The Junior Dons membership has been enhanced. Along with the package of benefits that JDs " \
                         "used to receive, the new stadium gives the opportunity to increase the benefits offered.", \
@@ -584,7 +609,7 @@ class Member(Base):
                         notes = ["{}{}".format(renewal_cost, upgrade_para), ]
                     elif age in range(60, 64):
                         notes = [
-                            "To bring Dons Trust membership age ranges in line with the Club, we are moving the " \
+                            "To bring Dons Trust membership age ranges in line with the Club, last year we moved the " \
                             "age range for senior members from 60+ to 65+.", \
                             "{}{}".format(renewal_cost, upgrade_para)]
                     else:
@@ -599,7 +624,7 @@ class Member(Base):
         if new_member:
             notes = [
                         "As you joined relatively late during the membership year we will automatically extend " \
-                        "your membership until August 2021.", ] + notes
+                        "your membership until August 2022.", ] + notes
         if recent_renew and self.status not in [MemberStatus.life, MemberStatus.plus]:
             notes = [
                         "As you renewed your membership recently you can still upgrade to Dons Trust Plus" \
@@ -761,3 +786,4 @@ class State(Base):
 
     def __repr__(self):
         return '<State {}: {}>'.format(self.code, self.name)
+
