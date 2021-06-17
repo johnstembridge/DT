@@ -224,6 +224,7 @@ def map_extract_field(display_field):
             default = ''
     else:
         field = heading = display_field
+        default = ''
     if field in extract_fields_map:
         mapped = extract_fields_map[field]
     else:
