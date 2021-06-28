@@ -7,7 +7,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, ForeignKey, TypeDecorator, DateTime, Enum
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
-    Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, PlusDues
+    Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, \
+    PlusDues
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
     previous_year_end, match_string, fmt_phone, fmt_curr
 from datetime import datetime, date
@@ -267,7 +268,11 @@ class Member(Base):
     def is_recent_renewal(self):
         if self.status == MemberStatus.life:
             return False
-        return self.end_date > current_year_end()
+        last = self.last_payment()
+        resume = last.comment == 'resume lapsed'
+        date = self.last_payment('date')
+        not_dd_pending = self.last_payment_method != PaymentMethod.dd_pending
+        return resume and not_dd_pending and date >= datetime(current_year_end().year, 4, 1).date()
 
     def is_founder(self):
         return self.number <= 1889
@@ -561,11 +566,11 @@ class Member(Base):
     def renewal_notes(self):
         age = self.age_at_renewal(default=True)
         new_member = self.is_recent_new()
-        recent_renew = self.is_recent_renewal()
+        recent_resume = self.is_recent_renewal()
         renewal_dues = '£' + str(self.dues())
-        renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not (new_member or recent_renew) else ''
+        renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not (new_member or recent_resume) else ''
         upgrade_dues = '£' + str(
-            self.upgrade_dues() if (new_member or recent_renew) else self.dues() + self.upgrade_dues())
+            self.upgrade_dues() if (new_member or recent_resume) else self.dues() + self.upgrade_dues())
         upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(upgrade_dues)
         member_type = self.member_type_at_renewal()
         junior = member_type == MembershipType.junior
@@ -614,7 +619,7 @@ class Member(Base):
                             "{}{}".format(renewal_cost, upgrade_para)]
                     else:
                         notes = ["{}{}".format(renewal_cost, upgrade_para), ]
-        if self.last_payment_method == PaymentMethod.dd and not (new_member or recent_renew):
+        if self.last_payment_method == PaymentMethod.dd and not (new_member or recent_resume):
             up = "If you do not wish to upgrade to Dons Trust Plus, you need take no further action." \
                 if not junior else ''
             notes = [
@@ -625,7 +630,7 @@ class Member(Base):
             notes = [
                         "As you joined relatively late during the membership year we will automatically extend " \
                         "your membership until August 2022.", ] + notes
-        if recent_renew and self.status not in [MemberStatus.life, MemberStatus.plus]:
+        if recent_resume and self.status not in [MemberStatus.life, MemberStatus.plus]:
             notes = [
                         "As you renewed your membership recently you can still upgrade to Dons Trust Plus" \
                         , ] + notes
@@ -786,4 +791,3 @@ class State(Base):
 
     def __repr__(self):
         return '<State {}: {}>'.format(self.code, self.name)
-
