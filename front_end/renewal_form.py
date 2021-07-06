@@ -6,6 +6,7 @@ from wtforms.fields.html5 import DateField
 from back_end.interface import get_member, save_member_contact_details, country_choices, county_choices, state_choices, \
     get_country, get_county, get_state, get_junior
 from front_end.form_helpers import MySelectField
+from front_end.diversity_form import diversity_fields, DiversityForm
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentMethod, Title, CommsStatus, \
     JuniorGift, ExternalAccess, PayPalPayment, MemberAction
 from back_end.data_utilities import fmt_date
@@ -17,16 +18,19 @@ class MemberEditForm(FlaskForm):
     full_name = StringField(label='Full Name')
     return_url = HiddenField(label='Return URL')
     member_number = HiddenField(label='Member Number')
+    recent_new = HiddenField(label='Recent new')
+    recent_resume = HiddenField(label='Recent resume')
+    payment_required = HiddenField(label='payment required')
     dt_number = StringField(label='Id')
 
     start_date = StringField(label='Joined')
     birth_date = DateField(label='Date of Birth', validators=[InputRequired()])
     age = HiddenField(label='Age')
-    season_ticket = StringField(label='Season Ticket')
+    fan_id = StringField(label='AFCW Fan ID')
     title = MySelectField(label='Title', choices=Title.choices(blank=True), coerce=Title.coerce)
     first_name = StringField(label='First', validators=[InputRequired()])
     last_name = StringField(label='Last', validators=[InputRequired()])
-    sex = MySelectField(label='Sex', choices=Sex.choices(blank=True), coerce=int)
+    sex = HiddenField(label='Sex')
 
     line1 = StringField(label='Address line 1')
     line2 = StringField(label='Address line 2')
@@ -46,11 +50,8 @@ class MemberEditForm(FlaskForm):
     jd_email = StringField(label='JD Email ', validators=[Optional(), Email("Invalid email address")])
     jd_gift = MySelectField(label='JD Gift', choices=JuniorGift.choices(blank=True), coerce=JuniorGift.coerce)
 
-    afcw_access = BooleanField(label='Make my contact details available to AFC Wimbledon Limited')
-    third_pty_access = BooleanField(
-        label='Make my contact details available to other organisations approved by the Trust ')
+    third_pty_access = BooleanField(label='Please indicate whether you wish to receive this information')
 
-    # dues = StringField(label='Dues')
     upgrade = BooleanField(label='I wish to change my membership to Dons Trust Plus')
     payment_method = MySelectField(label='Payment Method', choices=PaymentMethod.renewal_choices(),
                                    coerce=PaymentMethod.coerce)
@@ -63,6 +64,10 @@ class MemberEditForm(FlaskForm):
     plus = HiddenField(label='DT plus')
     type = MySelectField(label='Member Type', choices=MembershipType.renewal_choices(), coerce=MembershipType.coerce)
 
+    (gender, gender_other, gender_identify, disability, disability_type, disability_type_other, impairment,
+     marital_status, ethnicity, ethnicity_other, sexual_orientation, religion, religion_other, employment,
+     employment_other) = diversity_fields()
+
     submit = SubmitField(label='Save')
 
     def populate_member(self, member_number, return_url, renewal):
@@ -71,6 +76,10 @@ class MemberEditForm(FlaskForm):
         member = get_member(member_number)
         address = member.address
         self.member_number.data = str(member.number)
+        self.recent_new.data = member.is_recent_new()
+        self.recent_resume.data = member.is_recent_resume()
+        self.payment_required.data = not(member.status == MemberStatus.life) and \
+                                     not(member.status == MemberStatus.plus and member.is_recent_new() or member.is_recent_resume())
         self.dt_number.data = member.dt_number()
         self.access.data = member.user.role.value if member.user else 0
         self.status.data = member.status.name
@@ -81,7 +90,7 @@ class MemberEditForm(FlaskForm):
         self.birth_date.data = member.birth_date
         self.age.data = str(member.age()) if member.age() is not None else None
 
-        self.season_ticket.data = member.season_ticket_id if member.season_ticket_id else ''
+        self.fan_id.data = member.season_ticket_id if member.season_ticket_id else ''
         self.external_access.data = (member.external_access or ExternalAccess.none).value
         self.last_updated.data = fmt_date(member.last_updated)
 
@@ -89,7 +98,7 @@ class MemberEditForm(FlaskForm):
         self.title.data = member.title.value if member.title else ''
         self.first_name.data = member.first_name
         self.last_name.data = member.last_name
-        self.sex.data = member.sex.value if member.sex else ''
+        self.sex.data = member.sex.value if member.sex else 0
 
         self.line1.data = address.line_1
         self.line2.data = address.line_2
@@ -114,7 +123,6 @@ class MemberEditForm(FlaskForm):
         else:
             self.jd_email = self.jd_gift = None
 
-        self.afcw_access.data = member.afcw_has_access()
         self.third_pty_access.data = member.third_pty_access()
 
         self.payment_method.data = self.last_payment_method.data = \
@@ -122,8 +130,10 @@ class MemberEditForm(FlaskForm):
 
         self.upgrade.data = member.current_action() and member.current_action().action == MemberAction.upgrade
 
-        self.notes.data = member.edit_notes()
-
+        self.notes.data = member.renewal_notes() + member.edit_notes()
+        if member.member_type_at_renewal() != MembershipType.junior:
+            self.notes.data += ['This year we are collecting diversity information - please complete this section as well.', ]
+            DiversityForm.populate_member(self, member_number, return_url, renewal)
         return member.renewal_activated()
 
     def save_member(self, member_number):
@@ -131,13 +141,13 @@ class MemberEditForm(FlaskForm):
             'title': self.title.data,
             'first_name': self.first_name.data.strip(),
             'last_name': self.last_name.data.strip(),
-            'sex': self.sex.data,
+            'sex': int(self.sex.data),
 
             'member_type': self.type.data,
             'birth_date': self.birth_date.data,
 
             'access': int(self.access.data),
-            # 'season_ticket': self.season_ticket.data,
+            'fan_id': self.fan_id.data,
 
             'home_phone': self.home_phone.data.strip(),
             'mobile_phone': self.mobile_phone.data.strip(),
@@ -153,7 +163,7 @@ class MemberEditForm(FlaskForm):
             'county': get_county(self.county.data),
             'country': get_country(self.country.data),
 
-            'external_access': self.external_access(self.afcw_access.data, self.third_pty_access.data),
+            'external_access': self.external_access(None, self.third_pty_access.data),
 
             'payment_method': self.payment_method.data,
             'comment': self.comment.data,
@@ -162,14 +172,14 @@ class MemberEditForm(FlaskForm):
         if self.type.data == MembershipType.junior.value:
             member_details['jd_mail'] = self.jd_email.data.strip()
             member_details['jd_gift'] = self.jd_gift.data
-        member = save_member_contact_details(member_number, member_details, self.form_type.data == 'renewal')
-
+        member = save_member_contact_details(member_number, member_details, self.form_type.data == 'renewal', False)
+        member = DiversityForm.save_member(self, member)
         # return key info for save message
         payment_method = PaymentMethod.from_value(self.payment_method.data)
         upgrade = self.upgrade.data
         member_type = member.long_membership_type() + (' (DT Plus)' if upgrade else '')
         dues = member.dues() + (member.upgrade_dues() if upgrade else 0)
-        if member.is_recent_renewal() and not upgrade:
+        if member.is_recent_resume() and not upgrade:
             dues = -1
         paypal_payment = self.get_paypal_payment(payment_method, member, upgrade)
         return payment_method, paypal_payment, dues, member_type, member
@@ -180,7 +190,7 @@ class MemberEditForm(FlaskForm):
             member_type = member.member_type_at_renewal()
             if member.status == MemberStatus.life:
                 return None
-            new_member = member.is_recent_new() or member.is_recent_renewal()
+            new_member = member.is_recent_new() or member.is_recent_resume()
             if new_member:
                 if member_type == MembershipType.junior:
                     return None

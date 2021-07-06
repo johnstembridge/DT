@@ -7,15 +7,17 @@
     <table>
         <tr>
             <td>
-            {% if form.form_type.data == 'renewal' %}
-                <h2 class="widget-title">Season 2020/2021 membership renewal</h2>
+                {% if form.form_type.data == 'renewal' %}
+                <h2 class="widget-title">Season 2021/2022 membership renewal</h2>
                 <h3>{{ form.dt_number.data }} {{ form.full_name.data }} (joined {{form.start_date.data}})</h3>
-                <i><p>Please check all the details that we hold about you and amend if necessary. <br>(Press Renew to save any changes and register your renewal)</p></i>
-            {% else %}
+                <i><p>Please check all the details that we hold about you and amend if necessary. <br>(Press Renew at
+                    the bottom of the page to save any changes and register your renewal)</p></i>
+                {% else %}
                 <h2 class="widget-title">Edit membership details</h2>
                 <h3>{{ form.dt_number.data }} {{ form.full_name.data }} (joined {{form.start_date.data}})</h3>
-                <i><p>Please check all the details that we hold about you and amend if necessary. <br>(Press Save to save any changes)</p></i>
-            {% endif %}
+                <i><p>Please check all the details that we hold about you and amend if necessary. <br>(Press Save to
+                    save any changes)</p></i>
+                {% endif %}
             </td>
             <td class="top">
                 <img src="https://thedonstrust.org/files/Dons-Trust-Logo-2020-web.jpg" alt="" width="150"
@@ -26,9 +28,11 @@
             <td width="80%">
                 <ul><b>
                     {% for line in form.notes.data %}
+                    {% if line|length > 0 %} <!--len(0) not available so use jinja filter-->
                     {% if line.startswith("**") %}<i>{% endif %}
                     <li>{{ line.replace("**", "") }}</li>
                     {% if line.startswith("**") %}</i>{% endif %}
+                    {% endif %}
                     {% endfor %}
                 </b></ul>
                 <p>If you have any questions please contact membership@thedonstrust.org
@@ -40,7 +44,7 @@
     <p><b>For more details see <a
             href="https://thedonstrust.org/2020/07/18/dt_membership_renewals/"
             target="_blank"> here</a></b>
-    {% endif %}
+        {% endif %}
 </div>
 <form method="POST">
     {{ form.csrf_token }}
@@ -54,8 +58,8 @@
             <td>{{ form.first_name(size='15', required='required') }}</td>
             <td>{{ form.last_name.label }}</td>
             <td>{{ form.last_name(size='20', required='required') }}</td>
-            <td>{{ form.sex.label }}</td>
-            <td>{{ form.sex(size='1') }}</td>
+            <td>{{ form.fan_id.label }}</td>
+            <td>{{ form.fan_id(size='4') }}</td>
         </tr>
     </table>
     <table>
@@ -64,12 +68,12 @@
             <td>{{ form.birth_date }}{%if form.age.data != None %} ({{ form.age.data }}){% endif %}</td>
             <td>{{ form.type.label }}</td>
             {% if form.form_type.data == 'renewal' %}
-                <td>{{ form.type() }}</td>
+            <td>{{ form.type() }}</td>
             {% else %}
-                <td>{{ MembershipType.from_value(form.type.data).name }}</td>
+            <td>{{ MembershipType.from_value(form.type.data).name }}</td>
             {% endif %}
             <td>&nbsp;</td>
-            <td>{{ form.plus.data }}</td>
+            <td><b>{{ form.plus.data }}</b></td>
         </tr>
         <tr>
             <td>&nbsp;</td>
@@ -133,42 +137,126 @@
         </tr>
         {% endif %}
     </table>
-    <br>{{ form.afcw_access.label }} {{ form.afcw_access }}</br>
-    <p>{{ form.third_pty_access.label }}{{ form.third_pty_access }}</p>
-    <hr/>
+    <br/>
+    <b>&nbsp;The Dons Trust may contact you with offers from our official partners and sponsors which we think may be of
+        interest to you.</b>
+    <br/>{{ form.third_pty_access.label }}{{ form.third_pty_access }}
+    <hr class="bold"/>
     {% if form.form_type.data == 'renewal' %}
-        <h3>Payment</h3>
-        {% if form.status.data != 'life' %}
-        <table>
-            <tr>
-                <td>{{ form.payment_method.label }}</td>
-                <td>{{ form.payment_method() }}</td>
-                {% if form.type.data != 3 %}
+    <h3>Payment</h3>
+    {% if form.payment_required.data %}
+    <table>
+        <tr>
+            <td>{{ form.payment_method.label }}</td>
+            <td>{{ form.payment_method() }}</td>
+            {% if form.status.data != 'plus' %}
                 <td>{{ form.upgrade.label }}</td>
                 <td>{{ form.upgrade }}</td>
-                {% else %}
-                <td></td>
-                <td></td>
-                {% endif %}
-            </tr>
-        </table>
-        {% endif %}
-        {{ form.comment.label }}<br>{{ form.comment(rows=2, cols=80) }}
-        <i>
-            {% if form.status.data == 'life' %}
-            <br>As you are a Life Member, no payment is needed.
-            {% elif form.last_payment_method.data == 2 %}
-            <br>As you currently pay by Direct Debit, your membership will be renewed automatically, taking into account any
-            membership type change. Payment will be taken on September 11th.
             {% else %}
-            <br>If you opt to pay by Card, you will be taken to the payments page after pressing Renew below.
+                <td></td>
+                <td></td>
             {% endif %}
-        </i>
-        <hr/>
-        {{ form.last_updated.label }}{{ form.last_updated.data }}
-        {{ form.submit(class="btn btn-primary", value="Renew") }} Press Renew to save any changes and register your renewal
+        </tr>
+    </table>
+    {% endif %}
+    <i>
+        {% if form.status.data == 'life' %}
+        <br>As you are a Life Member, no payment is needed.
+        {% elif form.recent_new.data %}
+        <br>As you joined recently, no payment is needed.
+        {% elif form.recent_resume.data %}
+        <br>As you recently resumed your membership, no payment is needed.
+        {% elif form.last_payment_method.data == 2 %}
+        <br>As you currently pay by Direct Debit, your membership will be renewed automatically, taking into
+        account any membership type change. Payment will be taken on August 11th.
+        {% else %}
+        <br>If you opt to pay by Card, you will be taken to the payments page after pressing Renew below.
+        {% endif %}
+    </i>
+    <hr class="bold"/>
+    {% if not form.jd_email %}
+    <h3><a data-toggle="collapse" href="#diversity" aria-expanded="true" aria-controls="diversity"
+           title="Click to expand or contract">Diversity Questionnaire</a><small> (click to expand or contract)</small>
+    </h3>
+    <div class="collapse in" id="diversity">
+        The Dons Trust is committed to being as inclusive as possible, and to reflect the diverse community in our
+        fanbase and
+        the wider community.
+        <p>To help us with this, we first need to better understand the current make up of our membership. By completing
+            this short
+            monitoring form (six areas), you will help us identify what measures we need to put in place to better
+            support, to grow
+            our membership and to make it as representative as possible of our fanbase and wider community.
+        <p>The information you provide will:
+        <ul>
+            <li>Inform our equality, diversity and inclusion improvement work
+            <li>enable us to track membership through from eg Junior Don to Student membership to full membership and
+                through from
+                adult to senior memberships
+            <li>be used by the Dons Trust to monitor and review its membership
+            <li>understand where there may be gaps and where specific marketing or interventions would be appropriate
+        </ul>
+        The form should only take a couple of minutes to complete, and you can select “prefer not to say” if you would
+        rather
+        not answer any question.
+        <p>Thank you in advance for your support in enabling us to capture this data.
+        <hr class="bold">
+        {{ form.csrf_token }}
+        {{ form.hidden_tag() }}
+
+        <h4>1. Gender</h4>
+        <i>{{ form.gender.description }}</i>
+        {{ form.gender }} {{ form.gender_other.label }} {{ form.gender_other }}
+        <p>
+            <i>{{ form.gender_identify.description }}</i>
+            {{ form.gender_identify }}
+        <p>
+        <h4>2. Disability</h4>
+        <i>{{ form.disability.description }}</i>
+        {{ form.disability }}
+        <p>
+            <i>{{ form.disability_type.description }}</i>
+            {{ form.disability_type(style="list-style-type: none;") }}
+            {{ form.disability_type_other.label }} {{ form.disability_type_other }}
+        <p>
+            <i>{{ form.impairment.description }}</i>
+            {{ form.impairment }}
+        <p>
+        <h4>3. Marital Status</h4>
+        <i>{{ form.marital_status.description }}</i>
+        {{ form.marital_status }}
+        <p>
+        <h4>4. Ethnicity</h4>
+        <i>{{ form.ethnicity.description }}</i>
+        <br>
+        {{ form.ethnicity }}
+        {{ form.ethnicity_other.label }} {{ form.ethnicity_other }}
+        <p>
+        <h4>5. Sexual Orientation</h4>
+        <i>{{ form.sexual_orientation.description }}</i>
+        {{ form.sexual_orientation }}
+        <p>
+        <h4>6. Religion or Belief</h4>
+        <i>{{ form.religion.description }}</i>
+        {{ form.religion }}
+        {{ form.religion_other.label }} {{ form.religion_other }}
+        <p>
+        <h4>7. Employment</h4>
+        <i>{{ form.employment.description }}</i>
+        <br>
+        {{ form.employment }}
+        {{ form.employment_other.label }} {{ form.employment_other }}
+        <p>
+    </div>
+    {% endif %}
+    <hr class="bold"/>
+    {{ form.comment.label }}<br>{{ form.comment(rows=2, cols=80) }}
+    <hr class="bold"/>
+    {{ form.last_updated.label }}{{ form.last_updated.data }}
+    {{ form.submit(class="btn btn-primary", value="Renew") }} Press Renew to save any changes and register your
+    renewal
     {% else %}
-        {{ form.submit(class="btn btn-primary", value="Save") }} Press Save to save any changes
+    {{ form.submit(class="btn btn-primary", value="Save") }} Press Save to save any changes
     {% endif %}
     <a class='button' href="{{ url_for('user_logout') }}">Log out</a> Log out from session
 </form>

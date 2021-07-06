@@ -46,7 +46,7 @@ class MemberDetailsForm(FlaskForm):
     last_updated = StringField(label='Updated')
     access = MySelectField(label='Access', choices=UserRole.choices(blank=False, ),
                            coerce=UserRole.coerce)
-    season_ticket = StringField(label='Season Ticket')
+    fan_id = StringField(label='AFCW Fan ID')
     external_access = MySelectField(label='External access', choices=ExternalAccess.choices(),
                                     coerce=ExternalAccess.coerce)
     payment_method = MySelectField(label='Pay method', choices=PaymentMethod.choices(blank=True), coerce=PaymentMethod.coerce)
@@ -107,7 +107,7 @@ class MemberDetailsForm(FlaskForm):
         self.last_updated.data = fmt_date(member.last_updated)
         self.access.data = member.user.role.value if member.user else 0
 
-        self.season_ticket.data = member.season_ticket_id if member.season_ticket_id else ''
+        self.fan_id.data = member.season_ticket_id if member.season_ticket_id else ''
         self.external_access.data = (member.external_access or ExternalAccess.none).value
         self.payment_method.data = member.last_payment_method.value if member.last_payment_method else ''
 
@@ -193,7 +193,7 @@ class MemberDetailsForm(FlaskForm):
 
             'access': self.access.data,
             'external_access': self.external_access.data,
-            'season_ticket': self.season_ticket.data,
+            'fan_id': self.fan_id.data,
             'payment_method': self.payment_method.data,
 
             'home_phone': self.home_phone.data.strip(),

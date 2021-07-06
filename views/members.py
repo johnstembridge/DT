@@ -68,15 +68,8 @@ def edit_member_no_number():
     return MaintainMembers.edit_member(member_number)
 
 
-@app.route('/members/<int:member_number>/details', methods=['GET', 'POST'])
+@app.route('/members/<int:member_number>/diversity', methods=['GET', 'POST'])
 @login_required
 @role_required('member')
-def edit_member(member_number):
-    return MaintainMembers.edit_member(member_number)
-
-
-@app.route('/members/<int:member_number>/debit', methods=['GET', 'POST'])
-@login_required
-@role_required('member')
-def dd_mandate(member_number):
-    return MaintainMembers.dd_mandate(member_number)
+def diversity_member(member_number):
+    return MaintainMembers.diversity_member(member_number)

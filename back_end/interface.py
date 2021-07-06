@@ -1,14 +1,14 @@
 from sqlalchemy import text, and_, func
 import datetime
 from flask import send_file
-import io, csv
+import io, csv, re
 
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess, UserRole
 from main import db
-from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State
+from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State, Region, QandA
 from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, sql_fmt_date, \
-    current_year_end, parse_date
+    current_year_end, parse_date, force_list
 
 
 def save_object(object):
@@ -93,7 +93,16 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
         table, column, value, condition, func, field_name = field
         type, values = field_type(table, column)
         table = class_name_to_table_name(table)
-        if type == 'string':
+        null = value == 'null'
+        if null:
+            c = condition
+            if condition == '=':
+                c = 'is'
+            elif condition == '!=':
+                c = 'is not'
+            condition = c
+            s = '{}.{} {} {}'.format(table, column, condition, value)
+        elif type == 'string':
             if condition == '=':
                 s = 'lower({}.{}) like lower("%{}%")'.format(table, column, value)
             else:
@@ -152,7 +161,7 @@ def tables_needed_for_query(default_table, query_clauses):
     # find all tables required for a query defined by query_clauses
     tables = unique([default_table] + [q[0] for q in query_clauses])
     # Address is also needed if any second level table is required
-    second_level = ['Country', 'County', 'State']
+    second_level = ['Country', 'County', 'State', 'Region']
     if ('Address' not in tables) and len([t for t in tables if t in second_level]) > 0:
         tables = [tables[0]] + ['Address'] + tables[1:]
     tables = [globals()[t] for t in tables]
@@ -187,7 +196,7 @@ def save_member_details(member_number, details):
     return member
 
 
-def save_member_contact_details(member_number, details, renewal):
+def save_member_contact_details(member_number, details, renewal, commit=True):
     member = get_member(member_number)
     update_member_details(member, details)
     member.user.set_password(User.member_password(details['post_code']))
@@ -198,7 +207,8 @@ def save_member_contact_details(member_number, details, renewal):
 
     member.last_updated = datetime.date.today()
 
-    db.session.commit()
+    if commit:
+        db.session.commit()
     return member
 
 
@@ -223,9 +233,10 @@ def update_member_details(member, details):
     member.address.post_code = details['post_code']
     member.address.county = details['county']
     member.address.country = details['country']
+    member.address.region = get_region(details['country'], details['post_code'])
 
-    if 'season_ticket' in details and len(details['season_ticket']) > 0:
-        member.season_ticket_id = int(details['season_ticket'])
+    if 'fan_id' in details and len(details['fan_id']) > 0:
+        member.season_ticket_id = int(details['fan_id'])
     if 'member_type' in details and details['member_type']:
         member.member_type = MembershipType(details['member_type'])
 
@@ -298,6 +309,34 @@ def update_member_actions(member, details):
     member.actions = actions
 
 
+def update_member_questions(member, qandas):
+    all = []
+    for qanda in qandas:
+        (question, answer, other) = qanda
+        if other == '':
+            other = None
+        if question == 0:
+            continue
+        answers = force_list(answer)
+        items = [q for q in member.qandas if q.question_id == question]
+        for answer in answers:
+            if len(items) > 0:
+                item = items.pop()
+                item.question_id = question
+                item.answer = answer
+                item.other = other
+            else:
+                item = QandA(
+                    member_id=member.id,
+                    question_id=question,
+                    answer=answer,
+                    other=other,
+                )
+            all.append(item)
+    member.qandas = all
+    db.session.commit()
+
+
 def update_member_comments(member, details):
     comments = []
     for comment in details['comments']:
@@ -321,7 +360,7 @@ def update_member_renewal(member, details):
     date = datetime.date.today()
     item = first_or_default([p for p in member.payments if p.type == PaymentType.pending], None)
     if member.status != MemberStatus.life:
-        if details['upgrade'] and (member.is_recent_new() or member.is_recent_renewal()):
+        if details['upgrade'] and (member.is_recent_new() or member.is_recent_resume()):
             item = None
             dues = member.upgrade_dues()
             payment_comment = 'upgrade only'
@@ -445,6 +484,25 @@ def state_choices(blank=False, extra=None):
     return ret
 
 
+def get_all_regions():
+    q = db.session.query(Region.id, Region.district, Region.region).order_by(Region.region).all()
+    return {r.id: r.region for r in q}
+
+
+def get_all_districts():
+    return db.session.query(Region.id, Region.district, Region.region).order_by(Region.region, Region.district).all()
+
+
+def region_choices(blank=False, extra=None):
+    regions = get_all_regions()
+    ret = [(c.id, c.district + '-' + c.region) for c in regions]
+    if extra:
+        ret = extra + ret
+    if blank:
+        ret = [(0, '')] + ret
+    return ret
+
+
 def get_new_address():
     uk = db.session.query(Country).filter(Country.code == 'UK').first()
     return Address(country=uk)
@@ -466,10 +524,27 @@ def get_state(id):
     return db.session.query(State).filter(State.id == id).first()
 
 
+def get_region(country, post_code):
+    if country.code == 'UK':
+        s = re.search('\d', post_code).start()
+        if s:
+            prefix = post_code[:s].upper()
+            return db.session.query(Region).filter(Region.postcode_prefix == prefix).first()
+    return None
+
+
 # endregion
 
 
 # region others
+def get_new_qanda():
+    return QandA(
+        question_id=0,
+        answer=0,
+        other=None
+    )
+
+
 def get_new_action(new_member=False):
     if new_member:
         return Action(

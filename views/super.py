@@ -53,6 +53,13 @@ def lapse_expired():
     return Super.lapse_expired()
 
 
+@app.route('/super/set_region', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def set_region():
+    return Super.set_region()
+
+
 @app.route('/super/season_tickets', methods=['GET', 'POST'])
 @login_required
 @role_required('super')

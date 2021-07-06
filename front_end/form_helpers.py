@@ -1,7 +1,8 @@
 from flask import flash
 from flask_login import current_user
-from wtforms import SelectField, StringField, ValidationError, SelectMultipleField
-from wtforms.widgets import ListWidget, CheckboxInput
+from wtforms.fields import SelectField, StringField, SelectMultipleField
+from wtforms.validators import ValidationError
+from wtforms.widgets import Select, ListWidget, CheckboxInput, HTMLString, html_params
 from datetime import date, datetime
 import pickle
 from collections import OrderedDict
@@ -234,12 +235,14 @@ def map_extract_field(display_field):
 
     return (field, mapped)
 
+
 def extract_heading(display_field):
     if type(display_field) is tuple:
         heading = display_field[1]
     else:
         heading = display_field
     return heading
+
 
 extract_fields_map = OrderedDict([
     ('number', 'dt_number()'),
@@ -300,8 +303,9 @@ extract_fields_map = OrderedDict([
     ('junior email', 'junior.email'),
     ('AFCW access', 'afcw_has_access()'),
     ('3rd pty access', 'third_pty_access()'),
-    ('season ticket', 'season_ticket_id'),
+    ('fan id', 'season_ticket_id'),
     ('recent new', 'is_recent_new()'),
+    ('recent resume', 'is_recent_resume()'),
     ('card start year', 'start_year_for_card()'),
     ('certificate date', 'certificate_date()'),
     ('volatile concession', 'volatile_concession()'),

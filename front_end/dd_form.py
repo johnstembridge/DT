@@ -69,20 +69,15 @@ class MemberDebitForm(FlaskForm):
             member_type = member.member_type_at_renewal()
             if member.status == MemberStatus.life:
                 return None
-            new_member = member.is_recent_new() or member.is_recent_renewal()
-            if new_member:
-                if member_type == MembershipType.junior:
+            new_member = member.is_recent_new() or member.is_recent_resume()
+            if member_type == MembershipType.junior:
+                if new_member:
                     return EmandatePaymentPlan.Junior_Dons_new
-                elif member_type in MembershipType.concessions(all=True):
-                    return EmandatePaymentPlan.Dons_Trust_Plus_Concession if plus else EmandatePaymentPlan.Concession
-                elif member_type == MembershipType.standard:
-                    return EmandatePaymentPlan.Dons_Trust_Plus_Adult if plus else EmandatePaymentPlan.Adult
-            else:
-                if member_type == MembershipType.junior:
+                else:
                     return EmandatePaymentPlan.Junior_Dons_renewal
-                elif member_type in MembershipType.concessions(all=True):
-                    return EmandatePaymentPlan.Dons_Trust_Plus_Concession if plus else EmandatePaymentPlan.Concession
-                elif member_type == MembershipType.standard:
-                    return EmandatePaymentPlan.Dons_Trust_Plus_Adult if upgrade else EmandatePaymentPlan.Adult
+            elif member_type in MembershipType.concessions(all=True):
+                return EmandatePaymentPlan.Dons_Trust_Plus_Concession if plus else EmandatePaymentPlan.Concession
+            elif member_type == MembershipType.standard:
+                return EmandatePaymentPlan.Dons_Trust_Plus_Adult if plus else EmandatePaymentPlan.Adult
         else:
             return None

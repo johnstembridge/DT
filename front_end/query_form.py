@@ -18,6 +18,7 @@ class QueryForm(FlaskForm):
                                 coerce=MembershipType.coerce, db_map='Member.member_type')
     start_date = MyStringField(label='start date', db_map='Member.start_date', validators=[validate_date_format])
     end_date = MyStringField('end date', db_map='Member.end_date', validators=[validate_date_format])
+    birth_date = MyStringField('birth date', db_map='Member.birth_date', validators=[validate_date_format])
     post_code = MyStringField(label='post code', db_map='Address.post_code')
     country = MySelectField(label='country',
                             choices=country_choices(blank=True, extra=[(9999, 'overseas (!=United Kingdom)')]),
@@ -52,7 +53,7 @@ class QueryForm(FlaskForm):
 
     def query_fields(self):
         return [self.number, self.last_updated, self.status, self.member_type, self.start_date, self.end_date,
-                self.comms, self.comms_status, self.birth_month, self.age,
+                self.birth_date, self.comms, self.comms_status, self.birth_month, self.age,
                 self.current_action, self.action_date, self.action_status, self.action_comment,
                 self.comment_date, self.comment, self.payment_method, self.payment_date,
                 self.first_name, self.last_name, self.email, self.post_code, self.country]

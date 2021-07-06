@@ -2,7 +2,7 @@ import subprocess
 from flask import flash, render_template
 
 from scripts import scripts
-from back_end.super import renew_recent, renew_paid, change_member_type_by_age, lapse_expired, season_tickets
+from back_end.super import renew_recent, renew_paid, change_member_type_by_age, lapse_expired, season_tickets, set_region
 
 
 class Super:
@@ -14,7 +14,8 @@ class Super:
 
     @staticmethod
     def restore_database():
-        res = subprocess.run([scripts.file_name("restore")], stderr=subprocess.PIPE, universal_newlines=True, shell=True)
+        res = subprocess.run([scripts.file_name("restore")], stderr=subprocess.PIPE, universal_newlines=True,
+                             shell=True)
         return Super.return_result('Restore backup', res)
 
     @staticmethod
@@ -25,9 +26,9 @@ class Super:
 
     @staticmethod
     def change_member_type_by_age():
-        # auto renew members who joined on or after 1st Feb of previous membership year
+        # change any age related member type for those passing age breakpoint
         res = change_member_type_by_age()
-        return Super.return_result('Update member type', res)
+        return Super.return_result('Update member type by age', res)
 
     @staticmethod
     def renew_paid(payment_method):
@@ -37,7 +38,7 @@ class Super:
 
     @staticmethod
     def lapse_expired():
-        # renew members who have paid according to payment file
+        # lapse any members who have passed the grace period for renewal payment
         res = lapse_expired()
         return Super.return_result('Expired members lapsed', res)
 
@@ -62,3 +63,8 @@ class Super:
             flash(mode + ' errored', 'danger')
         return render_template('bulk_update_result.html', mode=mode, result_text=text)
 
+    @staticmethod
+    def set_region():
+        # Set region for all UK members
+        res = set_region()
+        return Super.return_result('Region set', res)

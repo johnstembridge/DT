@@ -13,7 +13,7 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
         member = get_member(member_number)
         if member:
             if not member.is_active():
-                ok, message, message_type = False, 'Sorry, you are not a current member, please contact membership@thedonstrust.org', 'error'
+                ok, message, message_type = False, 'Sorry, you are not a current member, please contact membership@thedonstrust.org', 'danger'
             else:
                 if not match_string(member.email, email):
                     ok, message, message_type = False, 'Email does not match', 'warning'
@@ -59,7 +59,7 @@ def register_user(member_number, user_name, password, email=None, role=UserRole.
                         save_user(user)
                         user_id = user.id
         else:
-            ok, message, message_type = False, 'Cannot find your membership', 'error'
+            ok, message, message_type = False, 'Cannot find your membership', 'danger'
     else:
         ok, message, message_type = False, 'Missing user name/password', 'warning'
     return ok, user_id, message, message_type

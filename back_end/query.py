@@ -1,7 +1,7 @@
 from flask import render_template, redirect, url_for, request
 from collections import OrderedDict
 
-from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, extract_fields_map, \
+from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, \
     extract_fields_action, query_fields_action, extract_fields_payment, map_extract_field, extract_heading
 from front_end.query_form import QueryForm
 from front_end.extract_form import ExtractForm

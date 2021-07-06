@@ -31,7 +31,8 @@ class Extracts:
         ]
         display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'recent new',
-                          'email', 'use email', 'email bounced', 'card start year', 'first name', 'last name']
+                          'recent resume', 'email', 'use email', 'email bounced', 'card start year', 'first name',
+                          'last name']
         return Query.show_found_do(query_clauses, display_fields, action='card', page=page)
 
     @staticmethod
@@ -137,7 +138,7 @@ class Extracts:
             ['number', 'id number', 'full name', 'address (line 1)', 'address (line 2)', 'address (line 3)',
              'city', 'county', 'state', 'post code', 'country for post', 'status', 'member type', 'type at renewal',
              'email', 'comms', 'payment method', 'renewal notes', 'home phone', 'mobile phone', 'birth date',
-             'junior email', 'AFCW access', '3rd pty access']
+             'junior email', 'AFCW access', '3rd pty access', 'recent new', 'recent resume']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
@@ -209,5 +210,5 @@ class Extracts:
         display_fields = ['number', 'title', 'first name', 'last name', 'sex', 'status', 'member type', 'start', 'end',
                           'birth date', 'email', 'home phone', 'mobile phone', 'comms', 'payment method',
                           'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state',
-                          'post code', 'country code', 'use email', 'season ticket', 'AFCW access', 'last updated']
+                          'post code', 'country code', 'use email', 'fan id', 'AFCW access', 'last updated']
         return Query.show_found_do(query_clauses, display_fields, action='query')

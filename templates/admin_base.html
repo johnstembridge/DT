@@ -1,10 +1,10 @@
 {% extends "bootstrap/base.html" %}
 {% block head %}
-{{super()}}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/dt_admin.css') }}">
-<link rel="icon" href="https://thedonstrust.org/files/cropped-Dons-Trust-Logo-web-1-32x32.png" sizes="32x32" />
-<style>@media print{a[href]:after{content:none}}</style>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+    {{super()}}
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/dt_admin.css') }}">
+    <link rel="icon" href="https://thedonstrust.org/files/cropped-Dons-Trust-Logo-web-1-32x32.png" sizes="32x32" />
+    <style>@media print{a[href]:after{content:none}}</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 {% endblock %}
 {% block title %}Dons Trust Membership Admin{% endblock %}
 
@@ -47,6 +47,8 @@
                                     <li><a href="{{ url_for('extracts_comms') }}">Comms - all</a></li>
                                     <li><a href="{{ url_for('extracts_juniors') }}">Comms - Juniors</a></li>
                                     <li><a href="{{ url_for('extracts_junior_birthdays') }}">Juniors birthday list</a></li>
+                                    <li><a href="{{ url_for('extracts_region_report') }}">Regions report</a></li>
+                                    <li><a href="{{ url_for('extracts_district_report') }}">Regions report</a></li>
                                     <li><a href="{{ url_for('extracts_for_afcw') }}">For AFCW</a></li>
                                 </ul>
                             </li>
@@ -88,6 +90,7 @@
                         <li><a href="{{ url_for('change_member_type_by_age') }}">Update To New Age Groups</a></li>
                         <li><a href="{{ url_for('lapse_expired') }}">Lapse expired members</a></li>
                         <li><a href="{{ url_for('season_tickets') }}">Update season ticket holders</a></li>
+                        <li><a href="{{ url_for('set_region') }}">Set Region for UK members</a></li>
                         <li><a href="{{ url_for('extracts_debits_for_ptx') }}">Debits for PTX</a></li>
                         <li><a href="{{ url_for('show_help', subject='technical') }}">Technical documentation</a></li>
                     </ul>

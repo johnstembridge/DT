@@ -3,6 +3,7 @@ from flask_login import login_required
 from globals.decorators import role_required
 from main import app
 from back_end.extracts import Extracts
+from back_end.reports import Reports
 from back_end.query import Query
 from back_end.interface import return_csv_file
 import datetime
@@ -71,6 +72,20 @@ def extracts_email_junior():
 @role_required('extract')
 def extracts_comms():
     return Extracts.extract_comms()
+
+
+@app.route('/extracts/region', methods=['GET', 'POST'])
+@login_required
+@role_required('extract')
+def extracts_region_report():
+    return return_csv_file(Reports.regions(), 'extract.csv')
+
+
+@app.route('/extracts/district', methods=['GET', 'POST'])
+@login_required
+@role_required('extract')
+def extracts_district_report():
+    return return_csv_file(Reports.districts(), 'extract.csv')
 
 
 @app.route('/extracts/cards_all', methods=['GET', 'POST'])

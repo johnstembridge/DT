@@ -1,6 +1,6 @@
 from globals import config
 from globals.enumerations import MemberAction, MemberStatus, MembershipType, ActionStatus, PaymentType, PaymentMethod
-from back_end.interface import get_members_for_query, get_member, save_member
+from back_end.interface import get_members_for_query, get_member, save_member, get_region
 from back_end.data_utilities import fmt_date, current_year_end, first_or_default, file_delimiter, parse_date
 from models.dt_db import Action, Payment
 
@@ -147,46 +147,59 @@ def update_member_payment(rec, payment_method):
 
 
 def change_member_type_by_age():
-    # Seniors moved from 60+ to 65+
+    changes = []
+    # standard to senior
     query_clauses = [
         ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
-        ('Member', 'member_type', MembershipType.senior, '=', None),
-        ('Member', 'birth_date', 65, '<', 'age()'),
+        ('Member', 'member_type', MembershipType.standard, '=', None),
+        ('Member', 'birth_date', 65, '>=', 'age()'),
     ]
     members = get_members_for_query(query_clauses)
     count_senior = 0
     for member in members:
-        count_senior += 1
-        member.member_type = MembershipType.standard
-        save_member(member)
+        if member.member_type != MembershipType.senior:
+            changes += member_type_change(member)
+            member.member_type = MembershipType.senior
+            count_senior += 1
+            #save_member(member)
 
-    # Juniors moved from <16 to <18
+    # Junior to intermediate
     query_clauses = [
         ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
-        ('Member', 'member_type', MembershipType.intermediate, '=', None),
-        ('Member', 'birth_date', 18, '<', 'age()'),
+        ('Member', 'member_type', MembershipType.junior, '=', None),
+        ('Member', 'birth_date', 16, '>', 'age()'),
     ]
     members = get_members_for_query(query_clauses)
     count_junior = 0
     for member in members:
-        count_junior += 1
-        member.member_type = MembershipType.junior
-        save_member(member)
+        new = member.member_type_at_renewal()
+        if new == MembershipType.intermediate:
+            changes += member_type_change(member)
+            member.member_type = MembershipType.intermediate
+            count_junior += 1
+            #save_member(member)
 
-    # Intermediates >21
+    # Intermediates to standard
     query_clauses = [
         ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
         ('Member', 'member_type', MembershipType.intermediate, '=', None),
-        ('Member', 'birth_date', 21, '>', 'age()'),
+        ('Member', 'birth_date', 20, '>', 'age()'),
     ]
     members = get_members_for_query(query_clauses)
     count_intermediate = 0
     for member in members:
-        count_intermediate += 1
-        member.member_type = MembershipType.standard
-        save_member(member)
+        new = member.member_type_at_renewal()
+        if new == MembershipType.standard:
+            changes += member_type_change(member)
+            member.member_type = MembershipType.standard
+            count_intermediate += 1
+            #save_member(member)
 
     return '{} senior records processed, {} junior, {} intermediate'.format(count_senior, count_junior, count_intermediate)
+
+
+def member_type_change(member):
+    return [[member.dt_number(), member.age(), member.age_at_renewal(), member.member_type.name, member.member_type_at_renewal().name]]
 
 
 def season_tickets():
@@ -224,3 +237,21 @@ def update_member_season_ticket(rec):
     message += ['Season ticket updated: {}'.format(season_ticket)]
     save_member(member)
     return message
+
+
+def set_region():
+    query_clauses = [
+        ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+        ('Member', 'end_date', fmt_date(current_year_end()), '=', None)
+    ]
+    members = get_members_for_query(query_clauses)
+    count = 0
+    for member in members:
+        region = get_region(member.address.country, member.address.post_code)
+        if region:
+            member.address.region = region
+            save_member(member)
+        count += 1
+    return '{} records processed'.format(count)
+
+

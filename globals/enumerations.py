@@ -34,7 +34,7 @@ class FormEnum(Enum):
     @classmethod
     def from_value(cls, value):
         item = [c for c in cls if c.value == value]
-        return item[0]if len(item) > 0 else None
+        return item[0] if len(item) > 0 else None
 
     def to_dict(self):
         return self.name
@@ -65,7 +65,7 @@ class UserRole(FormEnum):
     @staticmethod
     def lapsed_access(type):
         if type == 'all':
-            return [UserRole.super,]
+            return [UserRole.super, ]
         elif type == 'any':
             return [UserRole.jd_admin, UserRole.dt_board, UserRole.support, UserRole.admin, UserRole.super]
         elif type == '1yr+':
@@ -74,7 +74,7 @@ class UserRole(FormEnum):
     @staticmethod
     def has_lapsed_access(type):
         if type == 'all':
-            return [UserRole.super,]
+            return [UserRole.super, ]
         elif type == 'any':
             return [UserRole.jd_admin, UserRole.dt_board, UserRole.support, UserRole.admin, UserRole.super]
         elif type == '1yr+':
@@ -103,8 +103,11 @@ class MemberStatus(FormEnum):
         return result
 
     @staticmethod
-    def all_active():
-        return [MemberStatus.life, MemberStatus.founder, MemberStatus.current, MemberStatus.plus]
+    def all_active(life=True):
+        if life:
+            return [MemberStatus.life, MemberStatus.founder, MemberStatus.current, MemberStatus.plus]
+        else:
+            return [MemberStatus.founder, MemberStatus.current, MemberStatus.plus]
 
     @staticmethod
     def all_including_lapsed():
@@ -112,7 +115,7 @@ class MemberStatus(FormEnum):
 
 
 class MembershipType(FormEnum):
-    standard = 1 # adult
+    standard = 1  # adult
     intermediate = 2
     junior = 3
     senior = 4
@@ -199,10 +202,10 @@ class PlusUpgradeDues(FormEnum):
 
 
 class AgeBand(FormEnum):
-    junior = (0, 17)        # was (0, 15)
-    intermediate = (18, 21) # was (16, 20)
-    adult = (22, 64)        # was (21, 59)
-    senior = (65, 200)      # was (60, 200)
+    junior = (0, 17)  # was (0, 15)
+    intermediate = (18, 21)  # was (16, 20)
+    adult = (22, 64)  # was (21, 59)
+    senior = (65, 200)  # was (60, 200)
 
     def __init__(self, lower, upper):
         self.lower = lower

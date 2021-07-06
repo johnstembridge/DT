@@ -9,6 +9,7 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
     Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, \
     PlusDues
+from back_end.questionnaire import QuestionId
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
     previous_year_end, match_string, fmt_phone, fmt_curr
 from datetime import datetime, date
@@ -60,6 +61,8 @@ class Address(Base):
     county = relationship('County', back_populates='addresses')
     state_id = Column(Integer, ForeignKey('states.id'), nullable=True)
     state = relationship('State', back_populates='addresses')
+    region_id = Column(Integer, ForeignKey('regions.id'), nullable=True)
+    region = relationship('Region', back_populates='addresses')
     post_code = Column(String(20))
     country_id = Column(Integer, ForeignKey('countries.id'), nullable=False)
     country = relationship('Country', back_populates='addresses')
@@ -184,6 +187,7 @@ class Member(Base):
     comments = relationship('Comment', order_by='desc(Comment.date)', back_populates='member')
     actions = relationship('Action', order_by='desc(Action.date)', back_populates='member')
     junior = relationship('Junior', uselist=False, back_populates='member')
+    qandas = relationship('QandA', order_by='QandA.question_id', back_populates='member')
 
     # region Member extras
     dict_fields = ['number', 'start_date', 'end_date', 'status', 'member_type', 'sex', 'birth_date', 'title',
@@ -265,7 +269,7 @@ class Member(Base):
     def is_recent_new(self):
         return self.start_date >= datetime(current_year_end().year, 2, 1).date()
 
-    def is_recent_renewal(self):
+    def is_recent_resume(self):
         if self.status == MemberStatus.life:
             return False
         last = self.last_payment()
@@ -392,7 +396,7 @@ class Member(Base):
             return type
 
     def dues(self, as_of=None, default=True):
-        if self.status == MemberStatus.life or self.is_recent_renewal() or self.is_recent_new():
+        if self.status == MemberStatus.life or self.is_recent_resume() or self.is_recent_new():
             return 0
         status = self.member_status_at_renewal()
         if status == MemberStatus.plus:
@@ -555,9 +559,12 @@ class Member(Base):
     def edit_notes(self):
         notes = []
         if self.comms == CommsType.email and self.email_bounced():
-            notes = [
+            notes += [
                 'We have tried to use the email address that we have for you but emails have been returned ' \
                 'undeliverable. Please check your email address.', ]
+        if not self.birth_date:
+            notes += [
+                'Can you please supply your date of birth', ]
         return notes
 
     def renewal_notes_as_text(self):
@@ -566,42 +573,39 @@ class Member(Base):
     def renewal_notes(self):
         age = self.age_at_renewal(default=True)
         new_member = self.is_recent_new()
-        recent_resume = self.is_recent_renewal()
+        recent_resume = self.is_recent_resume()
         renewal_dues = '£' + str(self.dues())
         renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not (new_member or recent_resume) else ''
         upgrade_dues = '£' + str(
             self.upgrade_dues() if (new_member or recent_resume) else self.dues() + self.upgrade_dues())
-        upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(upgrade_dues)
+        upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(
+            upgrade_dues) if self.status != MemberStatus.plus else ''
         member_type = self.member_type_at_renewal()
+        life_member = self.status == MemberStatus.life
+        member_type_switch = member_type != self.member_type and not life_member
         junior = member_type == MembershipType.junior
         notes = []
-        if self.status == MemberStatus.life:
+        if life_member:
             notes = [
                 "As you are a life member, there is no need to do anything further. " \
                 "We will send your new membership card in due course.", ]
         else:
             if member_type == MembershipType.intermediate:
-                if age == 21:
+                if member_type_switch:
                     notes = [
-                        "Young adult membership was extended last year to age 21 in line with Season Tickets.", \
+                        "As you have passed your 18th birthday, your membership will change to Young Adult (18-21)", \
                         "{}{}".format(renewal_cost, upgrade_para)]
                 else:
                     notes = ["{}{}".format(renewal_cost, upgrade_para)]
             elif junior:
-                if age in [16, 17]:
+                    notes = ["{}".format(renewal_cost), ]
+            if member_type == MembershipType.senior:
+                if member_type_switch:
                     notes = [
-                        "Junior Dons now cover the age range from 0 to 17-year olds. 16 and 17-year olds will " \
-                        "still have full Dons Trust membership rights including voting rights.", \
-                        "The Junior Dons membership has been enhanced. Along with the package of benefits that JDs " \
-                        "used to receive, the new stadium gives the opportunity to increase the benefits offered.", \
-                        "{}".format(renewal_cost), ]
+                        "As you have passed your 65th birthday, your membership will change to Senior (65+)", \
+                        "{}{}".format(renewal_cost, upgrade_para)]
                 else:
-                    notes = [
-                        "The Junior Don membership has been enhanced. Along with the package of benefits that you " \
-                        "used to receive, the new stadium provides the opportunity to grant extra benefits.", \
-                        "{}".format(renewal_cost), ]
-            elif member_type == MembershipType.senior:
-                notes = ["{}{}".format(renewal_cost, upgrade_para), ]
+                    notes = ["{}{}".format(renewal_cost, upgrade_para), ]
             elif member_type in MembershipType.concessions():
                 notes = [
                     "According to our records, you currently have a concessionary membership ({}).".format(
@@ -610,30 +614,27 @@ class Member(Base):
                     "**If your circumstances have changed please choose the appropriate membership type."]
             else:
                 if member_type == MembershipType.standard:
-                    if age < 60:
-                        notes = ["{}{}".format(renewal_cost, upgrade_para), ]
-                    elif age in range(60, 64):
+                    if member_type_switch:
                         notes = [
-                            "To bring Dons Trust membership age ranges in line with the Club, last year we moved the " \
-                            "age range for senior members from 60+ to 65+.", \
+                            "As you have passed your 21st birthday, you membership will change to Adult (22+)", \
                             "{}{}".format(renewal_cost, upgrade_para)]
                     else:
                         notes = ["{}{}".format(renewal_cost, upgrade_para), ]
         if self.last_payment_method == PaymentMethod.dd and not (new_member or recent_resume):
             up = "If you do not wish to upgrade to Dons Trust Plus, you need take no further action." \
-                if not junior else ''
+                if not junior and self.status != MemberStatus.plus else ''
             notes = [
                         "According to our records you currently pay by direct debit. " + up,
-                        "Provided the payment is taken successfully, your membership will be automatically updated."
+                        "Provided the payment is taken successfully, your membership will be automatically updated.",
                     ] + notes
-        if new_member:
+        if new_member and not life_member:
             notes = [
                         "As you joined relatively late during the membership year we will automatically extend " \
                         "your membership until August 2022.", ] + notes
-        if recent_resume and self.status not in [MemberStatus.life, MemberStatus.plus]:
+        if recent_resume and not life_member:
             notes = [
-                        "As you renewed your membership recently you can still upgrade to Dons Trust Plus" \
-                        , ] + notes
+                        "As you resumed a lapsed membership recently we will automatically extend " \
+                        "your membership until August 2022.", ] + notes
         return notes
 
     def renewal_activated(self):
@@ -791,3 +792,28 @@ class State(Base):
 
     def __repr__(self):
         return '<State {}: {}>'.format(self.code, self.name)
+
+
+class Region(Base):
+    __tablename__ = 'regions'
+    id = Column(Integer, primary_key=True)
+    postcode_prefix = Column(String(5), nullable=False)
+    district = Column(String(45), nullable=False)
+    region = Column(String(45), nullable=False)
+    addresses = relationship("Address", back_populates="region")
+
+    def __repr__(self):
+        return '<Region {}: {}>'.format(self.district, self.region)
+
+
+class QandA(Base):
+    __tablename__ = 'qanda'
+    id = Column(Integer, primary_key=True)
+    member_id = Column(Integer, ForeignKey('members.id'))
+    question_id = Column(EnumType(QuestionId), nullable=False)
+    answer = Column(Integer, nullable=True)
+    other = Column(String(100), nullable=True)
+    member = relationship('Member', back_populates='qandas')
+
+    def __repr__(self):
+        return '<Question and Answer {} {} {} {}>'.format(self.member_id, self.question_id, self.answer, self.other)
