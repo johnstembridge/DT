@@ -356,7 +356,29 @@ def update_member_comments(member, details):
 
 
 def update_member_renewal(member, details):
-    dues = member.dues() + (member.upgrade_dues() if details['upgrade'] else 0)
+    #handle action
+    item = first_or_default(
+        [a for a in member.actions if a.action == MemberAction.upgrade and a.status == ActionStatus.open], None)
+    if details['upgrade']:
+        date = datetime.date.today()
+        comment = 'Upgrade to DT plus'
+        if item:
+            item.action = MemberAction.upgrade
+            item.comment = comment
+            item.status = ActionStatus.open
+        else:
+            item = Action(
+                member_id=member.id,
+                date=date,
+                action=MemberAction.upgrade,
+                comment=comment,
+                status=ActionStatus.open
+            )
+            member.actions.append(item)
+    elif item:
+        member.actions.remove(item)
+    #handle payment
+    dues = member.base_dues() + (member.upgrade_dues() if details['upgrade'] else 0)
     date = datetime.date.today()
     item = first_or_default([p for p in member.payments if p.type == PaymentType.pending], None)
     if member.status != MemberStatus.life:
@@ -382,27 +404,6 @@ def update_member_renewal(member, details):
                 comment=payment_comment
             )
             member.payments.append(item)
-
-    item = first_or_default(
-        [a for a in member.actions if a.action == MemberAction.upgrade and a.date > datetime.date(2020, 7, 20)], None)
-    if details['upgrade']:
-        date = datetime.date.today()
-        comment = 'Upgrade to DT plus'
-        if item:
-            item.action = MemberAction.upgrade
-            item.comment = comment
-            item.status = ActionStatus.open
-        else:
-            item = Action(
-                member_id=member.id,
-                date=date,
-                action=MemberAction.upgrade,
-                comment=comment,
-                status=ActionStatus.open
-            )
-            member.actions.append(item)
-    elif item:
-        member.actions.remove(item)
 
     if not details['comment'] in [None, '']:
         date = datetime.date.today()

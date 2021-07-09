@@ -266,6 +266,10 @@ class Member(Base):
         return self.is_adult() and \
                first_or_default(self.actions, MemberAction.other) == MemberAction
 
+    def is_pending_upgrade(self):
+        last_payment = self.last_payment()
+        return last_payment and last_payment.type == PaymentType.pending and last_payment.amount != self.base_dues()
+
     def is_recent_new(self):
         return self.start_date >= datetime(current_year_end().year, 2, 1).date()
 
@@ -273,7 +277,10 @@ class Member(Base):
         if self.status == MemberStatus.life:
             return False
         last = self.last_payment()
-        resume = last.comment == 'resume lapsed'
+        if not last:
+            resume = False
+        else:
+            resume = last.comment == 'resume lapsed'
         date = self.last_payment('date')
         not_dd_pending = self.last_payment_method != PaymentMethod.dd_pending
         return resume and not_dd_pending and date >= datetime(current_year_end().year, 4, 1).date()
@@ -433,7 +440,7 @@ class Member(Base):
         return PlusDues.standard.value
 
     def upgrade_dues(self, as_of=None):
-        if self.status == MemberStatus.life:
+        if self.status in [MemberStatus.life, MemberStatus.plus] :
             return 0
         if not as_of:
             as_of = current_year_end()
@@ -578,8 +585,11 @@ class Member(Base):
         renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not (new_member or recent_resume) else ''
         upgrade_dues = '£' + str(
             self.upgrade_dues() if (new_member or recent_resume) else self.dues() + self.upgrade_dues())
-        upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(
-            upgrade_dues) if self.status != MemberStatus.plus else ''
+        if not self.is_pending_upgrade():
+            upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(
+                upgrade_dues) if self.status != MemberStatus.plus else ''
+        else:
+            upgrade_para = 'You have chosen to upgrade to Dons Trust Plus membership'
         member_type = self.member_type_at_renewal()
         life_member = self.status == MemberStatus.life
         member_type_switch = member_type != self.member_type and not life_member

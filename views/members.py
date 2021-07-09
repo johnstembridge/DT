@@ -60,12 +60,12 @@ def renew_member(member_number):
     return MaintainMembers.renew_member(member_number)
 
 
-@app.route('/members/details', methods=['GET', 'POST'])
-@login_required
-@role_required('member')
-def edit_member_no_number():
-    member_number = current_user.member.number
-    return MaintainMembers.edit_member(member_number)
+# @app.route('/members/details', methods=['GET', 'POST'])
+# @login_required
+# @role_required('member')
+# def edit_member_no_number():
+#     member_number = current_user.member.number
+#     return MaintainMembers.edit_member(member_number)
 
 
 @app.route('/members/<int:member_number>/diversity', methods=['GET', 'POST'])

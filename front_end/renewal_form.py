@@ -178,7 +178,7 @@ class MemberEditForm(FlaskForm):
         payment_method = PaymentMethod.from_value(self.payment_method.data)
         upgrade = self.upgrade.data
         member_type = member.long_membership_type() + (' (DT Plus)' if upgrade else '')
-        dues = member.dues() + (member.upgrade_dues() if upgrade else 0)
+        dues = member.dues() + (member.upgrade_dues() if upgrade and not member.is_pending_upgrade() else 0)
         if member.is_recent_resume() and not upgrade:
             dues = -1
         paypal_payment = self.get_paypal_payment(payment_method, member, upgrade)
