@@ -133,6 +133,7 @@ class MemberEditForm(FlaskForm):
         self.notes.data = member.renewal_notes() + member.edit_notes()
         if member.member_type_at_renewal() != MembershipType.junior:
             self.notes.data += ['This year we are collecting diversity information - please complete this section as well.', ]
+            self.notes.data += ['We are also asking for your AFC Wimbledon Fan ID so please give this if you have one.', ]
             DiversityForm.populate_member(self, member_number, return_url, renewal)
         return member.renewal_activated()
 
