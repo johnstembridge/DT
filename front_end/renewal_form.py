@@ -132,6 +132,7 @@ class MemberEditForm(FlaskForm):
 
         self.notes.data = member.renewal_notes() + member.edit_notes()
         if member.member_type_at_renewal() != MembershipType.junior:
+            ### junior
             self.notes.data += ['This year we are collecting diversity information - please complete this section as well.', ]
             self.notes.data += ['We are also asking for your AFC Wimbledon Fan ID so please give this if you have one.', ]
             DiversityForm.populate_member(self, member_number, return_url, renewal)
@@ -178,7 +179,8 @@ class MemberEditForm(FlaskForm):
         # return key info for save message
         payment_method = PaymentMethod.from_value(self.payment_method.data)
         upgrade = self.upgrade.data
-        member_type = member.long_membership_type() + (' (DT Plus)' if upgrade else '')
+        plus = upgrade or member.status == MemberStatus.plus
+        member_type = member.long_membership_type() + (' (DT Plus)' if plus else '')
         dues = member.dues() + (member.upgrade_dues() if upgrade and not member.is_pending_upgrade() else 0)
         if member.is_recent_resume() and not upgrade:
             dues = -1
