@@ -35,15 +35,17 @@
                     {% endif %}
                     {% endfor %}
                 </b></ul>
-                <p>If you have any questions please contact membership@thedonstrust.org
             </td>
             <td></td>
         </tr>
     </table>
     {% if form.form_type.data == 'renewal' %}
-        <p><b>For more details see <a
-            href="https://thedonstrust.org/2021/07/06/2021-22-membership-renewals/" target="_blank"> here</a></b>
-    {% endif %}
+    <p><b>For more details see <a
+            href="https://thedonstrust.org/2021/07/06/2021-22-membership-renewals/" target="_blank">here</a></b>
+        {% endif %}
+    <p><b>Keeping your personal data safe and secure is one of the top priorities of The Dons Trust. For more details
+        see our privacy policy <a href="https://thedonstrust.org/privacy-policy/" target="_blank">here</a></b></p>
+    <p>If you have any questions please contact membership@thedonstrust.org
 </div>
 <form method="POST">
     {{ form.csrf_token }}
@@ -149,11 +151,11 @@
             <td>{{ form.payment_method.label }}</td>
             <td>{{ form.payment_method() }}</td>
             {% if form.status.data != 'plus' %}
-                <td>{{ form.upgrade.label }}</td>
-                <td>{{ form.upgrade }}</td>
+            <td>{{ form.upgrade.label }}</td>
+            <td>{{ form.upgrade }}</td>
             {% else %}
-                <td></td>
-                <td></td>
+            <td></td>
+            <td></td>
             {% endif %}
         </tr>
     </table>
