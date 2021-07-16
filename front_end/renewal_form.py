@@ -200,12 +200,13 @@ class MemberEditForm(FlaskForm):
                 elif member_type == MembershipType.standard:
                     return PayPalPayment.Dons_Trust_Plus_Adult_upgrade if upgrade else None
             else:
+                plus = upgrade or member.status == MemberStatus.plus
                 if member_type == MembershipType.junior:
                     return PayPalPayment.Junior_Dons_renewal
                 elif member_type in MembershipType.concessions(all=True):
-                    return PayPalPayment.Dons_Trust_Plus_Concession if upgrade else PayPalPayment.Concession
+                    return PayPalPayment.Dons_Trust_Plus_Concession if plus else PayPalPayment.Concession
                 elif member_type == MembershipType.standard:
-                    return PayPalPayment.Dons_Trust_Plus_Adult if upgrade else PayPalPayment.Adult
+                    return PayPalPayment.Dons_Trust_Plus_Adult if plus else PayPalPayment.Adult
         else:
             return None
 
