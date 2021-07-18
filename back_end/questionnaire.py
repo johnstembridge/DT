@@ -1,4 +1,5 @@
 from enum import Enum
+from globals.enumerations import YesNo
 from back_end.data_utilities import first_or_default
 
 
@@ -16,6 +17,7 @@ class Question():
 
 
 class QuestionId(Enum):
+    ParentalConsent = 0
     Gender = 1
     GenderIdentify = 2
     Disability = 3
@@ -59,6 +61,12 @@ def get_answer(member, question, single=True, other=False):
 
 def diversity_questionnaire():
     return Questionnaire([
+        Question(
+            id=QuestionId.ParentalConsent,
+            text='Parental Consent',
+            description='Parent/Guardian approval for diversity data to be shared',
+            choices=YesNo
+        ),
         Question(
             id=QuestionId.Gender,
             text='Gender',
@@ -145,7 +153,6 @@ disability_types = [
     (4, 'A social/communication impairment such as Asperger’s syndrome/other autistic spectrum disorder'),
     (5, 'A long-standing illness or health condition such as cancer, HIV, diabetes, chronic heart disease or epilepsy'),
     (6, 'A mental health condition, such as depression, schizophrenia or anxiety disorder'),
-    (7, 'A long-standing illness or health condition such as cancer, HIV, diabetes, chronic heart disease or epilepsy'),
     (8, 'A physical impairment or mobility issues, such as difficulty using arms or using a wheelchair or crutches'),
     (9, 'Deaf or serious hearing impairment'),
     (10, 'Blind or a serious visual impairment uncorrected by glasses'),
@@ -212,7 +219,6 @@ employment_choices = [
     (1, 'Agency staff (hired on a temporary basis through an agency)'),
     (2, 'Permanent contract (hired on a permanent basis)'),
     (3, 'Fixed-term contracts (hired on a temporary basis)'),
-    (4, 'Permanent contract (hired on a permanent basis)'),
     (5, 'Self-employed without employees e.g. freelancer trading as an individual (sole trader) or limited company (Ltd)'),
     (6, 'Self-employed with employees'),
     (7, 'Zero-hour contracts (hired on a temporary basis through a zero hour contract)'),

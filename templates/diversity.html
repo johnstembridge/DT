@@ -28,7 +28,12 @@ not answer any question.
 <form method="POST">
     {{ form.csrf_token }}
     {{ form.hidden_tag() }}
-
+    {% if form.parental_consent %}
+        <h4>Parental Consent</h4>
+        <i>{{ form.parental_consent.description }}</i>
+        {{ form.parental_consent }}
+        <p>
+    {% endif %}
     <h4>1. Gender</h4>
     <i>{{ form.gender.description }}</i>
     {{ form.gender }} {{ form.gender_other.label }} {{ form.gender_other }}

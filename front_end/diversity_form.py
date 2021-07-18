@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, HiddenField, SelectField
+from wtforms import StringField, SubmitField, HiddenField, SelectField, BooleanField
 
 from back_end.interface import get_member, update_member_questions
 from front_end.form_helpers import MultiCheckboxField
@@ -9,6 +9,8 @@ from back_end.questionnaire import diversity_questionnaire, QuestionId, get_answ
 
 def diversity_fields():
     dq = diversity_questionnaire().questions
+    q = dq[QuestionId.ParentalConsent]
+    parental_consent = BooleanField(label=q.text, description=q.description)
     q = dq[QuestionId.Gender]
     gender = SelectField(label=q.text, choices=q.choices, coerce=int, description=q.description)
     gender_other = StringField(label='Other (please state)')
@@ -34,9 +36,9 @@ def diversity_fields():
     q = dq[QuestionId.EmploymentStatus]
     employment = SelectField(label=q.text, choices=q.choices, coerce=int, description=q.description)
     employment_other = StringField(label='Other (please state)')
-    return (gender, gender_other, gender_identify, disability, disability_type, disability_type_other, impairment,
-            marital_status, ethnicity, ethnicity_other, sexual_orientation, religion, religion_other, employment,
-            employment_other)
+    return (parental_consent, gender, gender_other, gender_identify, disability, disability_type, disability_type_other,
+            impairment, marital_status, ethnicity, ethnicity_other, sexual_orientation, religion, religion_other,
+            employment, employment_other)
 
 
 class DiversityForm(FlaskForm):
@@ -44,7 +46,7 @@ class DiversityForm(FlaskForm):
     full_name = StringField(label='Full Name')
     return_url = HiddenField(label='Return URL')
     member_number = HiddenField(label='Member Number')
-    (gender, gender_other, gender_identify, disability, disability_type, disability_type_other, impairment,
+    (parental_consent, gender, gender_other, gender_identify, disability, disability_type, disability_type_other, impairment,
      marital_status, ethnicity, ethnicity_other, sexual_orientation, religion, religion_other, employment,
      employment_other) = diversity_fields()
 
@@ -54,7 +56,8 @@ class DiversityForm(FlaskForm):
         self.return_url.data = return_url
         self.form_type.data = 'renewal' if renewal else 'details'
         member = get_member(member_number)
-
+        if not member.junior:
+            self.parental_consent = None
         self.gender.data = get_answer(member, QuestionId.Gender)
         self.gender_identify.data = get_answer(member, QuestionId.GenderIdentify)
         self.disability.data = get_answer(member, QuestionId.Disability)

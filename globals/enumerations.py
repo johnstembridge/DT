@@ -344,3 +344,8 @@ class JuniorGift(FormEnum):
     BuildingBricks = 2
     BaseballCap = 3
     MiniFootball = 4
+
+
+class YesNo(FormEnum):
+    no = 0
+    yes = 1

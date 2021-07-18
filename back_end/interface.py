@@ -251,6 +251,7 @@ def update_member_details(member, details):
             member.junior = get_junior()
         member.junior.email = details['jd_mail']
         member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
+        member.junior.parental_consent = details['parental_consent']
 
 
 def update_member_payments(member, details):

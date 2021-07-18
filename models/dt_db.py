@@ -8,7 +8,7 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
     Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, \
-    PlusDues
+    PlusDues, YesNo
 from back_end.questionnaire import QuestionId
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
     previous_year_end, match_string, fmt_phone, fmt_curr
@@ -153,6 +153,7 @@ class Junior(Base):
     member = relationship('Member', back_populates='junior')
     email = Column(String(120))
     gift = Column(EnumType(JuniorGift), nullable=True)
+    parental_consent = Column(EnumType(YesNo), nullable=True)
 
     def __repr__(self):
         return '<Junior {} {} {}>'.format(self.member_id, self.parent_email, self.gift)
@@ -597,7 +598,7 @@ class Member(Base):
         notes = []
         if life_member:
             notes = [
-                "As you are a life member, there is no need to do anything further. " \
+                "As you are a life member, there is no payment required. " \
                 "We will send your new membership card in due course.", ]
         else:
             if member_type == MembershipType.intermediate:
@@ -631,7 +632,7 @@ class Member(Base):
                     else:
                         notes = ["{}{}".format(renewal_cost, upgrade_para), ]
         if self.last_payment_method == PaymentMethod.dd and not (new_member or recent_resume):
-            up = "If you do not wish to upgrade to Dons Trust Plus, you need take no further action." \
+            up = "Unless you wish to upgrade to Dons Trust Plus, you need take no action about payment." \
                 if not junior and self.status != MemberStatus.plus else ''
             notes = [
                         "According to our records you currently pay by direct debit. " + up,

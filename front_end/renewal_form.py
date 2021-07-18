@@ -8,7 +8,7 @@ from back_end.interface import get_member, save_member_contact_details, country_
 from front_end.form_helpers import MySelectField
 from front_end.diversity_form import diversity_fields, DiversityForm
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentMethod, Title, CommsStatus, \
-    JuniorGift, ExternalAccess, PayPalPayment, MemberAction
+    JuniorGift, ExternalAccess, PayPalPayment, MemberAction, YesNo
 from back_end.data_utilities import fmt_date
 
 
@@ -64,8 +64,8 @@ class MemberEditForm(FlaskForm):
     plus = HiddenField(label='DT plus')
     type = MySelectField(label='Member Type', choices=MembershipType.renewal_choices(), coerce=MembershipType.coerce)
 
-    (gender, gender_other, gender_identify, disability, disability_type, disability_type_other, impairment,
-     marital_status, ethnicity, ethnicity_other, sexual_orientation, religion, religion_other, employment,
+    (parental_consent, gender, gender_other, gender_identify, disability, disability_type, disability_type_other,
+     impairment, marital_status, ethnicity, ethnicity_other, sexual_orientation, religion, religion_other, employment,
      employment_other) = diversity_fields()
 
     submit = SubmitField(label='Save')
@@ -78,8 +78,9 @@ class MemberEditForm(FlaskForm):
         self.member_number.data = str(member.number)
         self.recent_new.data = member.is_recent_new()
         self.recent_resume.data = member.is_recent_resume()
-        self.payment_required.data = not(member.status == MemberStatus.life) and \
-                                     not(member.status == MemberStatus.plus and member.is_recent_new() or member.is_recent_resume())
+        self.payment_required.data = not (member.status == MemberStatus.life) and \
+                                     not (
+                                                 member.status == MemberStatus.plus and member.is_recent_new() or member.is_recent_resume())
         self.dt_number.data = member.dt_number()
         self.access.data = member.user.role.value if member.user else 0
         self.status.data = member.status.name
@@ -120,6 +121,7 @@ class MemberEditForm(FlaskForm):
                 member.junior = get_junior()
             self.jd_email.data = member.junior.email or ''
             self.jd_gift.data = member.junior.gift.value if member.junior.gift else ''
+            self.parental_consent.data = 1 if member.junior.parental_consent else 0
         else:
             self.jd_email = self.jd_gift = None
 
@@ -131,11 +133,11 @@ class MemberEditForm(FlaskForm):
         self.upgrade.data = member.current_action() and member.current_action().action == MemberAction.upgrade
 
         self.notes.data = member.renewal_notes() + member.edit_notes()
-        if member.member_type_at_renewal() != MembershipType.junior:
-            ### junior
-            self.notes.data += ['This year we are collecting diversity information - please complete this section as well.', ]
-            self.notes.data += ['We are also asking for your AFC Wimbledon Fan ID so please give this if you have one.', ]
-            DiversityForm.populate_member(self, member_number, return_url, renewal)
+        self.notes.data += [
+            'This year we are collecting diversity information - please complete this section as well.', ]
+        self.notes.data += [
+            'We are also asking for your AFC Wimbledon Fan ID so please give this if you have one.', ]
+        DiversityForm.populate_member(self, member_number, return_url, renewal)
         return member.renewal_activated()
 
     def save_member(self, member_number):
@@ -174,6 +176,7 @@ class MemberEditForm(FlaskForm):
         if self.type.data == MembershipType.junior.value:
             member_details['jd_mail'] = self.jd_email.data.strip()
             member_details['jd_gift'] = self.jd_gift.data
+            member_details['parental_consent'] = YesNo.yes if self.parental_consent.data else YesNo.no
         member = save_member_contact_details(member_number, member_details, self.form_type.data == 'renewal', False)
         member = DiversityForm.save_member(self, member)
         # return key info for save message

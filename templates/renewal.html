@@ -150,9 +150,9 @@
         <tr>
             <td>{{ form.payment_method.label }}</td>
             <td>{{ form.payment_method() }}</td>
-            {% if form.status.data != 'plus' %}
-            <td>{{ form.upgrade.label }}</td>
-            <td>{{ form.upgrade }}</td>
+            {% if form.status.data != 'plus' and form.type.data != 3 %}
+                <td>{{ form.upgrade.label }}</td>
+                <td>{{ form.upgrade }}</td>
             {% else %}
             <td></td>
             <td></td>
@@ -175,7 +175,6 @@
         {% endif %}
     </i>
     <hr class="bold"/>
-    {% if not form.jd_email %}
     <h3><a data-toggle="collapse" href="#diversity" aria-expanded="true" aria-controls="diversity"
            title="Click to expand or contract">Diversity Questionnaire</a><small> (click to expand or contract)</small>
     </h3>
@@ -202,9 +201,12 @@
         not answer any question.
         <p>Thank you in advance for your support in enabling us to capture this data.
         <hr class="bold">
-        {{ form.csrf_token }}
-        {{ form.hidden_tag() }}
-
+        {% if form.type.data == 3 %}
+            <h4>Parental Consent</h4>
+            <i>{{ form.parental_consent.description }}</i>
+            {{ form.parental_consent(role="button") }}
+            <p>
+        {% endif %}
         <h4>1. Gender</h4>
         <i>{{ form.gender.description }}</i>
         {{ form.gender }} {{ form.gender_other.label }} {{ form.gender_other }}
@@ -249,7 +251,6 @@
         {{ form.employment_other.label }} {{ form.employment_other }}
         <p>
     </div>
-    {% endif %}
     <hr class="bold"/>
     {{ form.comment.label }}<br>{{ form.comment(rows=2, cols=80) }}
     <hr class="bold"/>
