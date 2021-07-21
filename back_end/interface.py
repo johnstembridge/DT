@@ -199,6 +199,8 @@ def save_member_details(member_number, details):
 def save_member_contact_details(member_number, details, renewal, commit=True):
     member = get_member(member_number)
     update_member_details(member, details)
+    if not member.user:
+        member.user = User(role = UserRole.member, user_name=str(member_number))
     member.user.set_password(User.member_password(details['post_code']))
 
     member.type = member.member_type_at_renewal()
@@ -251,7 +253,8 @@ def update_member_details(member, details):
             member.junior = get_junior()
         member.junior.email = details['jd_mail']
         member.junior.gift = JuniorGift(details['jd_gift']) if details['jd_gift'] and details['jd_gift'] > 0 else None
-        member.junior.parental_consent = details['parental_consent']
+        if 'parental_consent' in details:
+            member.junior.parental_consent = details['parental_consent']
 
 
 def update_member_payments(member, details):
@@ -386,6 +389,7 @@ def update_member_renewal(member, details):
     date = datetime.date.today()
     item = first_or_default([p for p in member.payments if p.type == PaymentType.pending], None)
     if member.status != MemberStatus.life:
+        payment_method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
         if details['upgrade'] and (member.is_recent_new() or member.is_recent_resume()):
             item = None
             dues = member.upgrade_dues()
@@ -396,7 +400,7 @@ def update_member_renewal(member, details):
             item.date = date
             item.type = PaymentType.pending
             item.amount = dues
-            item.method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
+            item.method = payment_method
             item.comment = payment_comment
         elif dues > 0:
             item = Payment(
@@ -404,7 +408,7 @@ def update_member_renewal(member, details):
                 date=date,
                 type=PaymentType.pending,
                 amount=dues,
-                method=PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None,
+                method=payment_method,
                 comment=payment_comment
             )
             member.payments.append(item)
