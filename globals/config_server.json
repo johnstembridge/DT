@@ -14,7 +14,7 @@
     "templates": "templates",
     "scripts": "scripts/linux",
     "import": "/var/data/import",
-    "export": "/var/data/export",
+    "export": "/var/www/dd",
     "backups": "/var/data/backups"
   },
     "url_prefix": {
