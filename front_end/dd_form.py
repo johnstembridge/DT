@@ -1,9 +1,45 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, HiddenField
 
+from front_end.form_helpers import ReadOnlyWidget
 from back_end.interface import get_member
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, EmandatePaymentPlan
-from back_end.data_utilities import fmt_curr
+import globals.config as config
+from back_end.data_utilities import fmt_curr, append_file, create_data_file, file_exists, path_join
+
+
+class RenewalDebitForm(FlaskForm):
+    account_name = StringField(label='Bank account name')
+    account_number = StringField(label='Bank account number')
+    account_sort = StringField(label='Bank account sort code')
+    dt_number = StringField(label='Payment reference')
+    amount = StringField(label='Amount to be debited on 11th August ')
+    description = StringField(label='Renewal')
+    submit = SubmitField(label='Save')
+
+    def populate(self, member_id, upgrade):
+        member = get_member(member_id)
+        payment = member.last_payment()
+        self.description = member.long_membership_type(upgrade)
+        self.dt_number.data = member.dt_number()
+        self.amount.data = payment.amount
+
+    def save(self, member_id):
+        file = path_join(config.get('locations')['export'], 'b_details.csv')
+        if not file_exists(file):
+            create_data_file(file, ['member_id', 'name', 'number', 'sort'])
+        name = self.account_name.data
+        number = self.account_number.data
+        sort = self.account_sort.data
+
+        rec = '\r' + ','.join([str(member_id), name, number, sort])
+        append_file(file, rec)
+
+        return get_member(member_id)
+
+    def make_readonly(self, field):
+        prop = getattr(self, field)
+        setattr(prop, 'widget', ReadOnlyWidget())
 
 
 class MemberDebitForm(FlaskForm):

@@ -415,6 +415,8 @@ class Member(Base):
     def base_dues(self, as_of=None):
         if not as_of:
             as_of = current_year_end()
+        if self.status == MemberStatus.life or self.is_recent_resume() or self.is_recent_new():
+            return 0
         type = self.member_type_at_renewal(as_of)
         if type in MembershipType.concessions():
             return Dues.concession.value
@@ -441,7 +443,7 @@ class Member(Base):
         return PlusDues.standard.value
 
     def upgrade_dues(self, as_of=None):
-        if self.status in [MemberStatus.life, MemberStatus.plus] :
+        if self.status in [MemberStatus.life, MemberStatus.plus]:
             return 0
         if not as_of:
             as_of = current_year_end()
@@ -492,7 +494,7 @@ class Member(Base):
     def certificate_date(self):
         return encode_date_formal(date.today(), cert=True)
 
-    def current_action(self):
+    def last_action(self):
         current = [a for a in self.actions if a.status == ActionStatus.open]
         if len(current) > 0:
             return sorted(current, key=lambda action: action.date, reverse=True)[0]
@@ -544,6 +546,16 @@ class Member(Base):
     def last_payment_method_(self):
         return self.last_payment('method')
 
+    def previous_renewal_payment(self):
+        if self.last_payment().type != PaymentType.pending:
+            return self.last_payment_method
+        dates = [p.date for p in self.payments]
+        if len(dates) <= 1:
+            return None
+        dates.sort(reverse=True)
+        previous = [p for p in self.payments if p.date == dates[1]][0]
+        return previous.method
+
     def check_credentials(self, user_name, password):
         if not match_string(user_name, str(self.number)):
             return False, 'Email does not match', 'warning'
@@ -559,10 +571,15 @@ class Member(Base):
             long = ''
         return long
 
-    def long_membership_type(self):
-        plus = '' if self.status in [MemberStatus.current, MemberStatus.lapsed] \
-            else ' (' + [c for c in MemberStatus.renewal_choices() if c[0] == self.status.value][0][1] + ')'
-        return [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1] + plus
+    def long_membership_type(self, upgrade=False):
+        long_type = [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1]
+        if self.status == MemberStatus.life:
+            status = '(Life)'
+        elif upgrade or self.status == MemberStatus.plus:
+            status = '(Plus)'
+        else:
+            status = ''
+        return long_type + status
 
     def edit_notes(self):
         notes = []
@@ -609,7 +626,7 @@ class Member(Base):
                 else:
                     notes = ["{}{}".format(renewal_cost, upgrade_para)]
             elif junior:
-                    notes = ["{}".format(renewal_cost), ]
+                notes = ["{}".format(renewal_cost), ]
             if member_type == MembershipType.senior:
                 if member_type_switch:
                     notes = [
@@ -651,7 +668,7 @@ class Member(Base):
     def renewal_activated(self):
         last_payment = self.last_payment()
         if last_payment and last_payment.type.name == 'pending':
-            last_action = self.current_action()
+            last_action = self.last_action()
             if last_action and last_action.action == MemberAction.upgrade and last_action.status == ActionStatus.open:
                 return 'Renewal was activated {} ({})'.format(fmt_date(last_action.date), last_action.comment)
             else:

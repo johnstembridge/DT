@@ -1,0 +1,27 @@
+{% extends "renewal_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<body>
+<h3>Renew your Dons Trust membership by Cheque</h3>
+
+<form method="post" target="_top">
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+
+    <h3>{{ form.description }} £{{ form.amount }}</h3>
+    <hr/>
+    Please send your cheque for renewal to the following address and include a note of your membership number
+    <b>{{ form.dt_number.data }}</b>
+    <p>Send to:</p>
+    Membership Renewal
+    <br>The Dons Trust
+    <br>Plough Lane Stadium
+    <br>London
+    <br>SW17 0NR
+    <hr/>
+    Once you have paid, we will notify you when your membership has been updated.
+    Please allow a few days for this as we will be processing many renewals during this period.
+</form>
+</body>
+{% endblock %}

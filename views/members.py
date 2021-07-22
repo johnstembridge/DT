@@ -60,6 +60,22 @@ def renew_member(member_number):
     return MaintainMembers.renew_member(member_number)
 
 
+@app.route('/members/<int:member_number>/renewal/dd', methods=['GET', 'POST'])
+@login_required
+@role_required('member')
+def renew_member_dd(member_number):
+    upgrade = request.args.get('upgrade')
+    return MaintainMembers.renewal_debit(member_number, upgrade)
+
+
+@app.route('/members/<int:member_number>/renewal/chq', methods=['GET', 'POST'])
+@login_required
+@role_required('member')
+def renew_member_chqd(member_number):
+    upgrade = request.args.get('upgrade')
+    return MaintainMembers.renewal_cheque(member_number, upgrade)
+
+
 # @app.route('/members/details', methods=['GET', 'POST'])
 # @login_required
 # @role_required('member')

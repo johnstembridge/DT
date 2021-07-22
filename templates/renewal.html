@@ -145,20 +145,16 @@
     <hr class="bold"/>
     {% if form.form_type.data == 'renewal' %}
     <h3>Payment</h3>
-    {% if form.payment_required.data %}
-    <table>
-        <tr>
-            <td>{{ form.payment_method.label }}</td>
-            <td>{{ form.payment_method() }}</td>
-            {% if form.status.data != 'plus' and form.type.data != 3 %}
-                <td>{{ form.upgrade.label }}</td>
-                <td>{{ form.upgrade }}</td>
-            {% else %}
-            <td></td>
-            <td></td>
-            {% endif %}
-        </tr>
-    </table>
+    {% if form.payment_required.data or (form.recent_resume.data and form.status.data != 'plus') %}
+        {{ form.payment_method.label }}
+        <p>&nbsp;
+            {% for subfield in form.payment_method %}
+                {{ subfield }} {{ subfield.label }}
+            {% endfor %}
+        {% if form.status.data != 'plus' and form.type.data != 3 %}
+            <p>
+            {{ form.upgrade.label }} {{ form.upgrade }}
+        {% endif %}
     {% endif %}
     <i>
         {% if form.status.data == 'life' %}
@@ -167,7 +163,7 @@
         <br>As you joined recently, no payment is needed.
         {% elif form.recent_resume.data %}
         <br>As you recently resumed your membership, no payment is needed.
-        {% elif form.last_payment_method.data == 2 %}
+        {% elif form.previous_payment_method.data == 2 %}
         <br>As you currently pay by Direct Debit, your membership will be renewed automatically, taking into
         account any membership type change. Payment will be taken on August 11th.
         {% else %}

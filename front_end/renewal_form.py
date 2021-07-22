@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, HiddenField, BooleanField, TextAreaField
+from wtforms import StringField, SubmitField, HiddenField, BooleanField, TextAreaField, RadioField
 from wtforms.validators import InputRequired, Optional, Email
 from wtforms.fields.html5 import DateField
 
@@ -8,7 +8,7 @@ from back_end.interface import get_member, save_member_contact_details, country_
 from front_end.form_helpers import MySelectField
 from front_end.diversity_form import diversity_fields, DiversityForm
 from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentMethod, Title, CommsStatus, \
-    JuniorGift, ExternalAccess, PayPalPayment, MemberAction, YesNo
+    JuniorGift, ExternalAccess, RenewalPayment, MemberAction, YesNo
 from back_end.data_utilities import fmt_date
 
 
@@ -21,6 +21,7 @@ class MemberEditForm(FlaskForm):
     recent_new = HiddenField(label='Recent new')
     recent_resume = HiddenField(label='Recent resume')
     payment_required = HiddenField(label='payment required')
+    current_payment_method = HiddenField(label='current payment method')
     dt_number = StringField(label='Id')
 
     start_date = StringField(label='Joined')
@@ -53,10 +54,10 @@ class MemberEditForm(FlaskForm):
     third_pty_access = BooleanField(label='Please indicate whether you wish to receive this information')
 
     upgrade = BooleanField(label='I wish to change my membership to Dons Trust Plus')
-    payment_method = MySelectField(label='Payment Method', choices=PaymentMethod.renewal_choices(),
+    payment_method = RadioField(label='Payment Method', choices=PaymentMethod.renewal_choices(),
                                    coerce=PaymentMethod.coerce)
     comment = TextAreaField(label='Please add any comments about the renewal here')
-    last_payment_method = HiddenField(label='Last Payment Method')
+    previous_payment_method = HiddenField(label='Last Payment Method')
     notes = HiddenField(label='Notes')
 
     status = HiddenField(label='Member Status')
@@ -78,9 +79,9 @@ class MemberEditForm(FlaskForm):
         self.member_number.data = str(member.number)
         self.recent_new.data = member.is_recent_new()
         self.recent_resume.data = member.is_recent_resume()
-        self.payment_required.data = not (member.status == MemberStatus.life) and \
-                                     not (
-                                                 member.status == MemberStatus.plus and member.is_recent_new() or member.is_recent_resume())
+        self.payment_required.data = not (member.status == MemberStatus.life) and not (
+                    member.status == MemberStatus.plus and member.is_recent_new() or member.is_recent_resume())
+        self.current_payment_method.data = member.last_payment_method.value
         self.dt_number.data = member.dt_number()
         self.access.data = member.user.role.value if member.user else 0
         self.status.data = member.status.name
@@ -127,10 +128,11 @@ class MemberEditForm(FlaskForm):
 
         self.third_pty_access.data = member.third_pty_access()
 
-        self.payment_method.data = self.last_payment_method.data = \
-            member.last_payment_method.value if member.last_payment_method else ''
+        self.payment_method.data = member.last_payment_method.value if member.last_payment_method else 0
+        previous = member.previous_renewal_payment()
+        self.previous_payment_method.data = previous.value if previous else 0
 
-        self.upgrade.data = member.current_action() and member.current_action().action == MemberAction.upgrade
+        self.upgrade.data = member.last_action() and member.last_action().action == MemberAction.upgrade
 
         self.notes.data = member.renewal_notes() + member.edit_notes()
         self.notes.data += [
@@ -177,43 +179,50 @@ class MemberEditForm(FlaskForm):
             member_details['jd_mail'] = self.jd_email.data.strip()
             member_details['jd_gift'] = self.jd_gift.data
             member_details['parental_consent'] = YesNo.yes if self.parental_consent.data else YesNo.no
-        member = save_member_contact_details(member_number, member_details, self.form_type.data == 'renewal', False)
-        member = DiversityForm.save_member(self, member)
+
         # return key info for save message
+        member = get_member(member_number)
         payment_method = PaymentMethod.from_value(self.payment_method.data)
         upgrade = self.upgrade.data
-        plus = upgrade or member.status == MemberStatus.plus
-        member_type = member.long_membership_type() + (' (DT Plus)' if plus else '')
-        dues = member.dues() + (member.upgrade_dues() if upgrade and not member.is_pending_upgrade() else 0)
+        member_type = member.long_membership_type(upgrade=upgrade)
+        dues = member.base_dues() + (member.upgrade_dues() if upgrade and not member.is_pending_upgrade() else 0)
         if member.is_recent_resume() and not upgrade:
             dues = -1
-        paypal_payment = self.get_paypal_payment(payment_method, member, upgrade)
-        return payment_method, paypal_payment, dues, member_type, member
+        renewal_payment = self.get_renewal_payment(payment_method, member, upgrade)
 
-    @staticmethod
-    def get_paypal_payment(payment_method, member, upgrade):
+        member = save_member_contact_details(member_number, member_details, self.form_type.data == 'renewal', False)
+        member = DiversityForm.save_member(self, member)
+        return payment_method, renewal_payment, dues, member_type, member
+
+    def get_renewal_payment(self, payment_method, member, upgrade):
         if payment_method == PaymentMethod.cc:
-            member_type = member.member_type_at_renewal()
-            if member.status == MemberStatus.life:
-                return None
-            new_member = member.is_recent_new() or member.is_recent_resume()
-            if new_member:
-                if member_type == MembershipType.junior:
-                    return None
-                elif member_type in MembershipType.concessions(all=True):
-                    return PayPalPayment.Dons_Trust_Plus_Concession_upgrade if upgrade else None
-                elif member_type == MembershipType.standard:
-                    return PayPalPayment.Dons_Trust_Plus_Adult_upgrade if upgrade else None
-            else:
-                plus = upgrade or member.status == MemberStatus.plus
-                if member_type == MembershipType.junior:
-                    return PayPalPayment.Junior_Dons_renewal
-                elif member_type in MembershipType.concessions(all=True):
-                    return PayPalPayment.Dons_Trust_Plus_Concession if plus else PayPalPayment.Concession
-                elif member_type == MembershipType.standard:
-                    return PayPalPayment.Dons_Trust_Plus_Adult if plus else PayPalPayment.Adult
+            return self.renewal_payment(member, upgrade)
+        elif payment_method == PaymentMethod.dd and \
+                member.last_payment_type() == "pending" and member.last_payment_method != PaymentMethod.dd:
+            return self.renewal_payment(member, upgrade)
         else:
+            return self.renewal_payment(member, upgrade)
+
+    def renewal_payment(self, member, upgrade):
+        member_type = member.member_type_at_renewal()
+        if member.status == MemberStatus.life:
             return None
+        new_member = member.is_recent_new() or member.is_recent_resume()
+        if new_member:
+            if member_type == MembershipType.junior:
+                return None
+            elif member_type in MembershipType.concessions(all=True):
+                return RenewalPayment.Dons_Trust_Plus_Concession_upgrade if upgrade else None
+            elif member_type == MembershipType.standard:
+                return RenewalPayment.Dons_Trust_Plus_Adult_upgrade if upgrade else None
+        else:
+            plus = upgrade or member.status == MemberStatus.plus
+            if member_type == MembershipType.junior:
+                return RenewalPayment.Junior_Dons_renewal
+            elif member_type in MembershipType.concessions(all=True):
+                return RenewalPayment.Dons_Trust_Plus_Concession if plus else RenewalPayment.Concession
+            elif member_type == MembershipType.standard:
+                return RenewalPayment.Dons_Trust_Plus_Adult if plus else RenewalPayment.Adult
 
     @staticmethod
     def external_access(afcw, third_pty):

@@ -4,6 +4,9 @@ import time
 import math
 import re
 import os
+from tempfile import mkstemp
+from shutil import move
+
 from email.utils import parseaddr
 import globals.config as config
 
@@ -220,6 +223,59 @@ def file_delimiter(filename):
 def delete_file(file):
     if os.path.isfile(file):
         os.remove(file)
+
+
+def path_join(path, *paths):
+    return os.path.join(path, *paths)
+
+
+def file_exists(file):
+    return os.path.isfile(file)
+
+
+def create_data_file(file, fields, access_all=False):
+    delimiter = file_delimiter(file)
+    fields = delimiter.join(fields)
+    with my_open(file, 'w', access_all) as f:
+        f.write(fields)
+
+
+def my_open(filename, mode, access_all=False):
+    if mode == 'w':
+        fh = open(filename, mode, encoding="latin-1", newline="\n")
+    else:
+        fh = open(filename, mode, encoding="latin-1")
+    op_sys = config.get("OS")
+    if op_sys == 'Unix':
+        if mode == 'w':
+            if access_all:
+                os.chmod(filename, 0o666)
+            else:
+                os.chmod(filename, 0o664)
+    return fh
+
+
+def get_file_contents(file):
+    if os.path.exists(file):
+        with my_open(file, 'r') as content_file:
+            return content_file.read()
+    else:
+        return None
+
+
+def write_file(file, contents, access_all=False):
+    ft, target_file_path = mkstemp()
+    os.close(ft)
+    with my_open(target_file_path, 'w', access_all) as target_file:
+        target_file.write(contents)
+    os.remove(file) if os.path.exists(file) else None
+    move(target_file_path, file)
+
+
+def append_file(file, contents, access_all=False):
+    with my_open(file, 'a', access_all) as target_file:
+        target_file.write(contents)
+
 # endregion
 
 

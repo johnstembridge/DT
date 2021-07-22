@@ -11,9 +11,9 @@
     "templates": "templates",
     "scripts": "scripts\\windows",
     "html": "D:\\python\\dt\\",
-    "output": "D:\\donstrust\\output",
     "logs": "D:\\python\\dt\\logs",
     "import": "D:\\donstrust\\exports",
+    "export": "D:\\donstrust\\exports",
     "backups": "D:\\donstrust\\backups"
   },
   "url_prefix": {

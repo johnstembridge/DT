@@ -223,7 +223,7 @@ class OldAgeBand(FormEnum):
         self.upper = upper
 
 
-class PayPalPayment(Enum):
+class RenewalPayment(Enum):
     Adult = "Adult £25.00 GBP"
     Concession = "Concession £10.00 GBP"
     Junior_Dons_new = "Junior Dons (0-17) new £15.00 GBP"
@@ -281,8 +281,7 @@ class PaymentMethod(FormEnum):
         result = [
             (1, 'Credit/Debit card'),
             (2, 'Direct Debit'),
-            (3, 'Cheque'),
-            (4, 'Cash')
+            (3, 'Cheque')
         ]
         return result
 

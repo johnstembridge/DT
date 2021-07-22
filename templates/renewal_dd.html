@@ -1,0 +1,29 @@
+{% extends "renewal_base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block page_content %}
+<body>
+<h3>Pay your Dons Trust subscription by Direct Debit</h3>
+
+<form method="post" target="_top">
+    {{ form.csrf_token }}
+    {{ form.hidden_tag() }}
+
+    <h3>{{ form.description }} £{{ form.amount }}</h3>
+    <hr/>
+    Please provide your bank details to create a Direct Debit
+    <table>
+        <tr><td>{{ form.dt_number.label }}</td><td>{{ form.dt_number.data }}</td></tr>
+        <tr><td>{{ form.account_name.label }}</td><td>{{ form.account_name }}</td></tr>
+        <tr><td>{{ form.account_number.label }}</td><td>{{ form.account_number }}</td></tr>
+        <tr><td>{{ form.account_sort.label }}</td><td>{{ form.account_sort }}</td></tr>
+    </table>
+    <p>&nbsp;</p>
+    Once you have paid, we will notify you when your membership has been updated.
+    Please allow a few days for this as we will be processing many renewals during this period.
+    <hr/>
+    {{ form.submit(class="btn btn-primary", value="Save") }} Press Save to schedule the payment
+
+</form>
+</body>
+{% endblock %}

@@ -367,6 +367,7 @@ def update_member_renewal(member, details):
         date = datetime.date.today()
         comment = 'Upgrade to DT plus'
         if item:
+            item.date = date
             item.action = MemberAction.upgrade
             item.comment = comment
             item.status = ActionStatus.open
@@ -389,7 +390,7 @@ def update_member_renewal(member, details):
     date = datetime.date.today()
     item = first_or_default([p for p in member.payments if p.type == PaymentType.pending], None)
     if member.status != MemberStatus.life:
-        payment_method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] > 0 else None
+        payment_method = PaymentMethod.from_value(details['payment_method']) if details['payment_method'] else None
         if details['upgrade'] and (member.is_recent_new() or member.is_recent_resume()):
             item = None
             dues = member.upgrade_dues()
