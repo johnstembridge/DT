@@ -443,7 +443,7 @@ class Member(Base):
         return PlusDues.standard.value
 
     def upgrade_dues(self, as_of=None):
-        if self.status in [MemberStatus.life, MemberStatus.plus]:
+        if self.status == [MemberStatus.life]:
             return 0
         if not as_of:
             as_of = current_year_end()

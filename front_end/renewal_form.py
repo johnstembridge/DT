@@ -184,8 +184,9 @@ class MemberEditForm(FlaskForm):
         member = get_member(member_number)
         payment_method = PaymentMethod.from_value(self.payment_method.data)
         upgrade = self.upgrade.data
+        plus = upgrade or member.status == MemberStatus.plus
         member_type = member.long_membership_type(upgrade=upgrade)
-        dues = member.base_dues() + (member.upgrade_dues() if upgrade and not member.is_pending_upgrade() else 0)
+        dues = member.base_dues() + (member.upgrade_dues() if plus else 0)
         if member.is_recent_resume() and not upgrade:
             dues = -1
         renewal_payment = self.get_renewal_payment(payment_method, member, upgrade)
