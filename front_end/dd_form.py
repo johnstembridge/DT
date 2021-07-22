@@ -26,8 +26,8 @@ class RenewalDebitForm(FlaskForm):
 
     def save(self, member_id):
         file = path_join(config.get('locations')['export'], 'b_details.csv')
-        if not file_exists(file):
-            create_data_file(file, ['member_id', 'name', 'number', 'sort'])
+        # if not file_exists(file):
+        #     create_data_file(file, ['member_id', 'name', 'number', 'sort'])
         name = self.account_name.data
         number = self.account_number.data
         sort = self.account_sort.data
