@@ -179,6 +179,9 @@ def save_member_details(member_number, details):
     else:
         member = get_new_member()
     update_member_details(member, details)
+    if not member.user:
+        member.user = User(role = UserRole.member, user_name=str(member_number))
+    member.user.set_password(User.member_password(details['post_code']))
     member.status = MemberStatus(details['status'])
     member.start_date = details['start_date']
     member.end_date = details['end_date']
