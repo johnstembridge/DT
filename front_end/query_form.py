@@ -5,7 +5,8 @@ import calendar
 from front_end.form_helpers import MyStringField, MySelectField, select_fields_to_query, select_fields_to_update, \
     status_choices, validate_date_format, MultiCheckboxField, extract_fields_map
 from back_end.interface import country_choices
-from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, CommsType, CommsStatus, MemberAction, ActionStatus
+from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, CommsType, CommsStatus, MemberAction, \
+    ActionStatus, PaymentType
 
 
 class QueryForm(FlaskForm):
@@ -23,13 +24,15 @@ class QueryForm(FlaskForm):
     country = MySelectField(label='country',
                             choices=country_choices(blank=True, extra=[(9999, 'overseas (!=United Kingdom)')]),
                             coerce=int, db_map='Address.Country.id')
+    payment_type = MySelectField(label='payment type', choices=PaymentType.choices(blank=True),
+                                 coerce=PaymentMethod.coerce, db_map='Member.Payment.type')
     payment_method = MySelectField(label='payment method', choices=PaymentMethod.choices(blank=True),
                                    coerce=PaymentMethod.coerce, db_map='Member.last_payment_method')
     payment_date = MyStringField(label='payment date', db_map='Member.Payment.date', validators=[validate_date_format])
     comms = MySelectField(label='comms', choices=CommsType.choices(blank=True), coerce=CommsType.coerce,
                           db_map='Member.comms')
     comms_status = MySelectField(label='comms status', choices=CommsStatus.choices(blank=True), coerce=CommsType.coerce,
-                          db_map='Member.comms_status')
+                                 db_map='Member.comms_status')
     birth_month = MySelectField(label='birth month', choices=[(0, '')] + months, coerce=int,
                                 db_map='Member.birth_date.birth_month()')
     age = MyStringField(label='age', db_map='Member.birth_date.age()')
@@ -55,7 +58,7 @@ class QueryForm(FlaskForm):
         return [self.number, self.last_updated, self.status, self.member_type, self.start_date, self.end_date,
                 self.birth_date, self.comms, self.comms_status, self.birth_month, self.age,
                 self.current_action, self.action_date, self.action_status, self.action_comment,
-                self.comment_date, self.comment, self.payment_method, self.payment_date,
+                self.comment_date, self.comment, self.payment_type, self.payment_method, self.payment_date,
                 self.first_name, self.last_name, self.email, self.post_code, self.country]
 
     def set_status_choices(self):
