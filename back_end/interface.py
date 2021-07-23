@@ -8,7 +8,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State, Region, QandA
 from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, sql_fmt_date, \
-    current_year_end, parse_date, force_list
+    current_year_end, parse_date, force_list, to_int
 
 
 def save_object(object):
@@ -241,7 +241,7 @@ def update_member_details(member, details):
     member.address.region = get_region(details['country'], details['post_code'])
 
     if 'fan_id' in details and len(details['fan_id']) > 0:
-        member.season_ticket_id = int(details['fan_id'])
+        member.season_ticket_id = to_int(details['fan_id'])
     if 'member_type' in details and details['member_type']:
         member.member_type = MembershipType(details['member_type'])
 

@@ -81,7 +81,14 @@ class MemberEditForm(FlaskForm):
         self.recent_resume.data = member.is_recent_resume()
         self.payment_required.data = not (member.status == MemberStatus.life) and not (
                     member.status == MemberStatus.plus and member.is_recent_new() or member.is_recent_resume())
-        self.current_payment_method.data = member.last_payment_method.value
+        if member.last_payment_method:
+            prev = member.last_payment_method.value
+        else:
+            if member.last_payment():
+                prev = member.last_payment().method.value
+            else:
+                prev = 0
+        self.current_payment_method.data = prev
         self.dt_number.data = member.dt_number()
         self.access.data = member.user.role.value if member.user else 0
         self.status.data = member.status.name
@@ -128,7 +135,7 @@ class MemberEditForm(FlaskForm):
 
         self.third_pty_access.data = member.third_pty_access()
 
-        self.payment_method.data = member.last_payment_method.value if member.last_payment_method else 0
+        self.payment_method.data = self.current_payment_method.data
         previous = member.previous_renewal_payment()
         self.previous_payment_method.data = previous.value if previous else 0
 

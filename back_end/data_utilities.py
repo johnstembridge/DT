@@ -373,6 +373,10 @@ def to_bool(s):
     return s == 'True'
 
 
+def to_int(s):
+    return int(first_or_default(re.findall(r'\d+', s), '0'))
+
+
 def remove(string, chars):
     return ''.join([c for c in string if c not in chars])
 

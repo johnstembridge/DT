@@ -181,8 +181,9 @@ def user_logout():
         role = UserRole.member
     logout_user()
     if role == UserRole.member:
-        id = user.member.id
-        return redirect(full_url('members/{}/renewal'.format(id)))
+        if user.member:
+            id = user.member.id
+            return redirect(full_url('members/{}/renewal'.format(id)))
     return redirect(full_url('index'))
 
 
