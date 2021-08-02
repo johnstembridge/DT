@@ -163,6 +163,7 @@ class MemberAction(FormEnum):
     resend = 6  # card
     gift = 7
     other = 8
+    check_payment = 9 # check that correct payment made after late change of membership
 
     @staticmethod
     def send_certificates():
