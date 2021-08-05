@@ -2,7 +2,8 @@ import subprocess
 from flask import flash, render_template
 
 from scripts import scripts
-from back_end.super import renew_recent, renew_paid, change_member_type_by_age, lapse_expired, season_tickets, set_region
+from back_end.super import renew_recent_joiners, renew_recent_resumers, renew_paid, change_member_type_by_age, \
+    lapse_expired, season_tickets, set_region
 
 
 class Super:
@@ -19,9 +20,15 @@ class Super:
         return Super.return_result('Restore backup', res)
 
     @staticmethod
-    def renew_recent():
+    def renew_recent_joiners():
         # auto renew members who joined on or after 1st Feb of previous membership year
-        res = renew_recent()
+        res = renew_recent_joiners()
+        return Super.return_result('Renew recent', res)
+
+    @staticmethod
+    def renew_recent_resumers():
+        # auto renew members who resumed on or after 1st April of previous membership year
+        res = renew_recent_resumers()
         return Super.return_result('Renew recent', res)
 
     @staticmethod
@@ -31,9 +38,9 @@ class Super:
         return Super.return_result('Update member type by age', res)
 
     @staticmethod
-    def renew_paid(payment_method):
+    def renew_paid(payment_method, save=True):
         # renew members who have paid according to payment file
-        res = renew_paid(payment_method)
+        res = renew_paid(payment_method, save)
         return Super.return_result('Renew paid', res)
 
     @staticmethod

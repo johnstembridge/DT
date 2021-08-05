@@ -18,11 +18,32 @@ def restore():
     return Super.restore_database()
 
 
-@app.route('/super/renew_recent', methods=['GET', 'POST'])
+@app.route('/super/renew_recent_joiners', methods=['GET', 'POST'])
 @login_required
 @role_required('super')
-def renew_recent():
-    return Super.renew_recent()
+def renew_recent_joiners():
+    return Super.renew_recent_joiners()
+
+
+@app.route('/super/renew_recent_resumers', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def renew_recent_resumers():
+    return Super.renew_recent_resumers()
+
+
+@app.route('/super/report_paid_cc', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def report_paid_cc():
+    return Super.renew_paid('cc', save=False)
+
+
+@app.route('/super/report_paid_dd', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def report_paid_dd():
+    return Super.renew_paid('dd', save=False)
 
 
 @app.route('/super/renew_paid_cc', methods=['GET', 'POST'])

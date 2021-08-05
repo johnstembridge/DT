@@ -12,7 +12,7 @@
     "scripts": "scripts\\windows",
     "html": "D:\\python\\dt\\",
     "logs": "D:\\python\\dt\\logs",
-    "import": "D:\\donstrust\\exports",
+    "import": "D:\\dt2021\\imports",
     "export": "D:\\donstrust\\exports",
     "backups": "D:\\donstrust\\backups"
   },
