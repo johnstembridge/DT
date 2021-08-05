@@ -547,7 +547,8 @@ class Member(Base):
         return self.last_payment('method')
 
     def previous_renewal_payment(self):
-        if self.last_payment().type != PaymentType.pending:
+        prev = self.last_payment()
+        if prev and prev.type != PaymentType.pending:
             return self.last_payment_method
         dates = [p.date for p in self.payments]
         if len(dates) <= 1:
