@@ -29,6 +29,8 @@ class QueryForm(FlaskForm):
     payment_method = MySelectField(label='payment method', choices=PaymentMethod.choices(blank=True),
                                    coerce=PaymentMethod.coerce, db_map='Member.last_payment_method')
     payment_date = MyStringField(label='payment date', db_map='Member.Payment.date', validators=[validate_date_format])
+    payment_comment = MyStringField(label='payment comment', db_map='Payment.comment')
+    renewal_activated = MyStringField(label='renewal activated', db_map='Member.renewal_activated()')
     comms = MySelectField(label='comms', choices=CommsType.choices(blank=True), coerce=CommsType.coerce,
                           db_map='Member.comms')
     comms_status = MySelectField(label='comms status', choices=CommsStatus.choices(blank=True), coerce=CommsType.coerce,
@@ -57,9 +59,9 @@ class QueryForm(FlaskForm):
     def query_fields(self):
         return [self.number, self.last_updated, self.status, self.member_type, self.start_date, self.end_date,
                 self.birth_date, self.comms, self.comms_status, self.birth_month, self.age,
-                self.current_action, self.action_date, self.action_status, self.action_comment,
-                self.comment_date, self.comment, self.payment_type, self.payment_method, self.payment_date,
-                self.first_name, self.last_name, self.email, self.post_code, self.country]
+                self.current_action, self.action_date, self.action_status, self.action_comment, self.comment_date,
+                self.comment, self.payment_type, self.payment_method, self.payment_date, self.payment_comment,
+                self.first_name, self.last_name, self.email, self.post_code, self.country, self.renewal_activated]
 
     def set_status_choices(self):
         self.status.choices = status_choices()

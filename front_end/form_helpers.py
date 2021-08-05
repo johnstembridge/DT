@@ -275,6 +275,8 @@ extract_fields_map = OrderedDict([
     ('comms status', 'comms_status.name'),
     ('comms for ptx', 'comms_ptx()'),
     ('payment method', 'last_payment_method.name'),
+    ('payment comment', 'payments[].comment'),
+    ('payment date', 'payments[].date'),
     ('dues', 'dues()'),
     ('dues pending', 'dues_including_update()'),
     ('fmt dues pending', 'fmt_dues_including_update()'),
@@ -316,7 +318,8 @@ extract_fields_map = OrderedDict([
     ('last payment method', 'last_payment_method_()'),
     ('last payment comment', 'last_payment_comment()'),
     ('last updated', 'last_updated'),
-    ('renewal notes', 'renewal_notes_as_text()')
+    ('renewal notes', 'renewal_notes_as_text()'),
+    ('renewal_activated', 'renewal_activated()')
 ])
 
 

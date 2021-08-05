@@ -84,8 +84,9 @@ class MemberEditForm(FlaskForm):
         if member.last_payment_method:
             prev = member.last_payment_method.value
         else:
-            if member.last_payment():
-                prev = member.last_payment().method.value
+            prev = member.last_payment()
+            if prev and prev.method:
+                prev = prev.method.value
             else:
                 prev = 0
         self.current_payment_method.data = prev

@@ -62,8 +62,8 @@
             <td>{{ form.payment_type.label }}</td>
             <td>{{ form.payment_type(title='Select by payment type') }}</td>
 
-            <td></td>
-            <td></td>
+            <td>{{ form.payment_comment.label }}</td>
+            <td>{{ form.payment_comment(title='Select by payment comment') }}</td>
         </tr>
         <tr>
             <td>{{ form.comms.label }}</td>
@@ -92,6 +92,11 @@
 
             <td>{{ form.comment.label }}</td>
             <td>{{ form.comment(title='Select by general comment') }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.renewal_activated.label }}</td>
+            <td>{{ form.renewal_activated(title='Select by renewal activated') }}</td>
+            <td></td>
         </tr>
     </table>
     <hr/>
