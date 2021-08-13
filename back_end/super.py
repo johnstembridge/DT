@@ -119,16 +119,18 @@ def update_member_payment(rec, payment_method, save=True):
         [p for p in member.payments if p.type == PaymentType.pending and p.method == payment_method], None)
     payment_comment = 'from payments file'
     if pending:
+        comment = ['']
         if pending.amount != amount:
-            message += ["Expected amount {}, got {}".format(pending.amount, amount)]
+            comment = ["Expected amount {}, got {}".format(pending.amount, amount)]
+            message += comment
         pending.type = PaymentType.dues
         pending.date = date
         pending.amount = amount
-        pending.comment = payment_comment
+        pending.comment = payment_comment + ' ' + comment[0]
     else:
         dues = first_or_default(
             [p for p in member.payments if p.type == PaymentType.dues and p.method == payment_method], None)
-        if dues and dues.amount == amount and dues.date == date and dues.comment in ['from PayPal', payment_comment]:
+        if dues and dues.amount == amount and dues.date == date and dues.comment.startswith(payment_comment):
             message += ['Payment already processed']
             return message
         else:

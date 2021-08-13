@@ -41,7 +41,7 @@ class Super:
     def renew_paid(payment_method, save=True):
         # renew members who have paid according to payment file
         res = renew_paid(payment_method, save)
-        return Super.return_result('Renew paid', res)
+        return Super.return_result('Renew paid by ' + payment_method, res)
 
     @staticmethod
     def lapse_expired():
