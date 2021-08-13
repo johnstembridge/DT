@@ -265,6 +265,7 @@ class PaymentType(FormEnum):
     donation = 2
     refund = 3
     pending = 4
+    unpaid = 5
 
 
 class PaymentMethod(FormEnum):
