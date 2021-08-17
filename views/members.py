@@ -64,7 +64,7 @@ def renew_member(member_number):
 @login_required
 @role_required('member')
 def renew_member_dd(member_number):
-    upgrade = request.args.get('upgrade')
+    upgrade = eval(request.args.get('upgrade'))
     return MaintainMembers.renewal_debit(member_number, upgrade)
 
 
@@ -72,7 +72,7 @@ def renew_member_dd(member_number):
 @login_required
 @role_required('member')
 def renew_member_chqd(member_number):
-    upgrade = request.args.get('upgrade')
+    upgrade = eval(request.args.get('upgrade'))
     return MaintainMembers.renewal_cheque(member_number, upgrade)
 
 
