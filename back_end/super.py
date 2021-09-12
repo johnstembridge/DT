@@ -262,16 +262,21 @@ def season_tickets():
 def update_member_season_ticket(rec):
     # rec is line of payments file with keys dt id, afcw id
     message = []
-    dt_id = rec['dt id']
-    if dt_id in ['D', 'J']:
-        number = int(dt_id[4:])
-    else:
-        number = int(dt_id)
-    season_ticket = int(rec['afcw id'])
-    member = get_member(number)
-    member.season_ticket_id = season_ticket
-    message += ['Season ticket updated: {}'.format(season_ticket)]
-    save_member(member)
+    dt_id = rec['dt id'].strip()
+    afcw_id = rec['afcw id'].strip()
+    if len(afcw_id) > 0:
+        if dt_id[0] in ['D', 'J']:
+            number = int(dt_id[4:])
+        else:
+            number = int(dt_id)
+        season_ticket = int(afcw_id)
+        member = get_member(number)
+        if member:
+            member.season_ticket_id = season_ticket
+            message += ['Season ticket updated: {}'.format(season_ticket)]
+            save_member(member)
+        else:
+            message += ['Member not found: {}'.format(number)]
     return message
 
 
