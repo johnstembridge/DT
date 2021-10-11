@@ -183,6 +183,7 @@ class Member(Base):
     comms_status = Column(EnumType(CommsStatus), nullable=True)
     external_access = Column(EnumType(ExternalAccess), nullable=True)
     season_ticket_id = Column(Integer, nullable=True)
+
     user = relationship('User', uselist=False, back_populates='member')
     payments = relationship('Payment', order_by='desc(Payment.date)', back_populates='member')
     comments = relationship('Comment', order_by='desc(Comment.date)', back_populates='member')

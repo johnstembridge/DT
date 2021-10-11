@@ -122,8 +122,9 @@ class Extracts:
     @staticmethod
     def extract_cards_all():
         # annual replacement cards for printers
-        query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)]
-        display_fields = ['status at renewal', 'type at renewal', 'number at renewal', 'full name', 'card start year']
+        query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active_including_life()], 'in', None)]
+        display_fields = ['status at renewal', 'type at renewal', 'number at renewal', 'full name', 'card start year',
+                          'fan id']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod

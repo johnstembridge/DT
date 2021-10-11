@@ -430,6 +430,7 @@ def update_member_renewal(member, details):
             )
             member.comments.append(item)
 
+
 def next_member_number():
     return db.session.query(func.max(Member.number)).scalar() + 1
 
