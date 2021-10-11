@@ -50,6 +50,7 @@ class QueryForm(FlaskForm):
     first_name = MyStringField(label='first name', db_map='Member.first_name')
     last_name = MyStringField(label='last name', db_map='Member.last_name')
     email = MyStringField(label='email', db_map='Member.email')
+    fan_id = MyStringField(label='fan id', db_map='Member.season_ticket_id')
 
     query_clauses = HiddenField(label='query')
     display_fields = MultiCheckboxField(label='fields to extract ...',
@@ -61,7 +62,8 @@ class QueryForm(FlaskForm):
                 self.birth_date, self.comms, self.comms_status, self.birth_month, self.age,
                 self.current_action, self.action_date, self.action_status, self.action_comment, self.comment_date,
                 self.comment, self.payment_type, self.payment_method, self.payment_date, self.payment_comment,
-                self.first_name, self.last_name, self.email, self.post_code, self.country, self.renewal_activated]
+                self.first_name, self.last_name, self.email, self.post_code, self.country, self.renewal_activated,
+                self.fan_id]
 
     def set_status_choices(self):
         self.status.choices = status_choices()
