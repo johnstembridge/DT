@@ -6,8 +6,8 @@ class MaintainActions:
 
     @staticmethod
     def list_actions(action, page):
-        if action == 'cert':
-            return Extracts.extract_certificates(page)
+        if action.startswith('cert_'):
+            return Extracts.extract_certificates(page, action[5:])
         if action == 'card':
             return Extracts.extract_cards(page)
         if action == 'other':

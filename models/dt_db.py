@@ -493,7 +493,7 @@ class Member(Base):
         return str(self.start_date.year) + extra
 
     def certificate_date(self):
-        return encode_date_formal(date.today(), cert=True)
+        return encode_date_formal(self.start_date)
 
     def last_action(self):
         current = [a for a in self.actions if a.status == ActionStatus.open]

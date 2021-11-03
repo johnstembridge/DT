@@ -8,18 +8,33 @@ import datetime
 class Extracts:
 
     @staticmethod
-    def extract_certificates(page):
-        # new member packs
-        query_clauses = [
+    def extract_certificates(page, type):
+        # new member packs, type is std_adult/young_adult/plus_adult/plus_young_adult/junior
+        if type == "std_adult":
+            sel = [('Member', 'status', MemberStatus.plus, '!=', None),
+                   ('Member', 'member_type', [MembershipType.intermediate.value, MembershipType.junior.value], 'not in', None)]
+        if type == "young_adult":
+            sel = [('Member', 'status', MemberStatus.plus, '!=', None),
+                   ('Member', 'member_type', MembershipType.intermediate, '=', None)]
+        if type == "plus_adult":
+            sel = [('Member', 'status', MemberStatus.plus, '=', None),
+                   ('Member', 'member_type', [MembershipType.intermediate.value, MembershipType.junior.value], 'not in', None)]
+        if type == "plus_young_adult":
+            sel = [('Member', 'status', MemberStatus.plus, '=', None),
+                   ('Member', 'member_type', MembershipType.intermediate, '=', None)]
+        if type == "junior":
+            sel = [('Member', 'status', MemberStatus.plus, '!=', None),
+                   ('Member', 'member_type', MembershipType.junior, '=', None)]
+        query_clauses = sel + [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None),
             ('Action', 'action', [a.value for a in MemberAction.send_certificates()], 'in', None)
         ]
         display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post',
-                          'full address', 'certificate date', 'upgrade', 'comment',
+                          'fan id', 'certificate date', 'upgrade', 'comment',
                           'card start year', 'first name', 'last name']
-        return Query.show_found_do(query_clauses, display_fields, action='cert', page=page)
+        return Query.show_found_do(query_clauses, display_fields, action='cert_' + type, page=page)
 
     @staticmethod
     def extract_cards(page):

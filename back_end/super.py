@@ -1,7 +1,7 @@
 from globals import config
 from globals.enumerations import MemberAction, MemberStatus, MembershipType, ActionStatus, PaymentType, PaymentMethod
 from back_end.interface import get_members_for_query, get_member, save_member, get_region
-from back_end.data_utilities import fmt_date, current_year_end, first_or_default, file_delimiter, parse_date
+from back_end.data_utilities import fmt_date, current_year_end, previous_year_end, first_or_default, file_delimiter, parse_date
 from models.dt_db import Action, Payment
 
 import datetime
@@ -74,7 +74,7 @@ def renew_recent_resumers():
 def lapse_expired():
     query_clauses = [
         ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
-        ('Member', 'end_date', fmt_date(current_year_end()), '=', None)
+        ('Member', 'end_date', fmt_date(previous_year_end()), '=', None)
     ]
     members = get_members_for_query(query_clauses)
     count = 0
