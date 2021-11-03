@@ -9,22 +9,15 @@ class Extracts:
 
     @staticmethod
     def extract_certificates(page, type):
-        # new member packs, type is std_adult/young_adult/plus_adult/plus_young_adult/junior
-        if type == "std_adult":
+        # new member packs, type is std/plus/junior
+        if type == "std":
             sel = [('Member', 'status', MemberStatus.plus, '!=', None),
-                   ('Member', 'member_type', [MembershipType.intermediate.value, MembershipType.junior.value], 'not in', None)]
-        if type == "young_adult":
-            sel = [('Member', 'status', MemberStatus.plus, '!=', None),
-                   ('Member', 'member_type', MembershipType.intermediate, '=', None)]
-        if type == "plus_adult":
+                   ('Member', 'member_type', MembershipType.junior.value, '!=', None)]
+        if type == "plus":
             sel = [('Member', 'status', MemberStatus.plus, '=', None),
-                   ('Member', 'member_type', [MembershipType.intermediate.value, MembershipType.junior.value], 'not in', None)]
-        if type == "plus_young_adult":
-            sel = [('Member', 'status', MemberStatus.plus, '=', None),
-                   ('Member', 'member_type', MembershipType.intermediate, '=', None)]
+                   ('Member', 'member_type', MembershipType.junior.value, '!=', None)]
         if type == "junior":
-            sel = [('Member', 'status', MemberStatus.plus, '!=', None),
-                   ('Member', 'member_type', MembershipType.junior, '=', None)]
+            sel = [('Member', 'member_type', MembershipType.junior, '=', None),]
         query_clauses = sel + [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None),
