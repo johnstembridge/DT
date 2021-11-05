@@ -21,6 +21,7 @@ class Dashboard(FlaskForm):
     honorary = StringField(label='Honorary')
     young_adults = StringField(label='Young Adults')
     juniors = StringField(label='Juniors')
+    voters = StringField(label='Voters')
 
     cash = StringField(label='Cash')
     chq = StringField(label='Cheque')
@@ -49,7 +50,8 @@ class Dashboard(FlaskForm):
             101: 0, # Life Junior
             102: 0, # DT plus standard
             103: 0, # DT plus concession
-            104: 0  # DT plus young adult
+            104: 0, # DT plus young adult
+            105: 0  # voter
         }
         payment_totals = {
             PaymentMethod.cash: 0,
@@ -79,6 +81,8 @@ class Dashboard(FlaskForm):
                     member_totals[104] += 1
                 else:
                     member_totals[102] += 1
+            if member.voter():
+                member_totals[105] += 1
             return
 
         def add_payment(member, payment_totals):
@@ -109,9 +113,11 @@ class Dashboard(FlaskForm):
 
         self.adults.data = member_totals[MembershipType.standard]
         self.life_adults.data = member_totals[100]
+        self.life_juniors.data = member_totals[101]
         self.plus_standard.data = member_totals[102]
         self.plus_concession.data = member_totals[103]
         self.plus_young_adult.data = member_totals[104]
+        self.voters.data = member_totals[105]
         self.seniors.data = member_totals[MembershipType.senior]
         self.students.data = member_totals[MembershipType.student]
         self.job_seekers.data = member_totals[MembershipType.job_seeker]
@@ -120,7 +126,6 @@ class Dashboard(FlaskForm):
         self.others.data = member_totals[MembershipType.other_concession]
         self.young_adults.data = member_totals[MembershipType.intermediate]
         self.juniors.data = member_totals[MembershipType.junior]
-        self.life_juniors.data = member_totals[101]
 
         self.concessions.data = self.seniors.data + self.students.data + self.job_seekers.data + self.incapacity.data + self.honorary.data + self.others.data
         self.total.data = self.adults.data + self.concessions.data + self.young_adults.data + self.juniors.data
