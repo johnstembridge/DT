@@ -17,7 +17,7 @@ class Extracts:
             sel = [('Member', 'status', MemberStatus.plus, '=', None),
                    ('Member', 'member_type', MembershipType.junior.value, '!=', None)]
         if type == "junior":
-            sel = [('Member', 'member_type', MembershipType.junior, '=', None),]
+            sel = [('Member', 'member_type', MembershipType.junior, '=', None), ]
         query_clauses = sel + [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None),
@@ -38,9 +38,9 @@ class Extracts:
             ('Action', 'action', [a.value for a in MemberAction.send_cards()], 'in', None)
         ]
         display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
-                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'recent new',
-                          'recent resume', 'email', 'use email', 'email bounced', 'card start year', 'first name',
-                          'last name']
+                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'fan id',
+                          'recent new', 'recent resume', 'email', 'use email', 'email bounced', 'card start year',
+                          'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields, action='card', page=page)
 
     @staticmethod
@@ -63,8 +63,7 @@ class Extracts:
         ]
         display_fields = ['number', 'member type', 'full name', 'use email', 'email', 'action', 'action date',
                           'action comment', 'last payment date', 'last payment amount', 'last payment type',
-                          'payment type',
-                          'last payment method', 'last payment comment', 'end']
+                          'payment type', 'last payment method', 'last payment comment', 'end']
         return Query.show_found_do(query_clauses, display_fields, action='renewal', payment='pending', page=page)
 
     @staticmethod
@@ -124,7 +123,8 @@ class Extracts:
         ]
         display_fields = ['number', 'full name', 'member type', 'use email', 'email', 'mobile phone', 'home phone',
                           'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state',
-                          'post code', 'country for post', 'voter', 'AFCW access', 'first name', 'last name']
+                          'post code', 'country for post', 'voter', 'AFCW access', 'first name', 'last name',
+                          'status', 'end']
         return Query.show_found_do(query_clauses, display_fields, action='query')
 
     @staticmethod
@@ -145,9 +145,9 @@ class Extracts:
         ]
         display_fields = \
             ['number', 'id number', 'full name', 'address (line 1)', 'address (line 2)', 'address (line 3)',
-             'city', 'county', 'state', 'post code', 'country for post', 'status', 'member type', 'type at renewal',
-             'email', 'comms', 'payment method', 'renewal notes', 'home phone', 'mobile phone', 'birth date',
-             'junior email', 'AFCW access', '3rd pty access', 'recent new', 'recent resume']
+             'city', 'county', 'state', 'post code', 'country for post', 'fan id', 'status', 'member type',
+             'type at renewal', 'email', 'comms', 'payment method', 'renewal notes', 'home phone', 'mobile phone',
+             'birth date', 'junior email', 'AFCW access', '3rd pty access', 'recent new', 'recent resume']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
