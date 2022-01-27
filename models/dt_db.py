@@ -322,11 +322,15 @@ class Member(Base):
 
     def age(self, as_of=None, default=False):
         if self.birth_date:
+            birth_date = self.birth_date
+            leap = birth_date.month == 2 and birth_date.day == 29
+            if leap:
+                birth_date = birth_date.replace(day=28)
             if not as_of:
                 as_of = datetime.today().date()
-            years = as_of.year - self.birth_date.year
-            if as_of.month < self.birth_date.month or (
-                    as_of.month == self.birth_date.month and as_of.day < self.birth_date.day):
+            years = as_of.year - birth_date.year
+            if as_of.month < birth_date.month or (
+                    as_of.month == birth_date.month and as_of.day < birth_date.day):
                 years -= 1
             return years
         else:
