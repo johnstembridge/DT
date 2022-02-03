@@ -123,13 +123,13 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
                     s = 'MONTH({}.{}){}{}'.format(table, column, condition, value)
                 else:
                     s = 'Unknown engine: ' + engine
-            if func in ['age()', 'age_at_renewal()', 'age_last_renewal()']:
+            if func in ['age()', 'age_at_renewal()', 'age_at_start()']:
                 if func == 'age()':
                     date = 'current_date()'
                 elif func == 'age_at_renewal()':
                     date = sql_fmt_date(current_year_end())
-                elif func == 'age_last_renewal()':
-                    date = sql_fmt_date(previous_year_end())
+                elif func == 'age_at_start()':
+                    date = 'members.start_date'
                 if '>' in condition:
                     condition = condition.replace('>', '<')
                 elif '<' in condition:

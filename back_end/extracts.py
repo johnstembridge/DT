@@ -18,10 +18,10 @@ class Extracts:
                    ('Member', 'member_type', MembershipType.junior.value, '!=', None)]
         if type == "junior":
             sel = [('Member', 'member_type', MembershipType.junior, '=', None),
-                   ('Member', 'birth_date', 16, '<', 'age_last_renewal()')]
+                   ('Member', 'birth_date', 16, '<', 'age_at_start()')]
         if type == "junior_voter":
             sel = [('Member', 'member_type', MembershipType.junior, '=', None),
-                   ('Member', 'birth_date', 16, '>=', 'age_last_renewal()')]
+                   ('Member', 'birth_date', 16, '>=', 'age_at_start()')]
         query_clauses = sel + [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None),
