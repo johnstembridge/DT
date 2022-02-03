@@ -8,7 +8,7 @@ from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, Pa
 from main import db
 from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State, Region, QandA
 from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, sql_fmt_date, \
-    current_year_end, parse_date, force_list, to_int
+    current_year_end, previous_year_end, parse_date, force_list, to_int
 
 
 def save_object(object):
@@ -123,11 +123,13 @@ def get_members_for_query(query_clauses, default_table='Member', limit=None):
                     s = 'MONTH({}.{}){}{}'.format(table, column, condition, value)
                 else:
                     s = 'Unknown engine: ' + engine
-            if func in ['age()', 'age_at_renewal()']:
+            if func in ['age()', 'age_at_renewal()', 'age_last_renewal()']:
                 if func == 'age()':
                     date = 'current_date()'
-                else:
+                elif func == 'age_at_renewal()':
                     date = sql_fmt_date(current_year_end())
+                elif func == 'age_last_renewal()':
+                    date = sql_fmt_date(previous_year_end())
                 if '>' in condition:
                     condition = condition.replace('>', '<')
                 elif '<' in condition:
