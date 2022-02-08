@@ -44,6 +44,7 @@ class Reports:
         all_districts = get_all_districts()
         csv = []
         count = {r: 0 for r in sorted(set([d[1] for d in all_districts]))}
+        regions = dict(set([(d[1], d[2]) for d in all_districts]))
         for member in members:
             if member.address.region_id:
                 count[member.address.region.district] += 1
@@ -51,5 +52,5 @@ class Reports:
         head = ['region', 'district', 'count']
         csv.append(head)
         for district in count:
-            csv.append([district, count[district]])
+            csv.append([regions[district], district, count[district]])
         return csv
