@@ -285,7 +285,7 @@ class Member(Base):
             resume = last.comment == 'resume lapsed'
         date = self.last_payment('date')
         not_dd_pending = self.last_payment_method != PaymentMethod.dd_pending
-        return resume and not_dd_pending and date >= datetime(current_year_end().year, 4, 1).date()
+        return resume and not_dd_pending
 
     def is_founder(self):
         return self.number <= 1889
