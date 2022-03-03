@@ -22,6 +22,8 @@ class Extracts:
         if type == "junior_voter":
             sel = [('Member', 'member_type', MembershipType.junior, '=', None),
                    ('Member', 'birth_date', 16, '>=', 'age_at_start()')]
+        if type == "all":
+            sel = []
         query_clauses = sel + [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
             ('Action', 'status', ActionStatus.open.value, '=', None),
