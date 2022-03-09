@@ -539,10 +539,10 @@ def get_state(id):
 
 
 def get_region(country, post_code):
-    if country.code == 'UK':
-        s = re.search('\d', post_code).start()
+    if post_code and country.code == 'UK':
+        s = re.search('\d', post_code)
         if s:
-            prefix = post_code[:s].upper()
+            prefix = post_code[:s.start()].upper()
             return db.session.query(Region).filter(Region.postcode_prefix == prefix).first()
     return None
 
