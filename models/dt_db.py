@@ -9,10 +9,9 @@ from sqlalchemy import Column, Integer, String, SmallInteger, Date, Numeric, For
 from globals.enumerations import MembershipType, MemberStatus, PaymentType, PaymentMethod, Sex, UserRole, CommsType, \
     Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, \
     PlusDues, YesNo
-from back_end.questionnaire import QuestionId
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
     previous_year_end, match_string, fmt_phone, fmt_curr
-from datetime import datetime, date
+from datetime import datetime
 from time import time, localtime, strftime
 
 Base = declarative_base()
@@ -189,7 +188,6 @@ class Member(Base):
     comments = relationship('Comment', order_by='desc(Comment.date)', back_populates='member')
     actions = relationship('Action', order_by='desc(Action.date)', back_populates='member')
     junior = relationship('Junior', uselist=False, back_populates='member')
-    qandas = relationship('QandA', order_by='QandA.question_id', back_populates='member')
 
     # region Member extras
     dict_fields = ['number', 'start_date', 'end_date', 'status', 'member_type', 'sex', 'birth_date', 'title',
@@ -282,8 +280,7 @@ class Member(Base):
         if not last:
             resume = False
         else:
-            resume = last.comment == 'resume lapsed'
-        date = self.last_payment('date')
+            resume = last.comment == 'resume lapsed' and last.date >= datetime(current_year_end().year, 2, 1).date()
         not_dd_pending = self.last_payment_method != PaymentMethod.dd_pending
         return resume and not_dd_pending
 
@@ -664,11 +661,11 @@ class Member(Base):
         if new_member and not life_member:
             notes = [
                         "As you joined relatively late during the membership year we will automatically extend " \
-                        "your membership until August 2022.", ] + notes
+                        "your membership until July 2023.", ] + notes
         if recent_resume and not life_member:
             notes = [
                         "As you resumed a lapsed membership recently we will automatically extend " \
-                        "your membership until August 2022.", ] + notes
+                        "your membership until July 2023.", ] + notes
         return notes
 
     def renewal_activated(self):
@@ -839,15 +836,3 @@ class Region(Base):
     def __repr__(self):
         return '<Region {}: {}>'.format(self.district, self.region)
 
-
-class QandA(Base):
-    __tablename__ = 'qanda'
-    id = Column(Integer, primary_key=True)
-    member_id = Column(Integer, ForeignKey('members.id'))
-    question_id = Column(EnumType(QuestionId), nullable=False)
-    answer = Column(Integer, nullable=True)
-    other = Column(String(100), nullable=True)
-    member = relationship('Member', back_populates='qandas')
-
-    def __repr__(self):
-        return '<Question and Answer {} {} {} {}>'.format(self.member_id, self.question_id, self.answer, self.other)

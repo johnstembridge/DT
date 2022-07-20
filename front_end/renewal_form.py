@@ -6,8 +6,7 @@ from wtforms.fields.html5 import DateField
 from back_end.interface import get_member, save_member_contact_details, country_choices, county_choices, state_choices, \
     get_country, get_county, get_state, get_junior
 from front_end.form_helpers import MySelectField
-from front_end.diversity_form import diversity_fields, DiversityForm
-from globals.enumerations import MemberStatus, MembershipType, Sex, CommsType, PaymentMethod, Title, CommsStatus, \
+from globals.enumerations import MemberStatus, MembershipType, CommsType, PaymentMethod, Title, CommsStatus, \
     JuniorGift, ExternalAccess, RenewalPayment, MemberAction, YesNo
 from back_end.data_utilities import fmt_date
 
@@ -64,10 +63,6 @@ class MemberEditForm(FlaskForm):
     access = HiddenField(label='User Access')
     plus = HiddenField(label='DT plus')
     type = MySelectField(label='Member Type', choices=MembershipType.renewal_choices(), coerce=MembershipType.coerce)
-
-    (parental_consent, gender, gender_other, gender_identify, disability, disability_type, disability_type_other,
-     impairment, marital_status, ethnicity, ethnicity_other, sexual_orientation, religion, religion_other, employment,
-     employment_other) = diversity_fields()
 
     submit = SubmitField(label='Save')
 
@@ -135,22 +130,22 @@ class MemberEditForm(FlaskForm):
             self.jd_email = self.jd_gift = None
 
         self.third_pty_access.data = member.third_pty_access()
-
-        self.payment_method.data = self.current_payment_method.data
+        if self.payment_method:
+            self.payment_method.data = self.current_payment_method.data
         previous = member.previous_renewal_payment()
         self.previous_payment_method.data = previous.value if previous else 0
 
         self.upgrade.data = member.last_action() and member.last_action().action == MemberAction.upgrade
-
-        self.notes.data = member.renewal_notes() + member.edit_notes()
-        self.notes.data += [
-            'This year we are collecting diversity information - please complete this section as well.', ]
-        self.notes.data += [
-            'We are also asking for your AFC Wimbledon Fan ID so please give this if you have one.', ]
-        DiversityForm.populate_member(self, member_number, return_url, renewal)
+        if renewal:
+            self.notes.data = member.renewal_notes() + member.edit_notes()
+            self.notes.data += [
+                'We are also asking for your AFC Wimbledon Fan ID so please give this if you have one.', ]
+        else:
+            self.notes.data = ''
         return member.renewal_activated()
 
     def save_member(self, member_number):
+        payment_method = self.payment_method.data if self.payment_method else int(self.previous_payment_method.data)
         member_details = {
             'title': self.title.data,
             'first_name': self.first_name.data.strip(),
@@ -179,7 +174,7 @@ class MemberEditForm(FlaskForm):
 
             'external_access': self.external_access(None, self.third_pty_access.data),
 
-            'payment_method': self.payment_method.data,
+            'payment_method': payment_method,
             'comment': self.comment.data,
             'upgrade': self.upgrade.data
         }
@@ -189,8 +184,9 @@ class MemberEditForm(FlaskForm):
             member_details['parental_consent'] = YesNo.yes if self.parental_consent.data else YesNo.no
 
         # return key info for save message
+        renewal = self.form_type.data == 'renewal'
         member = get_member(member_number)
-        payment_method = PaymentMethod.from_value(self.payment_method.data)
+        payment_method = PaymentMethod.from_value(payment_method)
         upgrade = self.upgrade.data
         plus = upgrade or member.status == MemberStatus.plus
         member_type = member.long_membership_type(upgrade=upgrade)
@@ -198,9 +194,7 @@ class MemberEditForm(FlaskForm):
         if member.is_recent_resume() and not upgrade:
             dues = -1
         renewal_payment = self.get_renewal_payment(payment_method, member, upgrade)
-
-        member = save_member_contact_details(member_number, member_details, self.form_type.data == 'renewal', False)
-        member = DiversityForm.save_member(self, member)
+        member = save_member_contact_details(member_number, member_details, renewal, False)
         return payment_method, renewal_payment, dues, member_type, member
 
     def get_renewal_payment(self, payment_method, member, upgrade):

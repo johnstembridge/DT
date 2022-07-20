@@ -4,7 +4,6 @@ from flask_login import current_user, logout_user
 from front_end.member_list_form import MemberListForm
 from front_end.member_details_form import MemberDetailsForm
 from front_end.renewal_form import MemberEditForm
-from front_end.diversity_form import DiversityForm
 from front_end.dd_form import RenewalDebitForm, MemberDebitForm
 from front_end.chq_form import RenewalChequeForm
 from front_end.form_helpers import flash_errors, render_link, url_pickle_dump, url_pickle_load, read_only_form
@@ -91,7 +90,7 @@ class MaintainMembers:
             return redirect
         form = MemberEditForm()
         if form.validate_on_submit():
-            if form.submit.data:
+           if form.submit.data:
                 payment_method, paypal_payment, dues, member_type, member = form.save_member(member_number)
                 if member:
                     flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
@@ -213,26 +212,3 @@ class MaintainMembers:
             return redirect('/members/{}/{}'.format(current_user.member.number, goto))
         else:
             return None
-
-    @staticmethod
-    def diversity_member(member_number):
-        redirect = MaintainMembers.current_user_is_member(member_number)
-        if redirect:
-            return redirect
-        form = DiversityForm()
-        if form.validate_on_submit():
-            if form.submit.data:
-                member = form.save_member(member_number)
-                if member:
-                    flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
-                          'success')
-                form.populate_member(member_number, request.referrer, renewal=False)
-        elif form.errors:
-            flash_errors(form)
-        if not form.is_submitted():
-            message = form.populate_member(member_number, request.referrer, renewal=False)
-            if message:
-                flash(message, 'success')
-        return render_template('diversity.html', form=form, render_link=render_link)
-
-

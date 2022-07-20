@@ -6,9 +6,9 @@ import io, csv, re
 from globals.enumerations import MemberStatus, MembershipType, PaymentMethod, PaymentType, MemberAction, ActionStatus, \
     Title, Sex, CommsType, CommsStatus, JuniorGift, ExternalAccess, UserRole
 from main import db
-from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State, Region, QandA
+from models.dt_db import Member, Address, User, Payment, Action, Comment, Junior, Country, County, State, Region
 from back_end.data_utilities import first_or_default, unique, pop_next, fmt_date, file_delimiter, sql_fmt_date, \
-    current_year_end, previous_year_end, parse_date, force_list, to_int
+    current_year_end, parse_date, force_list, to_int
 
 
 def save_object(object):
