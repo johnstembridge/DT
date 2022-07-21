@@ -268,7 +268,11 @@ class Member(Base):
 
     def is_pending_upgrade(self):
         last_payment = self.last_payment()
-        return last_payment and last_payment.type == PaymentType.pending and last_payment.amount != self.base_dues()
+        return last_payment and last_payment.type == PaymentType.pending and last_payment.amount > self.base_dues()
+
+    def is_pending_downgrade(self):
+        last_payment = self.last_payment()
+        return last_payment and last_payment.type == PaymentType.pending and last_payment.amount < self.base_dues()
 
     def is_recent_new(self):
         return self.start_date >= datetime(current_year_end().year, 2, 1).date()
@@ -574,11 +578,11 @@ class Member(Base):
             long = ''
         return long
 
-    def long_membership_type(self, upgrade=False):
+    def long_membership_type(self, upgrade=False, downgrade=False):
         long_type = [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1]
         if self.status == MemberStatus.life:
             status = '(Life)'
-        elif upgrade or self.status == MemberStatus.plus:
+        elif upgrade or self.status == MemberStatus.plus and not downgrade:
             status = '(Plus)'
         else:
             status = ''
@@ -606,11 +610,20 @@ class Member(Base):
         renewal_cost = "The renewal cost is {}. ".format(renewal_dues) if not (new_member or recent_resume) else ''
         upgrade_dues = '£' + str(
             self.upgrade_dues() if (new_member or recent_resume) else self.dues() + self.upgrade_dues())
-        if not self.is_pending_upgrade():
-            upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(
-                upgrade_dues) if self.status != MemberStatus.plus else ''
-        else:
-            upgrade_para = 'You have chosen to upgrade to Dons Trust Plus membership'
+        upgrade_para = ''
+        if self.status != MemberStatus.plus:
+            if not self.is_pending_upgrade():
+                upgrade_para = "You may upgrade to Dons Trust Plus membership at a total cost of {}.".format(
+                    upgrade_dues)
+            else:
+                upgrade_para = 'You have chosen to upgrade to Dons Trust Plus membership'
+        downgrade_dues = '£' + str(0 if (new_member or recent_resume) else self.base_dues())
+        if self.status == MemberStatus.plus:
+            if not self.is_pending_downgrade():
+                upgrade_para = "You may switch to Dons Trust Standard membership at a total renewal cost of {}.".format(
+                    downgrade_dues)
+            else:
+                upgrade_para = 'You have chosen to switch to Dons Trust Standard membership'
         member_type = self.member_type_at_renewal()
         life_member = self.status == MemberStatus.life
         member_type_switch = member_type != self.member_type and not life_member
@@ -670,7 +683,7 @@ class Member(Base):
 
     def renewal_activated(self):
         last_payment = self.last_payment()
-        if last_payment and last_payment.type.name == 'pending':
+        if last_payment and last_payment.type == PaymentType.pending:
             last_action = self.last_action()
             if last_action and last_action.action == MemberAction.upgrade and last_action.status == ActionStatus.open:
                 return 'Renewal was activated {} ({})'.format(fmt_date(last_action.date), last_action.comment)
@@ -835,4 +848,3 @@ class Region(Base):
 
     def __repr__(self):
         return '<Region {}: {}>'.format(self.district, self.region)
-

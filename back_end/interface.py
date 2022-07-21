@@ -318,34 +318,6 @@ def update_member_actions(member, details):
     member.actions = actions
 
 
-def update_member_questions(member, qandas):
-    all = []
-    for qanda in qandas:
-        (question, answer, other) = qanda
-        if other == '':
-            other = None
-        if question == 0:
-            continue
-        answers = force_list(answer)
-        items = [q for q in member.qandas if q.question_id == question]
-        for answer in answers:
-            if len(items) > 0:
-                item = items.pop()
-                item.question_id = question
-                item.answer = answer
-                item.other = other
-            else:
-                item = QandA(
-                    member_id=member.id,
-                    question_id=question,
-                    answer=answer,
-                    other=other,
-                )
-            all.append(item)
-    member.qandas = all
-    db.session.commit()
-
-
 def update_member_comments(member, details):
     comments = []
     for comment in details['comments']:
@@ -368,19 +340,20 @@ def update_member_renewal(member, details):
     #handle action
     item = first_or_default(
         [a for a in member.actions if a.action == MemberAction.upgrade and a.status == ActionStatus.open], None)
-    if details['upgrade']:
+    if details['upgrade'] or details['downgrade']:
         date = datetime.date.today()
-        comment = 'Upgrade to DT plus'
+        comment = 'Revert to standard membership' if details['downgrade'] else 'Upgrade to DT plus'
+        action = MemberAction.downgrade if details['downgrade'] else MemberAction.upgrade
         if item:
             item.date = date
-            item.action = MemberAction.upgrade
+            item.action = action
             item.comment = comment
             item.status = ActionStatus.open
         else:
             item = Action(
                 member_id=member.id,
                 date=date,
-                action=MemberAction.upgrade,
+                action=action,
                 comment=comment,
                 status=ActionStatus.open
             )
@@ -388,7 +361,7 @@ def update_member_renewal(member, details):
     elif item:
         member.actions.remove(item)
     #handle payment
-    if member.status == MemberStatus.plus:
+    if member.status == MemberStatus.plus and not details['downgrade']:
         dues = member.plus_dues()
     else:
         dues = member.base_dues() + (member.upgrade_dues() if details['upgrade'] else 0)

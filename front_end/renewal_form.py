@@ -53,6 +53,7 @@ class MemberEditForm(FlaskForm):
     third_pty_access = BooleanField(label='Please indicate whether you wish to receive this information')
 
     upgrade = BooleanField(label='I wish to change my membership to Dons Trust Plus')
+    downgrade = BooleanField(label='I wish to change my membership to Dons Trust Standard')
     payment_method = RadioField(label='Payment Method', choices=PaymentMethod.renewal_choices(),
                                    coerce=PaymentMethod.coerce)
     comment = TextAreaField(label='Please add any comments about the renewal here')
@@ -125,7 +126,6 @@ class MemberEditForm(FlaskForm):
                 member.junior = get_junior()
             self.jd_email.data = member.junior.email or ''
             self.jd_gift.data = member.junior.gift.value if member.junior.gift else ''
-            self.parental_consent.data = 1 if member.junior.parental_consent else 0
         else:
             self.jd_email = self.jd_gift = None
 
@@ -139,7 +139,7 @@ class MemberEditForm(FlaskForm):
         if renewal:
             self.notes.data = member.renewal_notes() + member.edit_notes()
             self.notes.data += [
-                'We are also asking for your AFC Wimbledon Fan ID so please give this if you have one.', ]
+                'We are also asking for your AFC Wimbledon Fan ID so please check this if you have one.', ]
         else:
             self.notes.data = ''
         return member.renewal_activated()
@@ -176,37 +176,38 @@ class MemberEditForm(FlaskForm):
 
             'payment_method': payment_method,
             'comment': self.comment.data,
-            'upgrade': self.upgrade.data
+            'upgrade': self.upgrade.data,
+            'downgrade': self.downgrade.data
         }
         if self.type.data == MembershipType.junior.value:
             member_details['jd_mail'] = self.jd_email.data.strip()
             member_details['jd_gift'] = self.jd_gift.data
-            member_details['parental_consent'] = YesNo.yes if self.parental_consent.data else YesNo.no
 
         # return key info for save message
         renewal = self.form_type.data == 'renewal'
         member = get_member(member_number)
         payment_method = PaymentMethod.from_value(payment_method)
         upgrade = self.upgrade.data
-        plus = upgrade or member.status == MemberStatus.plus
-        member_type = member.long_membership_type(upgrade=upgrade)
+        downgrade = self.downgrade.data
+        plus = upgrade or member.status == MemberStatus.plus and not downgrade
+        member_type = member.long_membership_type(upgrade=upgrade, downgrade=downgrade)
         dues = member.base_dues() + (member.upgrade_dues() if plus else 0)
         if member.is_recent_resume() and not upgrade:
             dues = -1
-        renewal_payment = self.get_renewal_payment(payment_method, member, upgrade)
-        member = save_member_contact_details(member_number, member_details, renewal, False)
+        renewal_payment = self.get_renewal_payment(payment_method, member, upgrade, downgrade)
+        member = save_member_contact_details(member_number, member_details, renewal)
         return payment_method, renewal_payment, dues, member_type, member
 
-    def get_renewal_payment(self, payment_method, member, upgrade):
+    def get_renewal_payment(self, payment_method, member, upgrade, downgrade):
         if payment_method == PaymentMethod.cc:
-            return self.renewal_payment(member, upgrade)
+            return self.renewal_payment(member, upgrade, downgrade)
         elif payment_method == PaymentMethod.dd and \
                 member.last_payment_type() == "pending" and member.last_payment_method != PaymentMethod.dd:
-            return self.renewal_payment(member, upgrade)
+            return self.renewal_payment(member, upgrade, downgrade)
         else:
-            return self.renewal_payment(member, upgrade)
+            return self.renewal_payment(member, upgrade, downgrade)
 
-    def renewal_payment(self, member, upgrade):
+    def renewal_payment(self, member, upgrade, downgrade):
         member_type = member.member_type_at_renewal()
         if member.status == MemberStatus.life:
             return None
@@ -219,7 +220,7 @@ class MemberEditForm(FlaskForm):
             elif member_type == MembershipType.standard:
                 return RenewalPayment.Dons_Trust_Plus_Adult_upgrade if upgrade else None
         else:
-            plus = upgrade or member.status == MemberStatus.plus
+            plus = upgrade or member.status == MemberStatus.plus and not downgrade
             if member_type == MembershipType.junior:
                 return RenewalPayment.Junior_Dons_renewal
             elif member_type in MembershipType.concessions(all=True):

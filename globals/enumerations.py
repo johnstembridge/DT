@@ -168,6 +168,7 @@ class MemberAction(FormEnum):
     gift = 7
     other = 8
     check_payment = 9 # check that correct payment made after late change of membership
+    downgrade = 10
 
     @staticmethod
     def send_certificates():

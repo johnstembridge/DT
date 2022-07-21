@@ -138,10 +138,12 @@
         </tr>
         {% endif %}
     </table>
-    <br/>
-    <b>&nbsp;The Dons Trust may contact you with offers from our official partners and sponsors which we think may be of
-        interest to you.</b>
-    <br/>{{ form.third_pty_access.label }}{{ form.third_pty_access }}
+    {% if form.type.data != 3 %}
+        <br/>
+        <b>&nbsp;The Dons Trust may contact you with offers from our official partners and sponsors which we think may be of
+            interest to you.</b>
+        <br/>{{ form.third_pty_access.label }}{{ form.third_pty_access }}
+    {% endif %}
     <hr class="bold"/>
     {% if form.form_type.data == 'renewal' %}
     <h3>Payment</h3>
@@ -154,6 +156,10 @@
         {% if form.status.data != 'plus' and form.type.data != 3 %}
             <p>
             {{ form.upgrade.label }} {{ form.upgrade }}
+        {% endif %}
+        {% if form.status.data == 'plus' %}
+            <p>
+            {{ form.downgrade.label }} {{ form.downgrade }}
         {% endif %}
     {% endif %}
     <i>
