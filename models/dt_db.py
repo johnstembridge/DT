@@ -679,6 +679,10 @@ class Member(Base):
             notes = [
                         "As you resumed a lapsed membership recently we will automatically extend " \
                         "your membership until July 2023.", ] + notes
+        if self.comms == CommsType.post:
+            notes = [
+                        "You have currently opted to receive communications by post. If possible, please choose " \
+                        "email, this will save money for the Trust and ease the admin burden.", ] + notes
         return notes
 
     def renewal_activated(self):
