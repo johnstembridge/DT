@@ -136,7 +136,7 @@ def renewal_date(as_of=None):
 
 
 def current_year():
-    return datetime.datetime.today().year
+    return datetime.date.today().year
 
 
 def current_year_end():
@@ -147,12 +147,12 @@ def current_year_end():
 
 
 def next_year_end():
-    today = datetime.today()
+    today = datetime.date.today()
     return renewal_date(today.replace(year=today.year + 1))
 
 
 def previous_year_end():
-    today = datetime.today()
+    today = datetime.date.today()
     return renewal_date(today.replace(year=today.year - 1))
 
 # endregion
