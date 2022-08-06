@@ -130,9 +130,9 @@ def renewal_date(as_of=None):
        as_of = datetime.date.today()
     switch_date = parse_date("2022/08/01")
     if as_of < switch_date:
-        return parse_date(str(as_of.year) + "08/01")
+        return parse_date(str(as_of.year) + "/08/01")
     else:
-        return parse_date(str(as_of.year) + "07/01")
+        return parse_date(str(as_of.year) + "/07/01")
 
 
 def current_year():
