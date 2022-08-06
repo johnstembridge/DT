@@ -24,17 +24,17 @@
             </select></td>
         </tr>
         <tr>
-            <td><input type="hidden" name="on1" value="Please specify concession type">Concession type (if applicable)
+            <td><input type="hidden" name="on1" value="DT Member Number">DT member number (if renewal)</td>
+            <td><input type="text" name="os1" maxlength="20", value="{{ dt_number }}"></td>
+        </tr>
+        <tr>
+            <td><input type="hidden" name="on2" value="Please specify concession type">Concession type (if applicable)
             </td>
-            <td><input type="text" name="os1" maxlength="200" value="{{ concession_type }}"></td>
+            <td><input type="text" name="os2" maxlength="200" value="{{ concession_type }}"></td>
         </tr>
         <tr>
-            <td><input type="hidden" name="on2" value="New or Renewal">New or Renewal</td>
-            <td><input type="text" name="os2" maxlength="20", value="renewal"></td>
-        </tr>
-        <tr>
-            <td><input type="hidden" name="on3" value="DT Member Number">DT member number (if renewal)</td>
-            <td><input type="text" name="os3" maxlength="20", value="{{ dt_number }}"></td>
+            <td><input type="hidden" name="on3" value="New or Renewal">New or Renewal</td>
+            <td><input type="text" name="os3" maxlength="20", value="renewal"></td>
         </tr>
         <hr/>
         <tr>

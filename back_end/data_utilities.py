@@ -125,18 +125,35 @@ def in_date_range(date, date_from, date_to):
         return False
 
 
+def renewal_date(as_of=None):
+    if not as_of:
+       as_of = datetime.date.today()
+    switch_date = parse_date("2022/08/01")
+    if as_of < switch_date:
+        return parse_date(as_of.year + "08/01")
+    else:
+        return parse_date(as_of.year + "07/01")
+
+
 def current_year():
-    return datetime.datetime.now().year
+    return datetime.datetime.today().year
 
 
 def current_year_end():
+    return renewal_date()
+
     date = config.get('next_renewal_date')
     return parse_date(date, reverse=True)
 
 
+def next_year_end():
+    today = datetime.today()
+    return renewal_date(today.replace(year=today.year + 1))
+
+
 def previous_year_end():
-    cye = current_year_end()
-    return cye.replace(year=cye.year - 1)
+    today = datetime.today()
+    return renewal_date(today.replace(year=today.year - 1))
 
 # endregion
 

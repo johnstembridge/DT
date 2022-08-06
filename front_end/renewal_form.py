@@ -190,25 +190,26 @@ class MemberEditForm(FlaskForm):
         upgrade = self.upgrade.data
         downgrade = self.downgrade.data
         plus = upgrade or member.status == MemberStatus.plus and not downgrade
-        member_type = member.long_membership_type(upgrade=upgrade, downgrade=downgrade)
-        dues = member.base_dues() + (member.upgrade_dues() if plus else 0)
+        member_type = MembershipType.from_value(self.type.data)
+        member_type_long = member.long_membership_type(member_type=member_type, upgrade=upgrade, downgrade=downgrade)
+        dues = member.base_dues(type=member_type) + (member.upgrade_dues() if plus else 0)
         if member.is_recent_resume() and not upgrade:
             dues = -1
-        renewal_payment = self.get_renewal_payment(payment_method, member, upgrade, downgrade)
+        renewal_payment = self.get_renewal_payment(payment_method, member, member_type, upgrade, downgrade)
         member = save_member_contact_details(member_number, member_details, renewal)
-        return payment_method, renewal_payment, dues, member_type, member
+        return payment_method, renewal_payment, dues, member_type_long, member
 
-    def get_renewal_payment(self, payment_method, member, upgrade, downgrade):
+    def get_renewal_payment(self, payment_method, member, type, upgrade, downgrade):
         if payment_method == PaymentMethod.cc:
-            return self.renewal_payment(member, upgrade, downgrade)
+            return self.renewal_payment(member, type, upgrade, downgrade)
         elif payment_method == PaymentMethod.dd and \
                 member.last_payment_type() == "pending" and member.last_payment_method != PaymentMethod.dd:
-            return self.renewal_payment(member, upgrade, downgrade)
+            return self.renewal_payment(member, type, upgrade, downgrade)
         else:
-            return self.renewal_payment(member, upgrade, downgrade)
+            return self.renewal_payment(member, type, upgrade, downgrade)
 
-    def renewal_payment(self, member, upgrade, downgrade):
-        member_type = member.member_type_at_renewal()
+    def renewal_payment(self, member, type, upgrade, downgrade):
+        member_type = type
         if member.status == MemberStatus.life:
             return None
         new_member = member.is_recent_new() or member.is_recent_resume()

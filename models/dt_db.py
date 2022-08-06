@@ -416,14 +416,17 @@ class Member(Base):
         if status == MemberStatus.plus:
             return self.plus_dues(as_of)
         else:
-            return self.base_dues(as_of)
+            return self.base_dues(as_of=as_of)
 
-    def base_dues(self, as_of=None):
+    def base_dues(self, type=None, as_of=None):
         if not as_of:
             as_of = current_year_end()
+        if not type:
+            type = self.member_type
+        else:
+            type = self.member_type_at_renewal(as_of)
         if self.status == MemberStatus.life or self.is_recent_resume() or self.is_recent_new():
             return 0
-        type = self.member_type_at_renewal(as_of)
         if type in MembershipType.concessions():
             return Dues.concession.value
         if type == MembershipType.junior:
@@ -578,8 +581,10 @@ class Member(Base):
             long = ''
         return long
 
-    def long_membership_type(self, upgrade=False, downgrade=False):
-        long_type = [c for c in MembershipType.renewal_choices() if c[0] == self.member_type.value][0][1]
+    def long_membership_type(self, member_type=None, upgrade=False, downgrade=False):
+        if not member_type:
+            member_type =  self.member_type
+        long_type = [c for c in MembershipType.renewal_choices() if c[0] == member_type.value][0][1]
         if self.status == MemberStatus.life:
             status = '(Life)'
         elif upgrade or self.status == MemberStatus.plus and not downgrade:

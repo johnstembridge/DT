@@ -90,7 +90,7 @@ class MaintainMembers:
             return redirect
         form = MemberEditForm()
         if form.validate_on_submit():
-           if form.submit.data:
+            if form.submit.data:
                 payment_method, paypal_payment, dues, member_type, member = form.save_member(member_number)
                 if member:
                     flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
@@ -118,6 +118,8 @@ class MaintainMembers:
                 if member:
                     flash('member {} {}'.format(member.dt_number(), 'saved' if member_number == 0 else 'updated'),
                           'success')
+                    upgrade = member.last_action() and member.last_action().action == MemberAction.upgrade
+                    downgrade = member.last_action() and member.last_action().action == MemberAction.upgrade
                     if renewal_payment and payment_method == PaymentMethod.cc:
                         next = render_template('renewal_paypal.html',
                                                pp_name=renewal_payment.name.replace("_", " "),
@@ -125,13 +127,15 @@ class MaintainMembers:
                                                dt_number=member.dt_number(),
                                                concession_type=member.concession_type())
                     elif renewal_payment and payment_method == PaymentMethod.dd and previous_payment_method != PaymentMethod.dd:
-                        upgrade = member.last_action() and member.last_action().action == MemberAction.upgrade
-                        next = redirect(full_url('members/{}/renewal/dd?upgrade={}'.format(member.number, upgrade or False)))
+                        next = redirect(full_url(
+                            'members/{}/renewal/dd?upgrade={}&downgrade={}'.format(member.number, upgrade or False,
+                                                                                   downgrade or False)))
                         logout = False
                     elif renewal_payment and payment_method == PaymentMethod.chq:
-                        upgrade = member.last_action() and member.last_action().action == MemberAction.upgrade
                         next = redirect(
-                            full_url('members/{}/renewal/chq?upgrade={}'.format(member.number, upgrade or False)))
+                            full_url(
+                                'members/{}/renewal/chq?upgrade={}&downgrade={}'.format(member.number, upgrade or False,
+                                                                                        downgrade or False)))
                         logout = False
                     else:
                         next = render_template('renewal_acknowledge.html',
@@ -154,7 +158,7 @@ class MaintainMembers:
         return render_template('renewal.html', form=form, MembershipType=MembershipType, render_link=render_link)
 
     @staticmethod
-    def renewal_debit(member_number, upgrade):
+    def renewal_debit(member_number, upgrade, downgrade):
         goto = MaintainMembers.current_user_is_member(member_number, 'renewal')
         if goto:
             return goto
@@ -171,19 +175,21 @@ class MaintainMembers:
             if member:
                 payment = member.last_payment()
                 upgrade_text = ' upgrade' if upgrade else ''
+                downgrade_text = ' revert to Standard' if downgrade else ''
                 return render_template('renewal_acknowledge.html',
                                        dt_number=member.dt_number(),
                                        member_status=member.status.name,
                                        payment_method=payment.method.name if payment else None,
                                        dues=payment.amount if payment else None,
-                                       renewal_type=member.long_membership_type(upgrade=upgrade) + upgrade_text
+                                       renewal_type=member.long_membership_type(upgrade=upgrade, downgrade=downgrade)
+                                                    + upgrade_text + downgrade_text
                                        )
         if not form.is_submitted():
-            form.populate(member_number, upgrade)
+            form.populate(member_number, upgrade, downgrade)
         return render_template('renewal_dd.html', form=form, MembershipType=MembershipType, render_link=render_link)
 
     @staticmethod
-    def renewal_cheque(member_number, upgrade):
+    def renewal_cheque(member_number, upgrade, downgrade):
         goto = MaintainMembers.current_user_is_member(member_number, 'renewal')
         if goto:
             return goto
@@ -191,7 +197,7 @@ class MaintainMembers:
         form.make_readonly('dt_number')
         form.make_readonly('amount')
 
-        form.populate(member_number, upgrade)
+        form.populate(member_number, upgrade, downgrade)
         return render_template('renewal_chq.html', form=form, MembershipType=MembershipType, render_link=render_link)
 
     @staticmethod

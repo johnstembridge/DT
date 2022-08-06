@@ -17,10 +17,10 @@ class RenewalDebitForm(FlaskForm):
     description = StringField(label='Renewal')
     submit = SubmitField(label='Save')
 
-    def populate(self, member_id, upgrade):
+    def populate(self, member_id, upgrade, downgrade):
         member = get_member(member_id)
         payment = member.last_payment()
-        self.description = member.long_membership_type(upgrade)
+        self.description = member.long_membership_type(upgrade=upgrade, downgrade=downgrade)
         self.dt_number.data = member.dt_number()
         self.amount.data = payment.amount
 

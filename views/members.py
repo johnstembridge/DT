@@ -65,15 +65,17 @@ def renew_member(member_number):
 @role_required('member')
 def renew_member_dd(member_number):
     upgrade = eval(request.args.get('upgrade'))
-    return MaintainMembers.renewal_debit(member_number, upgrade)
+    downgrade = eval(request.args.get('downgrade'))
+    return MaintainMembers.renewal_debit(member_number, upgrade, downgrade)
 
 
 @app.route('/members/<int:member_number>/renewal/chq', methods=['GET', 'POST'])
 @login_required
 @role_required('member')
-def renew_member_chqd(member_number):
+def renew_member_chq(member_number):
     upgrade = eval(request.args.get('upgrade'))
-    return MaintainMembers.renewal_cheque(member_number, upgrade)
+    downgrade = eval(request.args.get('downgrade'))
+    return MaintainMembers.renewal_cheque(member_number, upgrade, downgrade)
 
 
 @app.route('/members/details', methods=['GET', 'POST'])
