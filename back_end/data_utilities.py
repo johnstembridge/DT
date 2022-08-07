@@ -127,33 +127,41 @@ def in_date_range(date, date_from, date_to):
 
 def renewal_date(as_of=None):
     if not as_of:
-       as_of = datetime.date.today()
+        season = config.get('current_season')
+        as_of = datetime.date(season,1,1)
     switch_date = parse_date("2022/08/01")
     if as_of < switch_date:
-        return parse_date(str(as_of.year) + "/08/01")
+        return parse_date(str(as_of.year + 1) + "/08/01")
     else:
-        return parse_date(str(as_of.year) + "/07/01")
+        return parse_date(str(as_of.year + 1) + "/07/01")
 
 
-def current_year():
-    return datetime.date.today().year
+def season_start():
+    start_year = config.get('current_season')
+    switch_year = 2022
+    if start_year <= switch_year:
+        start = datetime.date(start_year, 8, 1)
+    else:
+        start = datetime.date(start_year, 7, 1)
+    return start
 
 
 def current_year_end():
-    return renewal_date()
-
-    date = config.get('next_renewal_date')
-    return parse_date(date, reverse=True)
+    season = config.get('current_season')
+    as_of = datetime.date(season, 1, 1)
+    return renewal_date(as_of)
 
 
 def next_year_end():
-    today = datetime.date.today()
-    return renewal_date(today.replace(year=today.year + 1))
+    season = config.get('current_season')
+    as_of = datetime.date(season + 1, 1, 1)
+    return renewal_date(as_of)
 
 
 def previous_year_end():
-    today = datetime.date.today()
-    return renewal_date(today.replace(year=today.year - 1))
+    season = config.get('current_season')
+    as_of = datetime.date(season-1, 1, 1)
+    return renewal_date(as_of)
 
 # endregion
 

@@ -23,13 +23,13 @@ class Super:
     def renew_recent_joiners():
         # auto renew members who joined on or after 1st Feb of previous membership year
         res = renew_recent_joiners()
-        return Super.return_result('Renew recent', res)
+        return Super.return_result('Renew recent join', res)
 
     @staticmethod
     def renew_recent_resumers():
-        # auto renew members who resumed on or after 1st April of previous membership year
+        # auto renew members who resumed on or after 1st Feb of previous membership year
         res = renew_recent_resumers()
-        return Super.return_result('Renew recent', res)
+        return Super.return_result('Renew recent resume', res)
 
     @staticmethod
     def change_member_type_by_age():

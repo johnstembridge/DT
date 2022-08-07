@@ -1,22 +1,24 @@
 from globals import config
 from globals.enumerations import MemberAction, MemberStatus, MembershipType, ActionStatus, PaymentType, PaymentMethod
 from back_end.interface import get_members_for_query, get_member, save_member, get_region
-from back_end.data_utilities import fmt_date, current_year_end, previous_year_end, first_or_default, file_delimiter, parse_date
+from back_end.data_utilities import fmt_date, current_year_end, previous_year_end, first_or_default, \
+    file_delimiter, parse_date, season_start, renewal_date
 from models.dt_db import Action, Payment
 
 import datetime
 import csv
 from os import path
 
-new_end_date = datetime.date(current_year_end().year + 1, 8, 1)
-
 
 def renew_recent_joiners():
-    start_date = fmt_date(datetime.date(current_year_end().year, 2, 1))
-    end_date = fmt_date(datetime.date(current_year_end().year, 8, 1))
+    season_start_date = season_start()
+    start_date = datetime.date(season_start_date.year + 1, 2, 1)
+    end_date = renewal_date(season_start_date)
+    new_end_date = renewal_date(end_date)
+
     query_clauses = [
-        ('Member', 'start_date', start_date, '>=', None),
-        ('Member', 'end_date', end_date, '=', None),
+        ('Member', 'start_date', fmt_date(start_date), '>=', None),
+        ('Member', 'end_date', fmt_date(end_date), '=', None),
     ]
     members = get_members_for_query(query_clauses)
     count = 0
@@ -41,9 +43,13 @@ def renew_recent_joiners():
 
 
 def renew_recent_resumers():
-    resume_date = fmt_date(datetime.date(current_year_end().year, 4, 1))
-    end_date = fmt_date(datetime.date(current_year_end().year, 8, 1))
+    season_start_date = season_start()
+    resume_date = datetime.date(season_start_date.year + 1, 2, 1)
+    end_date = renewal_date(season_start_date)
+    new_end_date = renewal_date(end_date)
+
     query_clauses = [
+        ('Member', 'start_date', fmt_date(season_start_date), '<=', None),
         ('Payment', 'date', resume_date, '>=', None),
         ('Payment', 'type', PaymentType.dues, '=', None),
         ('Member', 'end_date', end_date, '=', None),
@@ -52,22 +58,21 @@ def renew_recent_resumers():
     count = 0
     message = []
     for member in members:
-        if member.is_recent_resume():
-            member.end_date = new_end_date
-            item = first_or_default(
-                [a for a in member.actions if a.action == MemberAction.card and a.status == ActionStatus.open], None)
-            if not item:
-                item = Action(
-                    member_id=member.id,
-                    date=datetime.date.today(),
-                    action=MemberAction.card,
-                    comment='auto renew recent resumer',
-                    status=ActionStatus.open
-                )
-                member.actions.append(item)
-            message += [member.dt_number()]
-            save_member(member)
-            count += 1
+        member.end_date = new_end_date
+        item = first_or_default(
+            [a for a in member.actions if a.action == MemberAction.card and a.status == ActionStatus.open], None)
+        if not item:
+            item = Action(
+                member_id=member.id,
+                date=datetime.date.today(),
+                action=MemberAction.card,
+                comment='auto renew recent resumer',
+                status=ActionStatus.open
+            )
+            member.actions.append(item)
+        message += [member.dt_number()]
+        save_member(member)
+        count += 1
     return '\n'.join(['{} members updated'.format(count)] + message)
 
 
@@ -115,6 +120,8 @@ def update_member_payment(rec, payment_method, save=True):
     date = parse_date(rec['date'], sep='/', reverse=True)
     amount = float(rec['amount'])
     member = get_member(number)
+    if not member:
+        print("Member not found for record".format(rec))
     pending = first_or_default(
         [p for p in member.payments if p.type == PaymentType.pending and p.method == payment_method], None)
     payment_comment = 'from payments file'
@@ -156,15 +163,13 @@ def update_member_payment(rec, payment_method, save=True):
         )
         member.actions.append(action)
     upgrade = amount in [20.0, 30.0, 45.0] and member.status != MemberStatus.plus
+    downgrade = amount in [10.0, 25.0] and member.status == MemberStatus.plus
     action = first_or_default(
         [a for a in member.actions if a.action == MemberAction.upgrade and a.status == ActionStatus.open], None)
     if action:
         if upgrade:
             member.status = MemberStatus.plus
             action.status = ActionStatus.closed
-        # else:
-        #     message += ['expected an upgrade payment, upgrade action removed']
-        #     member.actions.remove(action)
     else:
         if upgrade:
             action = Action(
@@ -175,7 +180,23 @@ def update_member_payment(rec, payment_method, save=True):
                 comment=payment_comment
             )
             member.actions.append(action)
-    member.end_date = new_end_date
+    action = first_or_default(
+        [a for a in member.actions if a.action == MemberAction.downgrade and a.status == ActionStatus.open], None)
+    if action:
+        if downgrade:
+            member.status = MemberStatus.current
+            action.status = ActionStatus.closed
+    else:
+        if downgrade:
+            action = Action(
+                member_id=member.id,
+                date=date,
+                action=MemberAction.downgrade,
+                status=ActionStatus.closed,
+                comment=payment_comment
+            )
+            member.actions.append(action)
+    member.end_date = renewal_date(season_start())
     member.last_payment_method = payment_method
     if save:
         save_member(member)
@@ -194,7 +215,7 @@ def change_member_type_by_age():
     count_senior = 0
     for member in members:
         if member.member_type != MembershipType.senior:
-            message += [member.dt_number()] # member_type_change(member)
+            message += [member.dt_number()]  # member_type_change(member)
             member.member_type = MembershipType.senior
             count_senior += 1
             save_member(member)
@@ -210,7 +231,7 @@ def change_member_type_by_age():
     for member in members:
         new = member.member_type_at_renewal()
         if new == MembershipType.intermediate:
-            message += [member.dt_number()] # member_type_change(member)
+            message += [member.dt_number()]  # member_type_change(member)
             member.member_type = MembershipType.intermediate
             count_junior += 1
             save_member(member)
@@ -226,16 +247,18 @@ def change_member_type_by_age():
     for member in members:
         new = member.member_type_at_renewal()
         if new == MembershipType.standard:
-            message += [member.dt_number()] # member_type_change(member)
+            message += [member.dt_number()]  # member_type_change(member)
             member.member_type = MembershipType.standard
             count_intermediate += 1
             save_member(member)
-    totals = '{} senior records processed, {} junior, {} intermediate'.format(count_senior, count_junior, count_intermediate)
+    totals = '{} senior records processed, {} junior, {} intermediate'.format(count_senior, count_junior,
+                                                                              count_intermediate)
     return '\n'.join([totals] + message)
 
 
 def member_type_change(member):
-    return [[member.dt_number(), member.age(), member.age_at_renewal(), member.member_type.name, member.member_type_at_renewal().name]]
+    return [[member.dt_number(), member.age(), member.age_at_renewal(), member.member_type.name,
+             member.member_type_at_renewal().name]]
 
 
 def season_tickets():
@@ -294,5 +317,3 @@ def set_region():
             save_member(member)
         count += 1
     return '{} records processed'.format(count)
-
-
