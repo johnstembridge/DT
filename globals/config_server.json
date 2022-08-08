@@ -6,7 +6,7 @@
   "send_mail": true,
   "db_path_old": "sqlite:////var/data/dt.db",
   "db_path": "mysql+pymysql://DTuser:9wudger9!DTuser!@localhost:3306/dt",
-  "current_season": 2021,
+  "current_season": 2022,
   "locations": {
     "base_url": "https://membership.thedonstrust.org/",
     "html": "/var/www/html",

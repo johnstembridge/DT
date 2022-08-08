@@ -5,7 +5,7 @@
   "send_mail": false,
   "db_path_old": "sqlite:///D:\\python\\dt\\dt.db",
   "db_path": "mysql+pymysql://DTuser:9wudger9!DTuser!@localhost:3306/dt_new",
-  "current_season": 2021,
+  "current_season": 2022,
   "locations": {
     "base_url": "http://127.0.0.1:5000/",
     "templates": "templates",
