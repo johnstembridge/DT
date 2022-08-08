@@ -146,9 +146,10 @@ def season_start():
     return start
 
 
-def current_year_end():
-    season = config.get('current_season')
-    as_of = datetime.date(season, 1, 1)
+def current_year_end(as_of=None):
+    if not as_of:
+        season = config.get('current_season')
+        as_of = datetime.date(season, 1, 1)
     return renewal_date(as_of)
 
 
