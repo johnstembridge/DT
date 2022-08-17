@@ -141,14 +141,21 @@ def update_member_payment(rec, payment_method, save=True):
             message += ['Payment already processed']
             return message
         else:
-            message += ["no pending payment: adding one"]
+            add = "no pending payment, adding one"
+            expected = member.dues(datetime.date(2022, 8, 1))
+            if expected != amount:
+                comment = " Expected amount {}, got {}".format(expected, amount)
+                message += [add + ", " + comment]
+            else:
+                message += [add]
+                comment = ""
             pending = Payment(
                 member_id=member.id,
                 date=date,
                 amount=amount,
                 type=PaymentType.dues,
                 method=payment_method,
-                comment=payment_comment
+                comment=payment_comment + comment
             )
             member.payments.append(pending)
     action = first_or_default(
@@ -172,6 +179,7 @@ def update_member_payment(rec, payment_method, save=True):
             action.status = ActionStatus.closed
     else:
         if upgrade:
+            member.status = MemberStatus.plus
             action = Action(
                 member_id=member.id,
                 date=date,
@@ -188,6 +196,7 @@ def update_member_payment(rec, payment_method, save=True):
             action.status = ActionStatus.closed
     else:
         if downgrade:
+            member.status = MemberStatus.current
             action = Action(
                 member_id=member.id,
                 date=date,
@@ -196,7 +205,7 @@ def update_member_payment(rec, payment_method, save=True):
                 comment=payment_comment
             )
             member.actions.append(action)
-    member.end_date = renewal_date(season_start())
+    member.end_date = datetime.date(2023, 7, 1)
     member.last_payment_method = payment_method
     if save:
         save_member(member)

@@ -130,7 +130,7 @@ def renewal_date(as_of=None):
         season = config.get('current_season')
         as_of = datetime.date(season,1,1)
     switch_date = parse_date("2022/08/01")
-    if as_of < switch_date:
+    if as_of <= switch_date:
         return parse_date(str(as_of.year + 1) + "/08/01")
     else:
         return parse_date(str(as_of.year + 1) + "/07/01")
@@ -150,6 +150,13 @@ def current_year_end(as_of=None):
     if not as_of:
         season = config.get('current_season')
         as_of = datetime.date(season, 1, 1)
+    return renewal_date(as_of)
+
+
+def current_renewal_date(season=None):
+    if not season:
+        season = config.get('current_renewal')
+    as_of = datetime.date(season, 1, 1)
     return renewal_date(as_of)
 
 

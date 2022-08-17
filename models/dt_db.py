@@ -10,7 +10,7 @@ from globals.enumerations import MembershipType, MemberStatus, PaymentType, Paym
     Dues, ExternalAccess, MemberAction, ActionStatus, JuniorGift, Title, AgeBand, CommsStatus, PlusUpgradeDues, \
     PlusDues, YesNo
 from back_end.data_utilities import fmt_date, parse_date, first_or_default, current_year_end, encode_date_formal, \
-    previous_year_end, match_string, fmt_phone, fmt_curr
+    previous_year_end, match_string, fmt_phone, fmt_curr, current_renewal_date
 from datetime import datetime
 from time import time, localtime, strftime
 
@@ -390,7 +390,7 @@ class Member(Base):
         if self.member_type in MembershipType.concessions():
             return self.member_type
         if not as_of:
-            as_of = current_year_end()
+            as_of = current_renewal_date()
         age = self.age(as_of, True)
         if age <= AgeBand.junior.upper:
             return MembershipType.junior
@@ -409,7 +409,7 @@ class Member(Base):
         else:
             return type
 
-    def dues(self, as_of=None, default=True):
+    def dues(self, as_of=None):
         if self.status == MemberStatus.life or self.is_recent_resume() or self.is_recent_new():
             return 0
         status = self.member_status_at_renewal()
