@@ -1,6 +1,6 @@
 requests==2.25.1
 Wheel==0.30.0
-Babel==2.7.0
+Babel==2.9.1
 Click==7.0
 cryptography==2.8
 decorator==4.4.0
