@@ -1,14 +1,14 @@
 import jwt
-##import requests
+import requests
 from datetime import datetime, timedelta, timezone
 from flask import abort
 
 
-class requests:
-
-    @staticmethod
-    def post(endpoint, json, headers):
-        return None
+# class requests:
+#
+#     @staticmethod
+#     def post(endpoint, json, headers):
+#         return None
 
 
 class Secutix:
