@@ -1,20 +1,21 @@
 import jwt
-#import requests
+import requests
 from datetime import datetime, timedelta, timezone
 from flask import abort
 
 
-class requests:
-
-    @staticmethod
-    def post(endpoint, json, headers):
-        return None
+# class requests:
+#
+#     @staticmethod
+#     def post(endpoint, json, headers):
+#         return None
 
 
 class Secutix:
 
     service_url = "https://afcw.pp-ws.secutix.com/tnco/backend-apis/"
 
+    @staticmethod
     def forge_jwt():
         iat = datetime.now(tz=timezone.utc)
         payload = {
