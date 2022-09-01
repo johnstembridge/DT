@@ -98,5 +98,5 @@ def check_fan_ids():
 @app.route('/super/update_fan_ids', methods=['GET', 'POST'])
 @login_required
 @role_required('super')
-def check_fan_ids():
+def update_fan_ids():
     return Super.update_fan_ids()
