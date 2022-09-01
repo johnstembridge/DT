@@ -86,3 +86,10 @@ def set_region():
 @role_required('super')
 def season_tickets():
     return Super.season_tickets()
+
+
+@app.route('/super/check_fan_ids', methods=['GET', 'POST'])
+@login_required
+@role_required('super')
+def check_fan_ids():
+    return Super.check_fan_ids()

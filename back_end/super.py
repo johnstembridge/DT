@@ -4,9 +4,11 @@ from back_end.interface import get_members_for_query, get_member, save_member, g
 from back_end.data_utilities import fmt_date, current_year_end, previous_year_end, first_or_default, \
     file_delimiter, parse_date, season_start, renewal_date
 from models.dt_db import Action, Payment
+from api.secutix import Secutix
 
 import datetime
 import csv
+import json
 from os import path
 
 
@@ -100,13 +102,14 @@ def renew_paid(payment_method, save=True):
         reader = csv.DictReader(in_file, delimiter=file_delimiter(file_name))
         count = 0
         for row in reader:
-            count += 1
-            if count % 50 == 0:
-                if 'id' in row.keys():
-                    print('Processing ' + row['id'])
-            message = update_member_payment(row, payment_method, save)
-            if len(message) > 0:
-                result.append('***' + row['id'] + ': ' + '\n'.join(message))
+            if len(row['id'].strip()) > 0:
+                count += 1
+                if count % 50 == 0:
+                    if 'id' in row.keys():
+                        print('Processing ' + row['id'])
+                message = update_member_payment(row, payment_method, save)
+                if len(message) > 0:
+                    result.append('***' + row['id'] + ': ' + '\n'.join(message))
         if len(result) > 0:
             return '\n'.join(result)
         else:
@@ -289,6 +292,52 @@ def season_tickets():
             return '\n'.join(result)
         else:
             return '{} records processed'.format(count)
+
+
+def check_fan_ids():
+    file_name = path.join(config.get('locations')['export'], 'check_fan_ids.csv')
+    print('Checking...')
+    api = Secutix()
+    with open(file_name, 'w', encoding='latin-1', newline='') as out_file:
+        writer = csv.DictWriter(out_file, delimiter=file_delimiter(file_name),
+                                fieldnames=["dt_id", "fan_id", "source", "member_status", "member_type"])
+        writer.writeheader()
+        query_clauses = [
+            ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
+            ('Member', 'season_ticket_id', 'null', '!=', None)
+        ]
+        members = get_members_for_query(query_clauses)
+        count = 0
+        for member in members:
+            fan_id = member.season_ticket_id
+            dt_id = member.dt_number()
+            if count % 50 == 0:
+                print('Processing ' + dt_id)
+            count += 1
+            secutix_details = api.get_details(fan_id)
+            as_json = json.loads(secutix_details.text)
+            source = None
+            if "contactCriteria" in as_json:
+                contact_criteria = as_json["contactCriteria"]
+                source = find_source_criteria(contact_criteria)
+
+            writer.writerow(
+                {"dt_id": dt_id,
+                 "fan_id": fan_id,
+                 "source": source or "none",
+                 "member_status": member.status.name,
+                 "member_type": member.member_type.name})
+
+        return file_name # '{} records processed'.format(count)
+
+
+def find_source_criteria(criteria):
+    for item in criteria:
+        if item['criterionIdCode'].startswith('SOURCE'):
+            value = first_or_default(item['values'], None)
+            if value and value.startswith('DONS_TRUST'):
+                return value
+    return None
 
 
 def update_member_season_ticket(rec):

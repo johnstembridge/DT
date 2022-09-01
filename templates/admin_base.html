@@ -93,17 +93,23 @@
                     <ul class="dropdown-menu">
                         <li><a href="{{ url_for('backup') }}">Backup</a></li>
                         <li><a href="{{ url_for('restore') }}">Restore</a></li>
+                        <li class="divider"></li>
+                        <li><a href="{{ url_for('change_member_type_by_age') }}">Update To New Age Groups</a></li>
                         <li><a href="{{ url_for('renew_recent_joiners') }}">Renew Recent Joiners</a></li>
                         <li><a href="{{ url_for('renew_recent_resumers') }}">Renew Recent Resumers</a></li>
+                        <li class="divider"></li>
                         <li><a href="{{ url_for('report_paid_cc') }}">Report Paid Members (cc)</a></li>
                         <li><a href="{{ url_for('report_paid_dd') }}">Report Paid Members (dd)</a></li>
                         <li><a href="{{ url_for('renew_paid_cc') }}">Renew Paid Members (cc)</a></li>
                         <li><a href="{{ url_for('renew_paid_dd') }}">Renew Paid Members (dd)</a></li>
-                        <li><a href="{{ url_for('change_member_type_by_age') }}">Update To New Age Groups</a></li>
+                        <li class="divider"></li>
                         <li><a href="{{ url_for('lapse_expired') }}">Lapse expired members</a></li>
+                        <li class="divider"></li>
+                        <li><a href="{{ url_for('check_fan_ids') }}">Check Fan Id links</a></li>
                         <li><a href="{{ url_for('season_tickets') }}">Update season ticket holders</a></li>
                         <li><a href="{{ url_for('set_region') }}">Set Region for UK members</a></li>
                         <li><a href="{{ url_for('extracts_debits_for_ptx') }}">Debits for PTX</a></li>
+                        <li class="divider"></li>
                         <li><a href="{{ url_for('show_help', subject='technical') }}">Technical documentation</a></li>
                     </ul>
                 </li>

@@ -3,7 +3,7 @@ from flask import flash, render_template
 
 from scripts import scripts
 from back_end.super import renew_recent_joiners, renew_recent_resumers, renew_paid, change_member_type_by_age, \
-    lapse_expired, season_tickets, set_region
+    lapse_expired, season_tickets, set_region, check_fan_ids
 
 
 class Super:
@@ -54,6 +54,12 @@ class Super:
         # update season ticket numbers
         res = season_tickets()
         return Super.return_result('Season tickets updated', res)
+
+    @staticmethod
+    def check_fan_ids():
+        # update season ticket numbers
+        res = check_fan_ids()
+        return Super.return_result('Fan Ids checked, see file ', res)
 
     @staticmethod
     def return_result(mode, res):

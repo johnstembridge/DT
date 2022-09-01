@@ -1,9 +1,14 @@
 from flask import render_template
 
 
+def bad_request_error(e):
+    message = getattr(e, 'description', 'bad request')
+    return render_template('400.html', message=message), 400
+
+
 def unauthorised(e):
     message = getattr(e, 'description', 'unauthorised')
-    return render_template('401.html', message=message), 404
+    return render_template('401.html', message=message), 401
 
 
 def page_not_found(e):

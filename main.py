@@ -24,7 +24,7 @@ from views.extracts import *
 from views.help import *
 from views.testing import *
 from views.emandates import *
-from views.others import page_not_found, internal_error, unauthorised, csrf_error
+from views.others import page_not_found, internal_error, unauthorised, csrf_error, bad_request_error
 from api.endpoints import *
 from api.helpers import wants_json_response, api_error_response
 
@@ -34,7 +34,7 @@ def bad_request(e):
     app.logger.error(e)
     if wants_json_response():
         return api_error_response(400, e.description)
-    return unauthorised(e)
+    return bad_request_error(e)
 
 
 @app.errorhandler(401)
