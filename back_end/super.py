@@ -294,13 +294,14 @@ def season_tickets():
             return '{} records processed'.format(count)
 
 
-def check_fan_ids():
+def check_fan_ids(update=False):
     file_name = path.join(config.get('locations')['export'], 'check_fan_ids.csv')
     print('Checking...')
     api = Secutix()
     with open(file_name, 'w', encoding='latin-1', newline='') as out_file:
         writer = csv.DictWriter(out_file, delimiter=file_delimiter(file_name),
-                                fieldnames=["dt_id", "fan_id", "source", "member_status", "member_type"])
+                                fieldnames=
+                                ["dt_id", "fan_id", "source", "value", "member_status", "member_type", "updated"])
         writer.writeheader()
         query_clauses = [
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None),
@@ -319,12 +320,13 @@ def check_fan_ids():
             source = None
             if "contactCriteria" in as_json:
                 contact_criteria = as_json["contactCriteria"]
-                source = find_source_criteria(contact_criteria)
+                (source, value) = find_source_criteria(contact_criteria)
 
             writer.writerow(
                 {"dt_id": dt_id,
                  "fan_id": fan_id,
                  "source": source or "none",
+                 "value": value or "none",
                  "member_status": member.status.name,
                  "member_type": member.member_type.name})
 
@@ -332,12 +334,14 @@ def check_fan_ids():
 
 
 def find_source_criteria(criteria):
+    latest = ''
     for item in criteria:
         if item['criterionIdCode'].startswith('SOURCE'):
             value = first_or_default(item['values'], None)
+            latest = item['criterionIdCode']
             if value and value.startswith('DONS_TRUST'):
-                return value
-    return None
+                return (latest, value)
+    return (None, None)
 
 
 def update_member_season_ticket(rec):

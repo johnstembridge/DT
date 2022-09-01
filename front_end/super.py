@@ -58,7 +58,13 @@ class Super:
     @staticmethod
     def check_fan_ids():
         # update season ticket numbers
-        res = check_fan_ids()
+        res = check_fan_ids(update=False)
+        return Super.return_result('Fan Ids checked, see file ', res)
+
+    @staticmethod
+    def update_fan_ids():
+        # update season ticket numbers
+        res = check_fan_ids(update=True)
         return Super.return_result('Fan Ids checked, see file ', res)
 
     @staticmethod
