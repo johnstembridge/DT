@@ -165,7 +165,7 @@ class Extracts:
             ('Member', 'status', [s.value for s in MemberStatus.all_active()], 'in', None)
         ]
         display_fields = \
-            ['number', 'type at renewal', 'full name', 'dues pending', 'email', 'phone',
+            ['number', 'id number', 'type at renewal', 'full name', 'dues pending', 'email', 'phone',
              'address (line 1)', 'address (line 2)', 'address (line 3)', 'city', 'county', 'state', 'post code',
              'country for post', 'title', 'first name', 'last name']
         return Query.show_found_do(query_clauses, display_fields)
