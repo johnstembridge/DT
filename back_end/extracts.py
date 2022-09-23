@@ -142,7 +142,7 @@ class Extracts:
         display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
                           'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'fan id',
                           'recent new', 'recent resume', 'email', 'use email', 'email bounced', 'card start year',
-                          'first name', 'last name', 'id number', 'start', 'end']
+                          'first name', 'last name', 'id number', 'start', 'end', 'action', 'action status', 'action date']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
