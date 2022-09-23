@@ -139,6 +139,10 @@ class Extracts:
         query_clauses = [('Member', 'status', [s.value for s in MemberStatus.all_active_including_life()], 'in', None)]
         display_fields = ['status at renewal', 'type at renewal', 'number at renewal', 'full name', 'card start year',
                           'fan id', 'id number']
+        display_fields = ['number', 'status', 'member type', 'full name', 'address (line 1)', 'address (line 2)',
+                          'address (line 3)', 'city', 'county', 'state', 'post code', 'country for post', 'fan id',
+                          'recent new', 'recent resume', 'email', 'use email', 'email bounced', 'card start year',
+                          'first name', 'last name', 'id number', 'start', 'end']
         return Query.show_found_do(query_clauses, display_fields)
 
     @staticmethod
