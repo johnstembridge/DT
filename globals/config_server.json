@@ -5,7 +5,7 @@
   "override": false,
   "send_mail": true,
   "db_path_old": "sqlite:////var/data/dt.db",
-  "db_path": "mysql+pymysql://DTuser:9wudger9!DTuser!@localhost:3306/dt",
+  "db_path": "mysql+pymysql://DTuser:9Wudger9!DTuser!@localhost:3306/dt",
   "current_season": 2023,
   "current_renewal": 2022,
   "locations": {
